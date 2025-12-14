@@ -6,9 +6,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   MAT_DIALOG_DATA,
@@ -18,19 +15,18 @@ import {
 import { CourseService } from '../../../../core/services/course.service';
 import { Course } from '../../../../core/models/course.model';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { InputComponent } from '../../../../shared/components/input/input.component';
 
 @Component({
   selector: 'app-course-form',
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
     MatDialogModule,
     MatSnackBarModule,
     MatProgressBarModule,
     ButtonComponent,
+    InputComponent,
   ],
   templateUrl: './course-form.component.html',
   styleUrl: './course-form.component.scss',
