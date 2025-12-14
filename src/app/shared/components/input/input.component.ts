@@ -49,7 +49,7 @@ export class InputComponent implements ControlValueAccessor {
   minLength = input<number>();
   prefixIcon = input<string>('');
   suffixIcon = input<string>('');
-  showPasswordToggle = input<boolean>(false);
+  showPasswordToggle = input<boolean>(true);
 
   value = signal<string>('');
   disabled = signal<boolean>(false);
