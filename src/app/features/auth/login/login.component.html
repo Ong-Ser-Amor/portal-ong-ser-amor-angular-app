@@ -6,43 +6,19 @@
     </mat-card-header>
     <mat-card-content>
       <form [formGroup]="loginForm" (ngSubmit)="login()">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Email</mat-label>
-          <input
-            matInput
-            type="text"
-            formControlName="email"
-            placeholder="exemplo@email.com"
-          />
-          @if (email?.hasError('required')) {
-          <mat-error>O email é obrigatório</mat-error>
-          } @if (email?.hasError('email')) {
-          <mat-error>Digite um email válido</mat-error>
-          }
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Senha</mat-label>
-          <input
-            matInput
-            [type]="hidePassword ? 'password' : 'text'"
-            formControlName="password"
-          />
-          <button
-            mat-icon-button
-            matSuffix
-            (click)="hidePassword = !hidePassword"
-            type="button"
-          >
-            <mat-icon>{{
-              hidePassword ? "visibility_off" : "visibility"
-            }}</mat-icon>
-          </button>
-          @if (password?.hasError('required')) {
-          <mat-error>A senha é obrigatória</mat-error>
-          } @if (password?.hasError('minlength')) {
-          <mat-error>Mínimo de 6 caracteres</mat-error>
-          }
-        </mat-form-field>
+        <app-input
+          label="Email"
+          type="email"
+          placeholder="exemplo@email.com"
+          formControlName="email"
+          [required]="true"
+        />
+        <app-input
+          label="Senha"
+          type="password"
+          formControlName="password"
+          [required]="true"
+        />
         <mat-card-actions>
           <app-button
             label="Entrar"

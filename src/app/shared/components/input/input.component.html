@@ -1,0 +1,40 @@
+<mat-form-field appearance="outline">
+  <mat-label>{{ label() }}</mat-label>
+
+  @if (prefixIcon()) {
+  <mat-icon matPrefix>{{ prefixIcon() }}</mat-icon>
+  }
+
+  <input
+    matInput
+    [type]="inputType"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [required]="required()"
+    [readonly]="readonly()"
+    [attr.autocomplete]="autocomplete()"
+    [attr.maxlength]="maxLength()"
+    [attr.minlength]="minLength()"
+    [formControl]="$any(control)"
+  />
+
+  @if (showPasswordToggle() && type() === 'password') {
+  <button
+    mat-icon-button
+    matSuffix
+    (click)="togglePasswordVisibility($event)"
+    [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+    [attr.aria-pressed]="showPassword()"
+    type="button"
+    tabindex="-1"
+  >
+    <mat-icon>{{ showPassword() ? "visibility" : "visibility_off" }}</mat-icon>
+  </button>
+  } @else if (suffixIcon()) {
+  <mat-icon matSuffix>{{ suffixIcon() }}</mat-icon>
+  } @if (hasError) {
+  <mat-error>{{ errorMessage }}</mat-error>
+  } @if (hint()) {
+  <mat-hint>{{ hint() }}</mat-hint>
+  }
+</mat-form-field>
