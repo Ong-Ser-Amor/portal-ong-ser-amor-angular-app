@@ -1,4 +1,9 @@
-import { Component, input, signal, inject, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  input,
+  signal,
+  inject,
+} from '@angular/core';
 import {
   ControlValueAccessor,
   ReactiveFormsModule,
@@ -35,22 +40,25 @@ export type InputType =
   styleUrl: './input.component.scss',
 })
 export class InputComponent implements ControlValueAccessor {
-  private cdr = inject(ChangeDetectorRef);
   public ngControl = inject(NgControl, { optional: true, self: true });
-  
+
+  // Inputs
   label = input.required<string>();
   placeholder = input<string>('');
   type = input<InputType>('text');
   hint = input<string>('');
+
   required = input<boolean>(false);
+
   readonly = input<boolean>(false);
-  autocomplete = input<string>('');
+  autocomplete = input<string>('off');
   maxLength = input<number>();
   minLength = input<number>();
   prefixIcon = input<string>('');
   suffixIcon = input<string>('');
   showPasswordToggle = input<boolean>(true);
 
+  // Signals de Estado
   value = signal<string>('');
   disabled = signal<boolean>(false);
   showPassword = signal<boolean>(false);
@@ -80,12 +88,15 @@ export class InputComponent implements ControlValueAccessor {
     if (event) {
       event.stopPropagation();
     }
-    this.showPassword.update(value => !value);
+    this.showPassword.update((value) => !value);
   }
 
   get hasError(): boolean {
     if (!this.control) return false;
-    return !!(this.control.invalid && (this.control.touched || this.control.dirty));
+    return !!(
+      this.control.invalid &&
+      (this.control.touched || this.control.dirty)
+    );
   }
 
   get errorMessage(): string {

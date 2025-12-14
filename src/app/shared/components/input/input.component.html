@@ -26,6 +26,7 @@
     [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
     [attr.aria-pressed]="showPassword()"
     type="button"
+    tabindex="-1"
   >
     <mat-icon>{{ showPassword() ? "visibility" : "visibility_off" }}</mat-icon>
   </button>
