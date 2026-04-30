@@ -1,4 +1,4 @@
-import { User } from './user.model';
+import { UsuarioAutenticado } from './usuario-autenticado.model';
 
 export interface LoginRequisicao {
   email: string;
@@ -7,5 +7,5 @@ export interface LoginRequisicao {
 
 export interface LoginResposta {
   tokenAcesso: string;
-  usuario: User;
+  usuario: UsuarioAutenticado;
 }

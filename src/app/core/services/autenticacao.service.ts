@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { LoginRequisicao, LoginResposta } from '../models/autenticacao.models';
 import { environment } from '../../../environments/environment';
-import { User } from '../models/user.model';
+import { UsuarioAutenticado } from '../models/usuario-autenticado.model';
 import { tap } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { Router } from '@angular/router';
@@ -17,7 +17,7 @@ export class AutenticacaoService {
 
   private readonly API_URL = environment.apiUrl;
 
-  usuarioAtual = signal<User | null>(null);
+  usuarioAtual = signal<UsuarioAutenticado | null>(null);
 
   constructor() {
     this.carregarUsuarioDosCookies();
@@ -54,7 +54,7 @@ export class AutenticacaoService {
 
     if (tokenAcesso && usuarioJson) {
       try {
-        const usuario = JSON.parse(usuarioJson) as User;
+        const usuario = JSON.parse(usuarioJson) as UsuarioAutenticado;
         this.usuarioAtual.set(usuario);
       } catch {
         this.sair();
