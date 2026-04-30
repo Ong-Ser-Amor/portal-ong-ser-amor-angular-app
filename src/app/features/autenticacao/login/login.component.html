@@ -5,7 +5,7 @@
       <mat-card-subtitle>Portal ONG Ser Amor</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <form [formGroup]="loginForm" (ngSubmit)="login()">
+      <form [formGroup]="formularioLogin" (ngSubmit)="login()">
         <app-input
           label="Email"
           type="email"
@@ -16,7 +16,7 @@
         <app-input
           label="Senha"
           type="password"
-          formControlName="password"
+          formControlName="senha"
           [required]="true"
         />
         <mat-card-actions>
@@ -24,11 +24,11 @@
             label="Entrar"
             class="full-width"
             size="lg"
-            [disabled]="isLoading"
-            [loading]="isLoading"
+            [disabled]="estaCarregando"
+            [loading]="estaCarregando"
             type="submit"
           />
-          @if (loginError()) {
+          @if (erroLogin()) {
           <mat-error>E-mail ou senha incorretos.</mat-error>
           }
         </mat-card-actions>

@@ -8,14 +8,14 @@ import {
   withFetch,
   withInterceptors,
 } from '@angular/common/http';
-import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { autenticacaoInterceptor } from './core/interceptors/autenticacao.interceptor';
 import { CookieService } from 'ngx-cookie-service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideAnimationsAsync(),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([autenticacaoInterceptor])),
     CookieService,
   ],
 };

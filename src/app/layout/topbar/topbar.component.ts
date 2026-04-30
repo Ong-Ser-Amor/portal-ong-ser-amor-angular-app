@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { AuthService } from '../../core/services/auth.service';
+import { AutenticacaoService } from '../../core/services/autenticacao.service';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 
 @Component({
@@ -12,9 +12,9 @@ import { ButtonComponent } from '../../shared/components/button/button.component
   styleUrl: './topbar.component.scss',
 })
 export class TopbarComponent {
-  authService = inject(AuthService);
+  autenticacaoService = inject(AutenticacaoService);
 
   logout() {
-    this.authService.logout();
+    this.autenticacaoService.sair();
   }
 }

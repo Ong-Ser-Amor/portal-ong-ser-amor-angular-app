@@ -6,8 +6,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { AuthService } from '../../../core/services/auth.service';
-import { LoginRequest } from '../../../core/models/auth.models';
+import { AutenticacaoService } from '../../../core/services/autenticacao.service';
+import { LoginRequisicao } from '../../../core/models/autenticacao.models';
 import { Router } from '@angular/router';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { InputComponent } from '../../../shared/components/input/input.component';
@@ -28,37 +28,36 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
+  private autenticacaoService = inject(AutenticacaoService);
   private router = inject(Router);
+  estaCarregando = false;
+  erroLogin = signal(false);
 
-  isLoading = false;
-  loginError = signal(false);
-
-  loginForm: FormGroup = this.fb.group({
+  formularioLogin: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    senha: ['', [Validators.required, Validators.minLength(6)]],
   });
 
   login() {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
+    if (this.formularioLogin.invalid) {
+      this.formularioLogin.markAllAsTouched();
       return;
     }
 
-    this.isLoading = true;
-    this.loginError.set(false);
+    this.estaCarregando = true;
+    this.erroLogin.set(false);
 
-    const credentials = this.loginForm.value as LoginRequest;
+    const dadosLogin = this.formularioLogin.value as LoginRequisicao;
 
-    this.authService.login(credentials).subscribe({
+    this.autenticacaoService.login(dadosLogin).subscribe({
       next: () => {
-        this.isLoading = false;
+        this.estaCarregando = false;
         this.router.navigate(['/']);
       },
-      error: (err) => {
-        this.isLoading = false;
-        this.loginError.set(true);
-        console.error(err);
+      error: (erro) => {
+        this.estaCarregando = false;
+        this.erroLogin.set(true);
+        console.error(erro);
       },
     });
   }
