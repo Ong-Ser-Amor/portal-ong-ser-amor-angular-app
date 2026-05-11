@@ -1,0 +1,48 @@
+.form-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.search-status {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.person-found-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: #eef7ef;
+  color: #1f5b2c;
+
+  p {
+    margin: 0;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 10px;
+}
+
+.checkbox-container {
+  padding: 0.5rem 0;
+}
+
+.actions {
+  gap: 8px;
+}

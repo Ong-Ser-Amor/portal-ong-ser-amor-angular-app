@@ -1,0 +1,113 @@
+<h2 mat-dialog-title>
+  {{ modoEdicao ? "Editar Voluntário" : "Novo Voluntário" }}
+</h2>
+
+<mat-dialog-content>
+  <fieldset [disabled]="estaSalvando()" class="form-fieldset">
+    <form [formGroup]="form" (ngSubmit)="aoSubmeter()" class="form-container">
+      <div class="form-content">
+        <app-input
+          formControlName="cpf"
+          label="CPF"
+          placeholder="11 dígitos"
+          [required]="true"
+          [maxLength]="11"
+          type="tel"
+          autocomplete="off"
+          (focusout)="aoCpfBlur()"
+        />
+
+        @if (buscandoPessoa()) {
+          <div class="search-status">Buscando pessoa pelo CPF...</div>
+        }
+
+        @if (pessoaEncontrada() && modoPessoaExistente()) {
+          <div class="person-found-card">
+            <p>
+              <strong>Pessoa encontrada:</strong> {{ pessoaEncontrada()?.nome }}
+            </p>
+            <p><strong>CPF:</strong> {{ pessoaEncontrada()?.cpf }}</p>
+            <button
+              type="button"
+              mat-stroked-button
+              (click)="limparPessoaEncontrada()"
+            >
+              Informar nova pessoa
+            </button>
+          </div>
+        }
+
+        @if (!modoPessoaExistente()) {
+          <app-input
+            formControlName="nome"
+            label="Nome"
+            placeholder="Nome completo"
+            [required]="true"
+            [minLength]="3"
+          />
+
+          <app-input
+            formControlName="dataNascimento"
+            label="Data de Nascimento"
+            type="date"
+            [required]="true"
+          />
+        }
+
+        <app-input
+          formControlName="formacaoAcademica"
+          label="Formação Acadêmica"
+          placeholder="Ex: Pedagogia, Matemática"
+          [minLength]="2"
+        />
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Status da Formação</mat-label>
+          <mat-select formControlName="statusFormacao">
+            <mat-option *ngFor="let nivel of niveis" [value]="nivel">
+              {{ nivel }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Tipo de Voluntário</mat-label>
+          <mat-select formControlName="tipoVoluntario">
+            <mat-option *ngFor="let tipo of tiposVoluntario" [value]="tipo">
+              {{ tipo }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="form.get('tipoVoluntario')?.hasError('required')">
+            Tipo é obrigatório
+          </mat-error>
+        </mat-form-field>
+
+        @if (!modoEdicao) {
+          <div class="checkbox-container">
+            <mat-checkbox formControlName="criarLogin">
+              Criar login agora (será necessário e-mail e senha)
+            </mat-checkbox>
+          </div>
+        }
+      </div>
+    </form>
+  </fieldset>
+
+  @if (estaSalvando()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <app-button
+    label="Cancelar"
+    color="basic"
+    (click)="aoCancelar()"
+    [disabled]="estaSalvando()"
+  />
+  <app-button
+    [label]="modoEdicao ? 'Atualizar' : 'Criar'"
+    (click)="aoSubmeter()"
+    [disabled]="estaSalvando()"
+  />
+</mat-dialog-actions>

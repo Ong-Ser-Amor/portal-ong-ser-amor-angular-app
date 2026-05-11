@@ -3,6 +3,7 @@ import { LoginComponent } from './features/autenticacao/login/login.component';
 import { LayoutComponent } from './layout/layout.component';
 import { autenticacaoGuard } from './core/guards/autenticacao.guard';
 import { CoursesRoutes } from './features/courses/courses.routing';
+import { VoluntariosRoutes } from './features/voluntarios/voluntarios.routing';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -10,7 +11,10 @@ export const routes: Routes = [
     path: '',
     component: LayoutComponent,
     canActivate: [autenticacaoGuard],
-    children: [{ path: 'cursos', children: CoursesRoutes }],
+    children: [
+      { path: 'cursos', children: CoursesRoutes },
+      { path: 'voluntarios', children: VoluntariosRoutes },
+    ],
   },
   {
     path: '**',

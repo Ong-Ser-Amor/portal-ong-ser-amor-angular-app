@@ -1,0 +1,57 @@
+<h2 mat-dialog-title>
+  Criar Login - {{ dados.voluntario.pessoa.nome }}
+</h2>
+
+<mat-dialog-content>
+  <fieldset [disabled]="estaSalvando()" class="form-fieldset">
+    <form [formGroup]="form" (ngSubmit)="aoSubmeter()" class="form-container">
+      <p class="info-text">
+        Digite o e-mail e a senha para que {{ dados.voluntario.pessoa.nome }} possa fazer login no sistema.
+      </p>
+
+      <app-input
+        formControlName="email"
+        label="E-mail"
+        type="email"
+        placeholder="email@exemplo.com"
+        [required]="true"
+        autocomplete="email"
+      />
+
+      <app-input
+        formControlName="senha"
+        label="Senha"
+        type="password"
+        placeholder="Mínimo 8 caracteres"
+        [required]="true"
+        [showPasswordToggle]="false"
+      />
+
+      <app-input
+        formControlName="confirmarSenha"
+        label="Confirmar Senha"
+        type="password"
+        placeholder="Repita a senha"
+        [required]="true"
+        [showPasswordToggle]="false"
+      />
+    </form>
+  </fieldset>
+  @if (estaSalvando()) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <app-button
+    label="Cancelar"
+    color="basic"
+    (click)="aoCancelar()"
+    [disabled]="estaSalvando()"
+  />
+  <app-button
+    label="Criar Login"
+    [disabled]="estaSalvando()"
+    (click)="aoSubmeter()"
+  />
+</mat-dialog-actions>

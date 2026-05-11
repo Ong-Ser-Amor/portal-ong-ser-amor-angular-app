@@ -20,6 +20,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class SidebarComponent {
   menuItems = [
     { label: 'Cursos', icon: 'school', route: '/cursos' },
+    { label: 'Voluntários', icon: 'volunteer_activism', route: '/voluntarios' },
     { label: 'Turmas', icon: 'groups', route: '/turmas' }, // Exemplo futuro
     { label: 'Alunos', icon: 'person', route: '/alunos' }, // Exemplo futuro
   ];
