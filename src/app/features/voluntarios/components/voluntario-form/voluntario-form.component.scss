@@ -1,48 +1,101 @@
-.form-container {
+.dialog-content {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
 }
 
-.form-fieldset {
+.voluntario-stepper {
+  width: 100%;
+}
+
+.step-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.25rem 0 0.5rem;
+}
+
+.step-fieldset {
   border: 0;
   padding: 0;
   margin: 0;
-}
-
-.search-status {
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.person-found-card {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  background: #eef7ef;
-  color: #1f5b2c;
+  gap: 1rem;
+}
 
-  p {
-    margin: 0;
-  }
+.step-description {
+  margin: 0;
+  color: #5a6473;
+  line-height: 1.5;
+}
+
+.step-status {
+  margin: -0.25rem 0 0;
+  font-size: 0.92rem;
+  color: #1a5fb4;
+}
+
+.step-actions,
+.decision-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
 }
 
 .full-width {
   width: 100%;
 }
 
-.form-content {
+.info-banner {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding-top: 10px;
+  gap: 0.25rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.9rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
 }
 
-.checkbox-container {
-  padding: 0.5rem 0;
+.info-banner--found {
+  background: #e7f1ff;
+  border: 1px solid #b9d8ff;
+  color: #0f4c8a;
 }
 
-.actions {
-  gap: 8px;
+.info-banner--neutral {
+  background: #f5f7fb;
+  border: 1px solid #d8e0ee;
+  color: #415065;
+}
+
+.info-banner strong {
+  font-weight: 700;
+}
+
+.info-banner span {
+  color: inherit;
+}
+
+::ng-deep .mat-step-label {
+  color: inherit !important;
+  background-color: transparent !important;
+}
+
+::ng-deep .mat-step-label.mat-step-label-active {
+  color: inherit !important;
+  background-color: transparent !important;
+}
+
+::ng-deep .mat-stepper-label-state-active {
+  background-color: transparent !important;
+}
+
+::ng-deep .mat-step-header {
+  background-color: transparent !important;
+}
+
+::ng-deep .mat-step-header.mat-active {
+  background-color: transparent !important;
 }

@@ -2,42 +2,87 @@
   {{ modoEdicao ? "Editar Voluntário" : "Novo Voluntário" }}
 </h2>
 
-<mat-dialog-content>
-  <fieldset [disabled]="estaSalvando()" class="form-fieldset">
-    <form [formGroup]="form" (ngSubmit)="aoSubmeter()" class="form-container">
-      <div class="form-content">
-        <app-input
-          formControlName="cpf"
-          label="CPF"
-          placeholder="11 dígitos"
-          [required]="true"
-          [maxLength]="11"
-          type="tel"
-          autocomplete="off"
-          (focusout)="aoCpfBlur()"
-        />
+<mat-dialog-content class="dialog-content">
+  @if (estaProcessando()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
 
-        @if (buscandoPessoa()) {
-          <div class="search-status">Buscando pessoa pelo CPF...</div>
+  <mat-stepper
+    #stepper
+    linear
+    orientation="vertical"
+    class="voluntario-stepper"
+    (selectionChange)="aoMudarSelecaoStepper($event)"
+  >
+    <mat-step [stepControl]="verificacaoCpfForm">
+      <form [formGroup]="verificacaoCpfForm" class="step-form">
+        <ng-template matStepLabel>Verificar CPF</ng-template>
+
+        <p class="step-description">
+          Informe o CPF para verificar se a pessoa já existe e se ela pode ser
+          vinculada como voluntária.
+        </p>
+
+        <fieldset [disabled]="estaProcessando()" class="step-fieldset">
+          <app-input
+            formControlName="cpf"
+            label="CPF"
+            placeholder="11 dígitos"
+            [required]="true"
+            [maxLength]="11"
+            type="tel"
+            autocomplete="off"
+            (input)="formatarCpfVerificacao($event)"
+          />
+        </fieldset>
+
+        @if (buscandoCpf()) {
+          <p class="step-status">Verificando CPF na base de pessoas...</p>
         }
 
-        @if (pessoaEncontrada() && modoPessoaExistente()) {
-          <div class="person-found-card">
-            <p>
-              <strong>Pessoa encontrada:</strong> {{ pessoaEncontrada()?.nome }}
-            </p>
-            <p><strong>CPF:</strong> {{ pessoaEncontrada()?.cpf }}</p>
-            <button
-              type="button"
-              mat-stroked-button
-              (click)="limparPessoaEncontrada()"
-            >
-              Informar nova pessoa
-            </button>
+        @if (modoEdicao) {
+          <div class="info-banner info-banner--neutral">
+            <strong>CPF carregado para edição.</strong>
+            <span>Você pode avançar para revisar os dados da pessoa.</span>
           </div>
         }
 
-        @if (!modoPessoaExistente()) {
+        <div class="step-actions">
+          <app-button
+            label="Cancelar"
+            color="basic"
+            (click)="aoCancelar()"
+            [disabled]="estaProcessando()"
+          />
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            (click)="verificarCpf()"
+            [disabled]="estaProcessando()"
+          >
+            {{ modoEdicao ? "Continuar" : "Verificar CPF" }}
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="dadosPessoaisForm">
+      <form [formGroup]="dadosPessoaisForm" class="step-form">
+        <ng-template matStepLabel>Dados da pessoa</ng-template>
+
+        @if (mostrarBannerPessoa()) {
+          <div class="info-banner info-banner--found">
+            <strong>Registo encontrado!</strong>
+            <span
+              >Este CPF já possui informações registadas na ONG. Verifique os
+              dados abaixo, corrija o que for necessário e avance para concluir
+              o cadastro de voluntário.</span
+            >
+          </div>
+        }
+
+        <fieldset [disabled]="estaProcessando()" class="step-fieldset">
           <app-input
             formControlName="nome"
             label="Nome"
@@ -47,55 +92,181 @@
           />
 
           <app-input
+            formControlName="cpf"
+            label="CPF"
+            placeholder="CPF confirmado"
+            [required]="true"
+            [maxLength]="11"
+            type="tel"
+            autocomplete="off"
+            (input)="formatarCpfPessoa($event)"
+          />
+
+          <app-input
             formControlName="dataNascimento"
             label="Data de Nascimento"
             type="date"
             [required]="true"
           />
-        }
+        </fieldset>
 
-        <app-input
-          formControlName="formacaoAcademica"
-          label="Formação Acadêmica"
-          placeholder="Ex: Pedagogia, Matemática"
-          [minLength]="2"
-        />
+        <div class="step-actions">
+          <button mat-stroked-button type="button" matStepperPrevious>
+            Voltar
+          </button>
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            (click)="continuarDadosPessoais()"
+            [disabled]="estaProcessando()"
+          >
+            Continuar
+          </button>
+        </div>
+      </form>
+    </mat-step>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Status da Formação</mat-label>
-          <mat-select formControlName="statusFormacao">
-            <mat-option *ngFor="let nivel of niveis" [value]="nivel">
-              {{ nivel }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+    <mat-step [stepControl]="dadosVoluntarioForm">
+      <form [formGroup]="dadosVoluntarioForm" class="step-form">
+        <ng-template matStepLabel>Dados do voluntário</ng-template>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Tipo de Voluntário</mat-label>
-          <mat-select formControlName="tipoVoluntario">
-            <mat-option *ngFor="let tipo of tiposVoluntario" [value]="tipo">
-              {{ tipo }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="form.get('tipoVoluntario')?.hasError('required')">
-            Tipo é obrigatório
-          </mat-error>
-        </mat-form-field>
+        <p class="step-description">
+          Agora informe os dados específicos do cadastro de voluntário.
+        </p>
 
-        @if (!modoEdicao) {
-          <div class="checkbox-container">
-            <mat-checkbox formControlName="criarLogin">
-              Criar login agora (será necessário e-mail e senha)
-            </mat-checkbox>
-          </div>
-        }
-      </div>
-    </form>
-  </fieldset>
+        <fieldset [disabled]="estaProcessando()" class="step-fieldset">
+          <app-input
+            formControlName="formacaoAcademica"
+            label="Formação Acadêmica"
+            placeholder="Ex: Pedagogia, Matemática"
+            [minLength]="2"
+          />
 
-  @if (estaSalvando()) {
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-  }
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Status da Formação</mat-label>
+            <mat-select formControlName="statusFormacao">
+              <mat-option *ngFor="let nivel of niveis" [value]="nivel">
+                {{ nivel }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Tipo de Voluntário</mat-label>
+            <mat-select formControlName="tipoVoluntario">
+              <mat-option *ngFor="let tipo of tiposVoluntario" [value]="tipo">
+                {{ tipo }}
+              </mat-option>
+            </mat-select>
+            <mat-error
+              *ngIf="
+                dadosVoluntarioForm.get('tipoVoluntario')?.hasError('required')
+              "
+            >
+              Tipo é obrigatório
+            </mat-error>
+          </mat-form-field>
+        </fieldset>
+
+        <div class="step-actions">
+          <button mat-stroked-button type="button" matStepperPrevious>
+            Voltar
+          </button>
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            (click)="salvarVoluntario()"
+            [disabled]="estaProcessando()"
+          >
+            {{ modoEdicao ? "Atualizar voluntário" : "Salvar voluntário" }}
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    @if (!modoEdicao) {
+      <mat-step [stepControl]="dadosLoginForm">
+        <form [formGroup]="dadosLoginForm" class="step-form">
+          <ng-template matStepLabel>Login</ng-template>
+
+          @if (querCriarLogin() === null) {
+            <p class="step-description">
+              Você deseja criar um login para a pessoa cadastrada agora?
+            </p>
+
+            <div class="decision-actions">
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="perguntarCriarLogin(false)"
+                [disabled]="estaProcessando()"
+              >
+                Não, finalizar
+              </button>
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                (click)="perguntarCriarLogin(true)"
+                [disabled]="estaProcessando()"
+              >
+                Sim, criar login
+              </button>
+            </div>
+          }
+
+          @if (querCriarLogin()) {
+            <p class="step-description">
+              Preencha o e-mail e a senha para liberar o acesso ao sistema.
+            </p>
+
+            <fieldset [disabled]="estaProcessando()" class="step-fieldset">
+              <app-input
+                formControlName="email"
+                label="E-mail"
+                type="email"
+                placeholder="email@exemplo.com"
+                [required]="true"
+                autocomplete="email"
+              />
+
+              <app-input
+                formControlName="senha"
+                label="Senha"
+                type="password"
+                placeholder="Mínimo 8 caracteres"
+                [required]="true"
+                [showPasswordToggle]="false"
+              />
+
+              <app-input
+                formControlName="confirmarSenha"
+                label="Confirmar senha"
+                type="password"
+                placeholder="Repita a senha"
+                [required]="true"
+                [showPasswordToggle]="false"
+              />
+            </fieldset>
+
+            <div class="step-actions">
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                (click)="salvarLogin()"
+                [disabled]="estaProcessando()"
+              >
+                Criar login
+              </button>
+            </div>
+          }
+        </form>
+      </mat-step>
+    }
+  </mat-stepper>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
@@ -103,11 +274,6 @@
     label="Cancelar"
     color="basic"
     (click)="aoCancelar()"
-    [disabled]="estaSalvando()"
-  />
-  <app-button
-    [label]="modoEdicao ? 'Atualizar' : 'Criar'"
-    (click)="aoSubmeter()"
-    [disabled]="estaSalvando()"
+    [disabled]="estaProcessando()"
   />
 </mat-dialog-actions>

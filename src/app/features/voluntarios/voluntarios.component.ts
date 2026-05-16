@@ -83,7 +83,8 @@ export class VoluntariosComponent implements OnInit {
 
   aoAdicionar() {
     const dialogRef = this.dialog.open(VoluntarioFormComponent, {
-      width: '500px',
+      width: '760px',
+      maxWidth: '95vw',
       data: null,
     });
 
@@ -91,16 +92,14 @@ export class VoluntariosComponent implements OnInit {
       if (result === true) {
         this.paginaAtual.set(0);
         this.carregarVoluntarios();
-      } else if (result?.sucesso && result?.voluntario) {
-        // Se criou login, abre o modal de criação de login
-        this.abrirModalCriarLogin(result.voluntario);
       }
     });
   }
 
   aoEditar(voluntario: Voluntario) {
     const dialogRef = this.dialog.open(VoluntarioFormComponent, {
-      width: '500px',
+      width: '760px',
+      maxWidth: '95vw',
       data: voluntario,
     });
 
