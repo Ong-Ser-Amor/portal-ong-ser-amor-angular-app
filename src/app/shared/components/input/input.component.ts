@@ -110,6 +110,9 @@ export class InputComponent implements ControlValueAccessor {
     if (errors['email']) {
       return 'Digite um email válido';
     }
+    if (errors['senhasNaoIguais']) {
+      return 'As senhas não coincidem';
+    }
     if (errors['minlength']) {
       const minLength = errors['minlength'].requiredLength;
       return `Mínimo de ${minLength} caracteres`;

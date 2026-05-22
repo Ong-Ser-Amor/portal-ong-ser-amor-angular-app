@@ -1,0 +1,52 @@
+<fieldset [disabled]="carregando()" class="form-fieldset">
+  <form [formGroup]="form" (ngSubmit)="aoSubmeter()" class="form-container">
+    <p class="info-text">
+      Digite o e-mail e a senha para que {{ voluntario().pessoa.nome }} possa
+      fazer login no sistema.
+    </p>
+
+    <app-input
+      formControlName="email"
+      label="E-mail"
+      type="email"
+      placeholder="email@exemplo.com"
+      [required]="true"
+      autocomplete="email"
+    />
+
+    <app-input
+      formControlName="senha"
+      label="Senha"
+      type="password"
+      placeholder="Mínimo 8 caracteres"
+      [required]="true"
+      [showPasswordToggle]="false"
+    />
+
+    <app-input
+      formControlName="confirmarSenha"
+      label="Confirmar Senha"
+      type="password"
+      placeholder="Repita a senha"
+      [required]="true"
+      [showPasswordToggle]="false"
+    />
+
+    
+
+    <div class="actions">
+      <app-button
+        label="Cancelar"
+        color="basic"
+        [disabled]="carregando()"
+        (click)="aoCancelar()"
+      />
+      <app-button
+        label="Criar Login"
+        [loading]="carregando()"
+        [disabled]="carregando()"
+        type="submit"
+      />
+    </div>
+  </form>
+</fieldset>
