@@ -16,12 +16,6 @@
   }
 }
 
-/* Garantir linha contínua entre as linhas da tabela */
-.table-container table {
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-
 .table-container table td.mat-cell,
 .table-container table th.mat-header-cell {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
