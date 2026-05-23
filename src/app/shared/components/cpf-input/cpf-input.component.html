@@ -1,0 +1,21 @@
+<mat-form-field appearance="outline" class="full-width">
+  <mat-label>{{ label() }}</mat-label>
+
+  <input
+    matInput
+    type="tel"
+    inputmode="numeric"
+    [value]="value()"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [required]="required()"
+    [readonly]="readonly()"
+    [attr.autocomplete]="autocomplete()"
+    maxlength="11"
+    (input)="formatarCpf($event)"
+    (blur)="onBlur()"
+  />
+  @if (hint()) {
+    <mat-hint>{{ hint() }}</mat-hint>
+  }
+</mat-form-field>

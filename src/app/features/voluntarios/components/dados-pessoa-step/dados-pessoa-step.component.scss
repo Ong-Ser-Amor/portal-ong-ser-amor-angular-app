@@ -1,0 +1,42 @@
+.step-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.step-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.step-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+.info-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.9rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.info-banner--found {
+  background: #e7f1ff;
+  border: 1px solid #b9d8ff;
+  color: #0f4c8a;
+}
+
+.info-banner strong {
+  font-weight: 700;
+}
+
+.info-banner span {
+  color: inherit;
+}

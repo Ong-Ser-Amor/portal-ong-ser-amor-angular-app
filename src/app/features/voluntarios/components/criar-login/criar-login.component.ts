@@ -20,7 +20,12 @@ interface CreateLoginDialogData {
 @Component({
   selector: 'app-criar-login',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatSnackBarModule, LoginFormComponent],
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    LoginFormComponent,
+  ],
   templateUrl: './criar-login.component.html',
   styleUrl: './criar-login.component.scss',
 })

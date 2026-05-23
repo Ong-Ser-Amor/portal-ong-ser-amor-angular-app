@@ -11,8 +11,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { VoluntarioFormComponent } from './components/voluntario-form/voluntario-form.component';
-import { CriarLoginComponent } from './components/criar-login/criar-login.component';
 import { ButtonComponent } from '../../shared/components/button/button.component';
+import { CriarLoginComponent } from './components/criar-login/criar-login.component';
 
 @Component({
   selector: 'app-voluntarios',

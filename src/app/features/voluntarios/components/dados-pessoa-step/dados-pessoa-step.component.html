@@ -1,0 +1,53 @@
+<fieldset [disabled]="carregando" class="step-fieldset">
+  <form [formGroup]="form" (ngSubmit)="aoSubmeter()" class="step-form">
+    @if (pessoaEncontrada) {
+      <div class="info-banner info-banner--found">
+        <strong>Registo encontrado!</strong>
+        <span
+          >Este CPF já possui informações registadas na ONG. Verifique os dados
+          abaixo, corrija o que for necessário e avance.</span
+        >
+      </div>
+    }
+
+    <app-input
+      formControlName="nome"
+      label="Nome"
+      placeholder="Nome completo"
+      [required]="true"
+      [minLength]="3"
+    />
+
+    <app-cpf-input
+      formControlName="cpf"
+      label="CPF"
+      placeholder="CPF confirmado"
+      [required]="true"
+      autocomplete="off"
+    />
+
+    <app-input
+      formControlName="dataNascimento"
+      label="Data de Nascimento"
+      type="date"
+      [required]="true"
+    />
+
+    <div class="step-actions">
+      <app-button
+        label="Voltar"
+        color="basic"
+        type="button"
+        [disabled]="carregando"
+        (click)="aoVoltar()"
+      />
+      <app-button
+        label="Continuar"
+        color="primary"
+        type="submit"
+        [loading]="carregando"
+        [disabled]="carregando"
+      />
+    </div>
+  </form>
+</fieldset>

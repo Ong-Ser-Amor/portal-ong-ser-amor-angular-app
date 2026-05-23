@@ -1,8 +1,12 @@
-<fieldset [disabled]="carregando()" class="form-fieldset">
+<fieldset
+  [disabled]="carregando()"
+  class="form-fieldset"
+  style="border: none; padding: 0; margin: 0"
+>
   <form [formGroup]="form" (ngSubmit)="aoSubmeter()" class="form-container">
     <p class="info-text">
-      Digite o e-mail e a senha para que {{ voluntario().pessoa.nome }} possa
-      fazer login no sistema.
+      Digite o e-mail e a senha para que {{ nomePessoa() }} possa fazer login no
+      sistema.
     </p>
 
     <app-input
@@ -32,9 +36,32 @@
       [showPasswordToggle]="false"
     />
 
-    
+    <div
+      class="error-message"
+      *ngIf="
+        form.hasError('senhasNaoIguais') && form.get('confirmarSenha')?.touched
+      "
+    >
+      <span
+        style="
+          color: #f44336;
+          font-size: 12px;
+          margin-top: -10px;
+          display: block;
+        "
+        >As senhas não coincidem.</span
+      >
+    </div>
 
-    <div class="actions">
+    <div
+      class="actions"
+      style="
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 16px;
+      "
+    >
       <app-button
         label="Cancelar"
         color="basic"

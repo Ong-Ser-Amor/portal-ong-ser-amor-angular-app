@@ -1,0 +1,52 @@
+<fieldset [disabled]="carregando()" class="step-fieldset">
+  <form [formGroup]="form" (ngSubmit)="aoSubmeter()" class="step-form">
+    <p class="step-description">
+      Agora informe os dados específicos do cadastro de voluntário.
+    </p>
+
+    <app-input
+      formControlName="formacaoAcademica"
+      label="Formação Acadêmica"
+      placeholder="Ex: Pedagogia, Matemática"
+      [minLength]="2"
+    />
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status da Formação</mat-label>
+      <mat-select formControlName="statusFormacao">
+        <mat-option *ngFor="let nivel of niveis" [value]="nivel">
+          {{ nivel }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tipo de Voluntário</mat-label>
+      <mat-select formControlName="tipoVoluntario">
+        <mat-option *ngFor="let tipo of tiposVoluntario" [value]="tipo">
+          {{ tipo }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('tipoVoluntario')?.hasError('required')">
+        Tipo é obrigatório
+      </mat-error>
+    </mat-form-field>
+
+    <div class="step-actions">
+      <app-button
+        label="Voltar"
+        color="basic"
+        type="button"
+        [disabled]="carregando()"
+        (click)="aoVoltar()"
+      />
+      <app-button
+        [label]="textoBotaoSubmit"
+        color="primary"
+        type="submit"
+        [loading]="carregando()"
+        [disabled]="carregando()"
+      />
+    </div>
+  </form>
+</fieldset>

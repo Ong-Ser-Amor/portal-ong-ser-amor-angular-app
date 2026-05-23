@@ -2,7 +2,7 @@
 
 <mat-dialog-content>
   <app-login-form
-    [voluntario]="dados.voluntario"
+    [nomePessoa]="dados.voluntario.pessoa.nome"
     [carregando]="estaSalvando()"
     (submitLogin)="aoSubmeter($event)"
     (cancel)="aoCancelar()"

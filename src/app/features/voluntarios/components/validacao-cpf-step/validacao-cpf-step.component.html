@@ -1,0 +1,42 @@
+<fieldset [disabled]="carregando()" class="step-fieldset">
+  <form [formGroup]="form" (ngSubmit)="aoSubmeter()" class="step-form">
+    <p class="step-description">
+      Informe o CPF para verificar se a pessoa já existe e se ela pode ser
+      vinculada como voluntária.
+    </p>
+
+    <app-cpf-input
+      formControlName="cpf"
+      label="CPF"
+      placeholder="11 dígitos"
+      [required]="true"
+      autocomplete="off"
+    />
+
+    @if (carregando()) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+
+    @if (modoEdicao()) {
+      <div class="info-banner info-banner--neutral">
+        <strong>CPF carregado para edição.</strong>
+        <span>Você pode avançar para revisar os dados da pessoa.</span>
+      </div>
+    }
+
+    <div class="step-actions">
+      <app-button
+        label="Cancelar"
+        color="basic"
+        [disabled]="carregando()"
+        (click)="aoCancelar()"
+      />
+      <app-button
+        [label]="botaoTexto"
+        [loading]="carregando()"
+        [disabled]="carregando()"
+        type="submit"
+      />
+    </div>
+  </form>
+</fieldset>

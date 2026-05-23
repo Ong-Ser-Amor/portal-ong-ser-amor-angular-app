@@ -7,7 +7,6 @@ import {
   ValidationErrors,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Voluntario } from '../../../core/models/voluntario.model';
 import { InputComponent } from '../input/input.component';
 import { ButtonComponent } from '../button/button.component';
 
@@ -26,7 +25,7 @@ export interface LoginFormSubmit {
 export class LoginFormComponent {
   private fb = inject(FormBuilder);
 
-  voluntario = input.required<Voluntario>();
+  nomePessoa = input.required<string>();
   carregando = input<boolean>(false);
 
   submitLogin = output<LoginFormSubmit>();
@@ -60,14 +59,9 @@ export class LoginFormComponent {
     const confirmarSenha = control.get('confirmarSenha')?.value;
 
     if (senha && confirmarSenha && senha !== confirmarSenha) {
-      control.get('confirmarSenha')?.setErrors({ senhasNaoIguais: true });
       return { senhasNaoIguais: true };
     }
 
-    if (confirmarSenha) {
-      control.get('confirmarSenha')?.setErrors(null);
-    }
-
-    return null;
+    return null; // O erro desaparece automaticamente quando as senhas coincidem
   }
 }
