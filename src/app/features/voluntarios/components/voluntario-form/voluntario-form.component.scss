@@ -8,40 +8,10 @@
   width: 100%;
 }
 
-.step-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 0.25rem 0 0.5rem;
-}
-
-.step-fieldset {
-  border: 0;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.step-description {
-  margin: 0;
-  color: #5a6473;
-  line-height: 1.5;
-}
-
 .step-status {
   margin: -0.25rem 0 0;
   font-size: 0.92rem;
   color: #1a5fb4;
-}
-
-.step-actions,
-.decision-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: flex-end;
 }
 
 .full-width {
@@ -78,24 +48,18 @@
   color: inherit;
 }
 
-::ng-deep .mat-step-label {
-  color: inherit !important;
-  background-color: transparent !important;
-}
+:host {
+  ::ng-deep {
+    .mat-step-label,
+    .mat-step-label.mat-step-label-active {
+      color: inherit !important;
+      background-color: transparent !important;
+    }
 
-::ng-deep .mat-step-label.mat-step-label-active {
-  color: inherit !important;
-  background-color: transparent !important;
-}
-
-::ng-deep .mat-stepper-label-state-active {
-  background-color: transparent !important;
-}
-
-::ng-deep .mat-step-header {
-  background-color: transparent !important;
-}
-
-::ng-deep .mat-step-header.mat-active {
-  background-color: transparent !important;
+    .mat-stepper-label-state-active,
+    .mat-step-header,
+    .mat-step-header.mat-active {
+      background-color: transparent !important;
+    }
+  }
 }
