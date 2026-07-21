@@ -1,6 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CourseService } from '../../core/services/course.service';
-import { Course } from '../../core/models/course.model';
+import { Curso } from '../../core/models/curso.model';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
@@ -12,11 +11,12 @@ import { MatPaginatorIntl } from '@angular/material/paginator';
 import { CustomPaginatorIntl } from '../../core/i18n/custom-paginator-intl';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { CourseFormComponent } from './components/course-form/course-form.component';
 import { ButtonComponent } from '../../shared/components/button/button.component';
+import { CursoService } from '../../core/services/curso.service';
+import { CursoFormComponent } from './components/formulario-curso/formulario-curso.component';
 
 @Component({
-  selector: 'app-courses',
+  selector: 'app-cursos',
   standalone: true,
   imports: [
     CommonModule,
@@ -30,41 +30,41 @@ import { ButtonComponent } from '../../shared/components/button/button.component
     MatSnackBarModule,
     ButtonComponent,
   ],
-  templateUrl: './courses.component.html',
-  styleUrl: './courses.component.scss',
+  templateUrl: './cursos.component.html',
+  styleUrl: './cursos.component.scss',
   providers: [{ provide: MatPaginatorIntl, useClass: CustomPaginatorIntl }],
 })
-export class CoursesComponent implements OnInit {
-  private courseService = inject(CourseService);
+export class CursosComponent implements OnInit {
+  private cursoService = inject(CursoService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
-  courses = signal<Course[]>([]);
+  cursos = signal<Curso[]>([]);
   isLoading = signal(false);
 
   // ESTADOS DE PAGINAÇÃO
-  totalItems = signal(0);
-  itemsPerPage = signal(5);
-  currentPage = signal(1);
+  totalItens = signal(0);
+  itensPorPagina = signal(5);
+  paginaAtual = signal(1);
 
-  displayedColumns: string[] = ['name', 'activeClassesCount', 'actions'];
+  displayedColumns: string[] = ['nome', 'actions'];
 
   ngOnInit(): void {
-    this.loadCourses();
+    this.carregarCursos();
   }
 
-  loadCourses() {
+  carregarCursos() {
     this.isLoading.set(true);
 
-    this.courseService
-      .getAll(this.currentPage(), this.itemsPerPage())
+    this.cursoService
+      .getAll(this.paginaAtual(), this.itensPorPagina())
       .subscribe({
         next: (response) => {
-          this.courses.set(response.data);
+          this.cursos.set(response.dados);
 
-          this.totalItems.set(response.meta.totalItems);
-          this.currentPage.set(response.meta.currentPage);
-          this.itemsPerPage.set(response.meta.itemsPerPage);
+          this.totalItens.set(response.meta.totalItens);
+          this.paginaAtual.set(response.meta.paginaAtual);
+          this.itensPorPagina.set(response.meta.itensPorPagina);
 
           this.isLoading.set(false);
         },
@@ -76,47 +76,47 @@ export class CoursesComponent implements OnInit {
   }
 
   onPageChange(event: PageEvent) {
-    this.currentPage.set(event.pageIndex + 1);
-    this.itemsPerPage.set(event.pageSize);
+    this.paginaAtual.set(event.pageIndex + 1);
+    this.itensPorPagina.set(event.pageSize);
 
-    this.loadCourses();
+    this.carregarCursos();
   }
 
   // Métodos para ações futuras (CRUD)
   onAdd() {
-    const dialogRef = this.dialog.open(CourseFormComponent, {
+    const dialogRef = this.dialog.open(CursoFormComponent, {
       width: '400px',
       data: null,
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        this.loadCourses();
+        this.carregarCursos();
       }
     });
   }
 
-  onEdit(course: Course) {
-    const dialogRef = this.dialog.open(CourseFormComponent, {
+  onEdit(curso: Curso) {
+    const dialogRef = this.dialog.open(CursoFormComponent, {
       width: '400px',
-      data: course,
+      data: curso,
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        this.loadCourses();
+        this.carregarCursos();
       }
     });
   }
 
-  onDelete(course: Course) {
-    if (confirm(`Tem certeza que deseja excluir o curso "${course.name}"?`)) {
+  onDelete(curso: Curso) {
+    if (confirm(`Tem certeza que deseja excluir o curso "${curso.nome}"?`)) {
       this.isLoading.set(true);
 
-      this.courseService.delete(course.id).subscribe({
+      this.cursoService.delete(curso.id).subscribe({
         next: () => {
           this.snackBar.open('Curso excluído!', 'Fechar', { duration: 3000 });
-          this.loadCourses();
+          this.carregarCursos();
         },
         error: (err) => {
           console.error(err);

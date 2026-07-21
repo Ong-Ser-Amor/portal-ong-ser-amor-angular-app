@@ -1,4 +1,4 @@
-import { ButtonComponent } from './../../../../shared/components/button/button.component';
+import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { Component, inject, signal } from '@angular/core';
 import {
   FormBuilder,
@@ -12,13 +12,13 @@ import {
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { CourseService } from '../../../../core/services/course.service';
-import { Course } from '../../../../core/models/course.model';
+import { Curso } from '../../../../core/models/curso.model';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { InputComponent } from '../../../../shared/components/input/input.component';
+import { CursoService } from '../../../../core/services/curso.service';
 
 @Component({
-  selector: 'app-course-form',
+  selector: 'app-formulario-curso',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -28,16 +28,16 @@ import { InputComponent } from '../../../../shared/components/input/input.compon
     ButtonComponent,
     InputComponent,
   ],
-  templateUrl: './course-form.component.html',
-  styleUrl: './course-form.component.scss',
+  templateUrl: './formulario-curso.component.html',
+  styleUrl: './formulario-curso.component.scss',
 })
-export class CourseFormComponent {
+export class CursoFormComponent {
   private fb = inject(FormBuilder);
-  private courseService = inject(CourseService);
-  private dialogRef = inject(MatDialogRef<CourseFormComponent>);
+  private cursoService = inject(CursoService);
+  private dialogRef = inject(MatDialogRef<CursoFormComponent>);
   private snackBar = inject(MatSnackBar);
 
-  data = inject<Course>(MAT_DIALOG_DATA);
+  data = inject<Curso>(MAT_DIALOG_DATA);
 
   form!: FormGroup;
   isEditMode = false;
@@ -49,8 +49,8 @@ export class CourseFormComponent {
     this.isEditMode = !!this.data;
 
     this.form = this.fb.group({
-      name: [
-        this.data?.name || '',
+      nome: [
+        this.data?.nome || '',
         [Validators.required, Validators.minLength(3)],
       ],
     });
@@ -64,18 +64,18 @@ export class CourseFormComponent {
 
     this.isSaving.set(true);
 
-    const courseData = this.form.value;
+    const dadosCurso = this.form.value;
 
     const request$ = this.isEditMode
-      ? this.courseService.update(this.data.id, courseData)
-      : this.courseService.create(courseData);
+      ? this.cursoService.update(this.data.id, dadosCurso)
+      : this.cursoService.create(dadosCurso);
 
     request$.subscribe({
       next: () => {
         this.snackBar.open(
           this.isEditMode ? 'Curso atualizado!' : 'Curso criado!',
           'Fechar',
-          { duration: 3000 }
+          { duration: 3000 },
         );
         this.dialogRef.close(true);
       },
