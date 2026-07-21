@@ -50,7 +50,7 @@
       [pageSize]="itensPorPagina()"
       [pageIndex]="paginaAtual() - 1"
       [pageSizeOptions]="[5, 10, 25, 50]"
-      (page)="onPageChange($event)"
+      (page)="aoMudarPagina($event)"
       aria-label="Selecione a página"
     >
     </mat-paginator>
