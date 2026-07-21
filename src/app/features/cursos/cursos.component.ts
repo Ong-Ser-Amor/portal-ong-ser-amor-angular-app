@@ -40,21 +40,21 @@ export class CursosComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
 
   cursos = signal<Curso[]>([]);
-  isLoading = signal(false);
+  estaCarregando = signal(false);
 
   // ESTADOS DE PAGINAÇÃO
   totalItens = signal(0);
   itensPorPagina = signal(5);
   paginaAtual = signal(1);
 
-  displayedColumns: string[] = ['nome', 'actions'];
+  colunasExibidas: string[] = ['nome', 'acoes'];
 
   ngOnInit(): void {
     this.carregarCursos();
   }
 
   carregarCursos() {
-    this.isLoading.set(true);
+    this.estaCarregando.set(true);
 
     this.cursoService
       .getAll(this.paginaAtual(), this.itensPorPagina())
@@ -66,16 +66,16 @@ export class CursosComponent implements OnInit {
           this.paginaAtual.set(response.meta.paginaAtual);
           this.itensPorPagina.set(response.meta.itensPorPagina);
 
-          this.isLoading.set(false);
+          this.estaCarregando.set(false);
         },
         error: (err) => {
           console.error('Erro ao carregar cursos:', err);
-          this.isLoading.set(false);
+          this.estaCarregando.set(false);
         },
       });
   }
 
-  onPageChange(event: PageEvent) {
+  aoMudarPagina(event: PageEvent) {
     this.paginaAtual.set(event.pageIndex + 1);
     this.itensPorPagina.set(event.pageSize);
 
@@ -83,7 +83,7 @@ export class CursosComponent implements OnInit {
   }
 
   // Métodos para ações futuras (CRUD)
-  onAdd() {
+  aoAdicionar() {
     const dialogRef = this.dialog.open(CursoFormComponent, {
       width: '400px',
       data: null,
@@ -96,7 +96,7 @@ export class CursosComponent implements OnInit {
     });
   }
 
-  onEdit(curso: Curso) {
+  aoEditar(curso: Curso) {
     const dialogRef = this.dialog.open(CursoFormComponent, {
       width: '400px',
       data: curso,
@@ -109,9 +109,9 @@ export class CursosComponent implements OnInit {
     });
   }
 
-  onDelete(curso: Curso) {
+  aoExcluir(curso: Curso) {
     if (confirm(`Tem certeza que deseja excluir o curso "${curso.nome}"?`)) {
-      this.isLoading.set(true);
+      this.estaCarregando.set(true);
 
       this.cursoService.delete(curso.id).subscribe({
         next: () => {
@@ -121,7 +121,7 @@ export class CursosComponent implements OnInit {
         error: (err) => {
           console.error(err);
           this.snackBar.open('Erro ao excluir curso.', 'Fechar');
-          this.isLoading.set(false);
+          this.estaCarregando.set(false);
         },
       });
     }
