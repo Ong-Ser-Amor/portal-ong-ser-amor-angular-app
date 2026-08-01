@@ -3,37 +3,36 @@
   display: flex;
   flex-direction: column;
   background-color: #fff;
-}
 
-.logo-header {
-  height: 98px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  border-bottom: 2px solid #f0f0f0;
-  margin-bottom: 8px;
+  .logo-header {
+    height: 98px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-bottom: 2px solid #f0f0f0;
+    margin-bottom: 8px;
 
-  .logo-icon {
-    color: #e91e63;
+    .logo-icon {
+      color: #e91e63;
+    }
+
+    .logo-text {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #424242;
+    }
   }
 
-  .logo-text {
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: #424242;
-  }
-}
+  mat-nav-list {
+    margin-top: 0px;
+    padding: 10px;
 
-mat-nav-list {
-  margin-top: 0px;
-  padding: 10px;
-
-  a[mat-list-item] {
-    height: 55px;
-    border-radius: 8px;
-    margin-bottom: 2px;
-
-    color: #666666;
+    a[mat-list-item] {
+      height: 55px;
+      border-radius: 8px;
+      margin-bottom: 2px;
+      color: #666666;
+    }
   }
 }
