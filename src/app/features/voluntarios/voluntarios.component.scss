@@ -1,71 +1,71 @@
 .voluntarios-container {
   padding: 0;
-}
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
 
-  h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 500;
-    color: #333;
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #333;
+    }
   }
-}
 
-.table-container table td.mat-cell,
-.table-container table th.mat-header-cell {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  background: transparent;
-}
+  .loading-shade {
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+  }
 
-mat-paginator {
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-  background: #fff;
-  font-size: 14px;
-  position: sticky;
-  bottom: 0;
-  z-index: 5;
-}
+  .table-container {
+    table {
+      td.mat-cell,
+      th.mat-header-cell {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        background: transparent;
+      }
+    }
+  }
 
-.mat-column-acoes {
-  width: 120px;
-  text-align: center;
-}
+  .mat-column-acoes {
+    width: 140px;
+    text-align: center;
+    padding-right: 16px;
+  }
 
-.badge-tipo-voluntario {
-  background-color: #e3f2fd;
-  color: #1565c0;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-weight: 500;
-  font-size: 0.85rem;
-}
+  .actions-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    align-items: center;
+  }
 
-.loading-shade {
-  display: flex;
-  justify-content: center;
-  padding: 40px;
-}
+  .badge-tipo-voluntario {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-weight: 500;
+    font-size: 0.85rem;
+  }
 
-.no-data {
-  text-align: center;
-  padding: 24px;
-  color: #757575;
-  font-style: italic;
-}
+  .no-data {
+    text-align: center;
+    padding: 24px;
+    color: #757575;
+    font-style: italic;
+  }
 
-.mat-column-acoes {
-  width: 140px;
-  padding-right: 16px;
-}
-
-.actions-wrapper {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.25rem;
-  align-items: center;
+  mat-paginator {
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    background: #fff;
+    font-size: 14px;
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+  }
 }
