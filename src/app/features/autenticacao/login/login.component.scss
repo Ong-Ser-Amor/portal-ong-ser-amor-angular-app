@@ -1,11 +1,3 @@
-.w-full {
-  width: 100%;
-}
-
-.mb-30 {
-  margin-bottom: 30px;
-}
-
 .login-container {
   display: flex;
   height: 100vh;
@@ -36,4 +28,12 @@ mat-card-actions {
   flex-direction: column;
   align-items: stretch;
   padding: 0;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.mb-30 {
+  margin-bottom: 30px;
 }
