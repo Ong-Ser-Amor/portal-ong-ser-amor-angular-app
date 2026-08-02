@@ -39,7 +39,7 @@ export class BeneficiariosComponent implements OnInit {
   colunas: ColunaTabela<Beneficiario>[] = [
     { chave: 'nome', titulo: 'Nome', celula: (b) => b.pessoa.nome },
     { chave: 'cpf', titulo: 'CPF', celula: (b) => b.pessoa.cpf },
-    { chave: 'acoes', titulo: 'Ações', largura: '120px' },
+    { chave: 'acoes', titulo: '', largura: '120px' },
   ];
 
   ngOnInit(): void {

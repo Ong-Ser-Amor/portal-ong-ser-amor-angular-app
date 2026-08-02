@@ -49,7 +49,7 @@ export class VoluntariosComponent implements OnInit {
     { chave: 'nome', titulo: 'Nome', celula: (v) => v.pessoa.nome },
     { chave: 'tipoVoluntario', titulo: 'Tipo' },
     { chave: 'formacaoAcademica', titulo: 'Formação', celula: (v) => v.formacaoAcademica || '—' },
-    { chave: 'acoes', titulo: 'Ações', largura: '160px' },
+    { chave: 'acoes', titulo: '', largura: '160px' },
   ];
 
   ngOnInit(): void {
