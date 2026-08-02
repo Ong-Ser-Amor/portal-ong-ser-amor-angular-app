@@ -1,7 +1,7 @@
-.voluntarios-container {
+.container {
   padding: 0;
 
-  .page-header {
+  header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -21,7 +21,7 @@
     padding: 40px;
   }
 
-  .table-container {
+  .container-tabela {
     table {
       td.mat-cell,
       th.mat-header-cell {
