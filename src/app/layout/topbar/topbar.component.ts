@@ -2,12 +2,12 @@ import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AutenticacaoService } from '../../core/services/autenticacao.service';
-import { ButtonComponent } from '../../shared/components/button/button.component';
+import { BotaoComponent } from '../../shared/components/botao/botao.component';
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [MatToolbarModule, MatButtonModule, ButtonComponent],
+  imports: [MatToolbarModule, MatButtonModule, BotaoComponent],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss',
 })
