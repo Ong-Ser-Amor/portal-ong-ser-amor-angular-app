@@ -2,6 +2,9 @@
   padding: 0;
 
   .container-tabela {
+    position: relative;
+    min-height: 200px;
+
     table {
       td.mat-cell,
       th.mat-header-cell {

@@ -2,6 +2,8 @@
   padding: 0;
 
   .table-container {
+    position: relative;
+    min-height: 200px;
     background: white;
     border-radius: 8px;
     overflow: hidden;

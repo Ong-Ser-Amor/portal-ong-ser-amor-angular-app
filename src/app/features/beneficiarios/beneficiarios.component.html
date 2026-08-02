@@ -3,9 +3,8 @@
     <app-botao label="Novo Beneficiário" icone="add" cor="primary" routerLink="novo" />
   </app-cabecalho-pagina>
 
-  <app-spinner [carregando]="estaCarregando()" />
-
   <div class="container-tabela mat-elevation-z2">
+    <app-spinner [carregando]="estaCarregando()" />
     <table mat-table [dataSource]="beneficiarios()">
       <ng-container matColumnDef="nome">
         <th mat-header-cell *matHeaderCellDef>Nome</th>
@@ -45,11 +44,13 @@
       <tr mat-header-row *matHeaderRowDef="colunasExibidas"></tr>
       <tr mat-row *matRowDef="let row; columns: colunasExibidas"></tr>
 
-      <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell no-data" [attr.colspan]="colunasExibidas.length">
-          Nenhum voluntário encontrado.
-        </td>
-      </tr>
+      @if (!estaCarregando()) {
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell no-data" [attr.colspan]="colunasExibidas.length">
+            Nenhum beneficiário encontrado.
+          </td>
+        </tr>
+      }
     </table>
 
     <mat-paginator

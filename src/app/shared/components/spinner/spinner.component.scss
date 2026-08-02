@@ -1,6 +1,18 @@
+:host {
+  display: contents;
+}
+
 .container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(2px);
+  z-index: 10;
+  border-radius: inherit;
 }
