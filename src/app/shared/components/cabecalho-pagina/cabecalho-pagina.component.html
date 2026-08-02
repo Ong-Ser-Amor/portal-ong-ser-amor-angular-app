@@ -5,8 +5,13 @@
 
   <div class="area-acoes">
     @if (exibirBotaoVoltar()) {
-    <app-button [label]="textoVoltar()" icon="arrow_back" variant="stroked" color="basic"
-      [routerLink]="rotaVoltar() || null" (click)="clicarVoltar($event)" />
+      <app-botao
+        [label]="textoVoltar()"
+        icone="arrow_back"
+        variante="stroked"
+        [routerLink]="rotaVoltar() || null"
+        (click)="clicarVoltar($event)"
+      />
     }
     <ng-content></ng-content>
   </div>

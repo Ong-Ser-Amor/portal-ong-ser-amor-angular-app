@@ -1,12 +1,12 @@
 import { Component, input, output, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Location } from '@angular/common';
-import { ButtonComponent } from '../button/button.component';
+import { BotaoComponent } from '../botao/botao.component';
 
 @Component({
   selector: 'app-cabecalho-pagina',
   standalone: true,
-  imports: [RouterLink, ButtonComponent],
+  imports: [RouterLink, BotaoComponent],
   templateUrl: './cabecalho-pagina.component.html',
   styleUrl: './cabecalho-pagina.component.scss',
 })
