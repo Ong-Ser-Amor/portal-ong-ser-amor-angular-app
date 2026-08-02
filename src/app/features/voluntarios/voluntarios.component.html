@@ -1,86 +1,47 @@
-<div class="container">
-  <app-cabecalho-pagina titulo="Voluntários">
+<app-cabecalho-pagina titulo="Voluntários">
+  <app-botao
+    label="Novo Voluntário"
+    icone="add"
+    cor="primary"
+    (click)="abrirModalCadastroVoluntario()"
+  />
+</app-cabecalho-pagina>
+
+<app-tabela
+  [dados]="voluntarios()"
+  [colunas]="colunas"
+  [carregando]="estaCarregando()"
+  textoSemDados="Nenhum voluntário encontrado."
+  [totalItens]="totalItens()"
+  [paginaAtual]="paginaAtual()"
+  [itensPorPagina]="itensPorPagina()"
+  (mudarPagina)="mudarPagina($event)"
+>
+  <ng-template appTabelaCelula="tipoVoluntario" let-voluntario>
+    <span class="badge-tipo-voluntario">
+      {{ voluntario.tipoVoluntario }}
+    </span>
+  </ng-template>
+
+  <ng-template appTabelaCelula="acoes" let-voluntario>
     <app-botao
-      label="Novo Voluntário"
-      icone="add"
+      variante="icon"
+      icone="edit"
       cor="primary"
-      (click)="abrirModalCadastroVoluntario()"
+      (click)="abrirModalEdicaoVoluntario(voluntario)"
     />
-  </app-cabecalho-pagina>
-
-  <div class="container-tabela mat-elevation-z2">
-    <app-spinner [carregando]="estaCarregando()" />
-    <table mat-table [dataSource]="voluntarios()">
-      <ng-container matColumnDef="nome">
-        <th mat-header-cell *matHeaderCellDef>Nome</th>
-        <td mat-cell *matCellDef="let voluntario">
-          {{ voluntario.pessoa.nome }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="tipoVoluntario">
-        <th mat-header-cell *matHeaderCellDef>Tipo</th>
-        <td mat-cell *matCellDef="let voluntario">
-          <span class="badge-tipo-voluntario">
-            {{ voluntario.tipoVoluntario }}
-          </span>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="formacaoAcademica">
-        <th mat-header-cell *matHeaderCellDef>Formação</th>
-        <td mat-cell *matCellDef="let voluntario">
-          {{ voluntario.formacaoAcademica || "—" }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="acoes">
-        <th mat-header-cell *matHeaderCellDef>Ações</th>
-        <td mat-cell *matCellDef="let voluntario" class="actions-cell">
-          <div class="actions-wrapper">
-            <app-botao
-              variante="icon"
-              icone="edit"
-              cor="primary"
-              (click)="abrirModalEdicaoVoluntario(voluntario)"
-            />
-            <app-botao
-              variante="icon"
-              icone="person_add"
-              cor="primary"
-              (click)="abrirModalCriacaoLogin(voluntario)"
-            />
-            <app-botao
-              variante="icon"
-              icone="delete"
-              cor="warn"
-              [desabilitado]="estaCarregando()"
-              (click)="excluirVoluntario(voluntario)"
-            />
-          </div>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="colunasExibidas"></tr>
-      <tr mat-row *matRowDef="let row; columns: colunasExibidas"></tr>
-
-      @if (!estaCarregando()) {
-        <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell no-data" [attr.colspan]="colunasExibidas.length">
-            Nenhum voluntário encontrado.
-          </td>
-        </tr>
-      }
-    </table>
-
-    <mat-paginator
-      [length]="totalItens()"
-      [pageSize]="itensPorPagina()"
-      [pageIndex]="paginaAtual()"
-      [pageSizeOptions]="[5, 10, 25, 50]"
-      (page)="mudarPagina($event)"
-      aria-label="Selecione a página"
-    >
-    </mat-paginator>
-  </div>
-</div>
+    <app-botao
+      variante="icon"
+      icone="person_add"
+      cor="primary"
+      (click)="abrirModalCriacaoLogin(voluntario)"
+    />
+    <app-botao
+      variante="icon"
+      icone="delete"
+      cor="warn"
+      [desabilitado]="estaCarregando()"
+      (click)="excluirVoluntario(voluntario)"
+    />
+  </ng-template>
+</app-tabela>

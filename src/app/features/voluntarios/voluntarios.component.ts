@@ -2,17 +2,18 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { VoluntarioService } from '../../core/services/voluntario.service';
 import { Voluntario } from '../../core/models/voluntario.model';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatPaginatorIntl } from '@angular/material/paginator';
-import { CustomPaginatorIntl } from '../../core/i18n/custom-paginator-intl';
+import { PageEvent } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { VoluntarioFormComponent } from './components/voluntario-form/voluntario-form.component';
 import { BotaoComponent } from '../../shared/components/botao/botao.component';
 import { CabecalhoPaginaComponent } from '../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
-import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
+import {
+  TabelaComponent,
+  ColunaTabela,
+} from '../../shared/components/tabela/tabela.component';
+import { TabelaCelulaDirective } from '../../shared/components/tabela/directives/tabela-celula.directive';
 import { CriarLoginComponent } from './components/criar-login/criar-login.component';
 
 @Component({
@@ -20,18 +21,16 @@ import { CriarLoginComponent } from './components/criar-login/criar-login.compon
   standalone: true,
   imports: [
     CommonModule,
-    MatTableModule,
-    MatPaginatorModule,
     MatDialogModule,
     MatSnackBarModule,
     MatChipsModule,
     BotaoComponent,
     CabecalhoPaginaComponent,
-    SpinnerComponent,
+    TabelaComponent,
+    TabelaCelulaDirective,
   ],
   templateUrl: './voluntarios.component.html',
   styleUrl: './voluntarios.component.scss',
-  providers: [{ provide: MatPaginatorIntl, useClass: CustomPaginatorIntl }],
 })
 export class VoluntariosComponent implements OnInit {
   private voluntarioService = inject(VoluntarioService);
@@ -41,16 +40,16 @@ export class VoluntariosComponent implements OnInit {
   voluntarios = signal<Voluntario[]>([]);
   estaCarregando = signal(false);
 
-  // ESTADOS DE PAGINAÇÃO (convertendo entre página UI e skip de API)
+  // ESTADOS DE PAGINAÇÃO
   totalItens = signal(0);
-  itensPorPagina = signal(10);
   paginaAtual = signal(1);
+  itensPorPagina = signal(10);
 
-  colunasExibidas: string[] = [
-    'nome',
-    'tipoVoluntario',
-    'formacaoAcademica',
-    'acoes',
+  colunas: ColunaTabela<Voluntario>[] = [
+    { chave: 'nome', titulo: 'Nome', celula: (v) => v.pessoa.nome },
+    { chave: 'tipoVoluntario', titulo: 'Tipo' },
+    { chave: 'formacaoAcademica', titulo: 'Formação', celula: (v) => v.formacaoAcademica || '—' },
+    { chave: 'acoes', titulo: 'Ações', largura: '160px' },
   ];
 
   ngOnInit(): void {
