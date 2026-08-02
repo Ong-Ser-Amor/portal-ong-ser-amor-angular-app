@@ -12,6 +12,7 @@ import { CustomPaginatorIntl } from '../../core/i18n/custom-paginator-intl';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ButtonComponent } from '../../shared/components/button/button.component';
+import { CabecalhoPaginaComponent } from '../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
 import { CursoService } from '../../core/services/curso.service';
 import { CursoFormComponent } from './components/formulario-curso/formulario-curso.component';
 
@@ -29,6 +30,7 @@ import { CursoFormComponent } from './components/formulario-curso/formulario-cur
     MatDialogModule,
     MatSnackBarModule,
     ButtonComponent,
+    CabecalhoPaginaComponent,
   ],
   templateUrl: './cursos.component.html',
   styleUrl: './cursos.component.scss',

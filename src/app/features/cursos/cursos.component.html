@@ -1,8 +1,7 @@
 <div class="container-cursos">
-  <header class="page-header">
-    <h1>Cursos</h1>
+  <app-cabecalho-pagina titulo="Cursos">
     <app-button label="Novo Curso" icon="add" (click)="adicionar()" />
-  </header>
+  </app-cabecalho-pagina>
 
   @if (estaCarregando()) {
     <div class="loading-shade">
