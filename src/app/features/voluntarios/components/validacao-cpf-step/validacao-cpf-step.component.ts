@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { ButtonComponent } from '../../../../shared/components/button/button.component';
+import { BotaoComponent } from '../../../../shared/components/botao/botao.component';
 import { CpfInputComponent } from '../../../../shared/components/cpf-input/cpf-input.component';
 
 @Component({
@@ -19,7 +19,7 @@ import { CpfInputComponent } from '../../../../shared/components/cpf-input/cpf-i
     CommonModule,
     ReactiveFormsModule,
     MatProgressBarModule,
-    ButtonComponent,
+    BotaoComponent,
     CpfInputComponent,
   ],
   templateUrl: './validacao-cpf-step.component.html',

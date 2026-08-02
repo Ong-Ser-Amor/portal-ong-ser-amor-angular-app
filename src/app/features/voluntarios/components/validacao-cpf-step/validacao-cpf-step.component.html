@@ -25,17 +25,18 @@
     }
 
     <div class="step-actions">
-      <app-button
+      <app-botao
         label="Cancelar"
-        color="basic"
-        [disabled]="carregando()"
+        variante="stroked"
+        [desabilitado]="carregando()"
         (click)="aoCancelar()"
       />
-      <app-button
+      <app-botao
         [label]="botaoTexto"
-        [loading]="carregando()"
-        [disabled]="carregando()"
-        type="submit"
+        cor="primary"
+        [carregando]="carregando()"
+        [desabilitado]="carregando()"
+        tipo="submit"
       />
     </div>
   </form>
