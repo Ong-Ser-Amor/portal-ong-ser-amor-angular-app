@@ -5,7 +5,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { CustomPaginatorIntl } from '../../core/i18n/custom-paginator-intl';
@@ -13,6 +12,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BotaoComponent } from '../../shared/components/botao/botao.component';
 import { CabecalhoPaginaComponent } from '../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { CursoService } from '../../core/services/curso.service';
 import { CursoFormComponent } from './components/formulario-curso/formulario-curso.component';
 
@@ -25,12 +25,12 @@ import { CursoFormComponent } from './components/formulario-curso/formulario-cur
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
     MatPaginatorModule,
     MatDialogModule,
     MatSnackBarModule,
     BotaoComponent,
     CabecalhoPaginaComponent,
+    SpinnerComponent,
   ],
   templateUrl: './cursos.component.html',
   styleUrl: './cursos.component.scss',

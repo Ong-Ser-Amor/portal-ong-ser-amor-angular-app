@@ -3,11 +3,7 @@
     <app-botao label="Novo Curso" icone="add" cor="primary" (click)="adicionar()" />
   </app-cabecalho-pagina>
 
-  @if (estaCarregando()) {
-    <div class="loading-shade">
-      <mat-spinner diameter="50"></mat-spinner>
-    </div>
-  }
+  <app-spinner [carregando]="estaCarregando()" />
 
   <div class="table-container mat-elevation-z2">
     <table mat-table [dataSource]="cursos()">

@@ -2,10 +2,10 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BotaoComponent } from '../../shared/components/botao/botao.component';
 import { CabecalhoPaginaComponent } from '../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { Beneficiario } from '../../core/models/beneficiario.model';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BeneficiarioService } from '../../core/services/beneficiario.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -14,11 +14,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   standalone: true,
   imports: [
     RouterLink,
-    CabecalhoPaginaComponent,
     MatTableModule,
-    BotaoComponent,
-    MatProgressSpinnerModule,
     MatPaginatorModule,
+    BotaoComponent,
+    CabecalhoPaginaComponent,
+    SpinnerComponent,
   ],
   templateUrl: './beneficiarios.component.html',
   styleUrls: ['./beneficiarios.component.scss'],

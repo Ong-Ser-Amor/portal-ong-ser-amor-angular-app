@@ -3,7 +3,6 @@ import { VoluntarioService } from '../../core/services/voluntario.service';
 import { Voluntario } from '../../core/models/voluntario.model';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { CustomPaginatorIntl } from '../../core/i18n/custom-paginator-intl';
@@ -13,6 +12,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { VoluntarioFormComponent } from './components/voluntario-form/voluntario-form.component';
 import { BotaoComponent } from '../../shared/components/botao/botao.component';
 import { CabecalhoPaginaComponent } from '../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { CriarLoginComponent } from './components/criar-login/criar-login.component';
 
 @Component({
@@ -21,13 +21,13 @@ import { CriarLoginComponent } from './components/criar-login/criar-login.compon
   imports: [
     CommonModule,
     MatTableModule,
-    MatProgressSpinnerModule,
     MatPaginatorModule,
     MatDialogModule,
     MatSnackBarModule,
     MatChipsModule,
     BotaoComponent,
     CabecalhoPaginaComponent,
+    SpinnerComponent,
   ],
   templateUrl: './voluntarios.component.html',
   styleUrl: './voluntarios.component.scss',

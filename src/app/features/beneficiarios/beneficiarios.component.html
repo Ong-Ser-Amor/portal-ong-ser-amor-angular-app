@@ -3,11 +3,7 @@
     <app-botao label="Novo Beneficiário" icone="add" cor="primary" routerLink="novo" />
   </app-cabecalho-pagina>
 
-  @if (estaCarregando()) {
-    <div class="loading-shade">
-      <mat-spinner diameter="50"></mat-spinner>
-    </div>
-  }
+  <app-spinner [carregando]="estaCarregando()" />
 
   <div class="container-tabela mat-elevation-z2">
     <table mat-table [dataSource]="beneficiarios()">
