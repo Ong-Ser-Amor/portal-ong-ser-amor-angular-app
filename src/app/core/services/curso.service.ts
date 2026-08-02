@@ -19,11 +19,11 @@ export class CursoService {
 
   getAll(
     pagina: number = 1,
-    limite: number = 10,
+    itensPorPagina: number = 10,
   ): Observable<PaginacaoResposta<Curso>> {
     const params = new HttpParams()
       .set('pagina', pagina.toString())
-      .set('limite', limite.toString());
+      .set('itensPorPagina', itensPorPagina.toString());
 
     return this.http.get<PaginacaoResposta<Curso>>(this.API_URL, { params });
   }

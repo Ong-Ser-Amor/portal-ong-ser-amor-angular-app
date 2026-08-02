@@ -43,9 +43,10 @@ export class CursosComponent implements OnInit {
   estaCarregando = signal(false);
 
   // ESTADOS DE PAGINAÇÃO
-  totalItens = signal(0);
-  itensPorPagina = signal(5);
   paginaAtual = signal(1);
+  itensPorPagina = signal(5);
+  totalItens = signal(0);
+  totalPaginas = signal(0);
 
   colunasExibidas: string[] = ['nome', 'acoes'];
 
@@ -62,9 +63,10 @@ export class CursosComponent implements OnInit {
         next: (response) => {
           this.cursos.set(response.dados);
 
-          this.totalItens.set(response.meta.totalItens);
           this.paginaAtual.set(response.meta.paginaAtual);
           this.itensPorPagina.set(response.meta.itensPorPagina);
+          this.totalItens.set(response.meta.totalItens);
+          this.totalPaginas.set(response.meta.totalPaginas);
 
           this.estaCarregando.set(false);
         },
@@ -82,7 +84,6 @@ export class CursosComponent implements OnInit {
     this.carregarCursos();
   }
 
-  // Métodos para ações futuras (CRUD)
   aoAdicionar() {
     const dialogRef = this.dialog.open(CursoFormComponent, {
       width: '400px',
