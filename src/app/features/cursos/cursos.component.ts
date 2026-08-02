@@ -49,7 +49,7 @@ export class CursosComponent implements OnInit {
 
   colunas: ColunaTabela<Curso>[] = [
     { chave: 'nome', titulo: 'Nome' },
-    { chave: 'acoes', titulo: '', largura: '120px' },
+    { chave: 'acoes', titulo: '' },
   ];
 
   ngOnInit(): void {
