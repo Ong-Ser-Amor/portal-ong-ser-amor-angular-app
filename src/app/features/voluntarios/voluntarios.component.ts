@@ -75,13 +75,14 @@ export class VoluntariosComponent implements OnInit {
       },
     });
   }
-  aoMudarPagina(event: PageEvent) {
+
+  mudarPagina(event: PageEvent) {
     this.paginaAtual.set(event.pageIndex);
     this.itensPorPagina.set(event.pageSize);
     this.carregarVoluntarios();
   }
 
-  aoAdicionar() {
+  abrirModalCadastroVoluntario() {
     const dialogRef = this.dialog.open(VoluntarioFormComponent, {
       width: '760px',
       maxWidth: '95vw',
@@ -96,7 +97,7 @@ export class VoluntariosComponent implements OnInit {
     });
   }
 
-  aoEditar(voluntario: Voluntario) {
+  abrirModalEdicaoVoluntario(voluntario: Voluntario) {
     const dialogRef = this.dialog.open(VoluntarioFormComponent, {
       width: '760px',
       maxWidth: '95vw',
@@ -110,7 +111,7 @@ export class VoluntariosComponent implements OnInit {
     });
   }
 
-  aoExcluir(voluntario: Voluntario) {
+  excluirVoluntario(voluntario: Voluntario) {
     if (confirm(`Tem certeza que deseja excluir ${voluntario.pessoa.nome}?`)) {
       this.estaCarregando.set(true);
 
@@ -130,11 +131,7 @@ export class VoluntariosComponent implements OnInit {
     }
   }
 
-  aoCriarLogin(voluntario: Voluntario) {
-    this.abrirModalCriarLogin(voluntario);
-  }
-
-  private abrirModalCriarLogin(voluntario: Voluntario) {
+  abrirModalCriacaoLogin(voluntario: Voluntario) {
     const dialogRef = this.dialog.open(CriarLoginComponent, {
       width: '500px',
       data: { voluntario },
