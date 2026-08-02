@@ -33,7 +33,6 @@ import { CursoFormComponent } from './components/formulario-curso/formulario-cur
     TabelaCelulaDirective,
   ],
   templateUrl: './cursos.component.html',
-  styleUrl: './cursos.component.scss',
 })
 export class CursosComponent implements OnInit {
   private cursoService = inject(CursoService);
