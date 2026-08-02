@@ -1,8 +1,7 @@
 <div class="container">
-  <header>
-    <h1>Beneficiários</h1>
-    <app-button label="Novo Beneficiário" icon="add" />
-  </header>
+  <app-cabecalho-pagina titulo="Beneficiários">
+    <app-button label="Novo Beneficiário" icon="add" routerLink="novo" />
+  </app-cabecalho-pagina>
 
   @if (estaCarregando()) {
     <div class="loading-shade">

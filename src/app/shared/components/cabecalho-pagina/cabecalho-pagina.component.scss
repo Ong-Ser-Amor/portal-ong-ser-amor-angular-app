@@ -1,0 +1,25 @@
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  .area-titulo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #333;
+    }
+  }
+
+  .area-acoes {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}

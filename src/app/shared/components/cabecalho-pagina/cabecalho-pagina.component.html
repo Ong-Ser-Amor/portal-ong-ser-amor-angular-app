@@ -1,0 +1,13 @@
+<header>
+  <div class="area-titulo">
+    <h1>{{ titulo() }}</h1>
+  </div>
+
+  <div class="area-acoes">
+    @if (exibirBotaoVoltar()) {
+    <app-button [label]="textoVoltar()" icon="arrow_back" variant="stroked" color="basic"
+      [routerLink]="rotaVoltar() || null" (click)="clicarVoltar($event)" />
+    }
+    <ng-content></ng-content>
+  </div>
+</header>

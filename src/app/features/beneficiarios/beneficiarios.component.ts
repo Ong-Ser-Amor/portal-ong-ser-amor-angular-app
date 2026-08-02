@@ -1,5 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../shared/components/button/button.component';
+import { CabecalhoPaginaComponent } from '../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
 import { Beneficiario } from '../../core/models/beneficiario.model';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -11,6 +13,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   selector: 'app-beneficiarios',
   standalone: true,
   imports: [
+    RouterLink,
+    CabecalhoPaginaComponent,
     MatTableModule,
     ButtonComponent,
     MatProgressSpinnerModule,
