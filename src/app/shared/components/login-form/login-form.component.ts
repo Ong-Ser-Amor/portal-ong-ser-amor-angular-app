@@ -8,7 +8,7 @@ import {
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { InputComponent } from '../input/input.component';
-import { ButtonComponent } from '../button/button.component';
+import { BotaoComponent } from '../botao/botao.component';
 
 export interface LoginFormSubmit {
   email: string;
@@ -18,7 +18,7 @@ export interface LoginFormSubmit {
 @Component({
   selector: 'app-login-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, InputComponent, ButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, InputComponent, BotaoComponent],
   templateUrl: './login-form.component.html',
   styleUrl: './login-form.component.scss',
 })

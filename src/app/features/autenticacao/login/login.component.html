@@ -20,13 +20,14 @@
           [required]="true"
         />
         <mat-card-actions>
-          <app-button
+          <app-botao
             label="Entrar"
-            class="full-width"
-            size="lg"
-            [disabled]="estaCarregando"
-            [loading]="estaCarregando"
-            type="submit"
+            cor="primary"
+            tamanho="lg"
+            [larguraTotal]="true"
+            [desabilitado]="estaCarregando"
+            [carregando]="estaCarregando"
+            tipo="submit"
           />
           @if (erroLogin()) {
           <mat-error>E-mail ou senha incorretos.</mat-error>

@@ -9,7 +9,7 @@ import {
 import { AutenticacaoService } from '../../../core/services/autenticacao.service';
 import { LoginRequisicao } from '../../../core/models/autenticacao.models';
 import { Router } from '@angular/router';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { BotaoComponent } from '../../../shared/components/botao/botao.component';
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
@@ -19,7 +19,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   imports: [
     MatCardModule,
     ReactiveFormsModule,
-    ButtonComponent,
+    BotaoComponent,
     InputComponent,
     MatFormFieldModule,
   ],
