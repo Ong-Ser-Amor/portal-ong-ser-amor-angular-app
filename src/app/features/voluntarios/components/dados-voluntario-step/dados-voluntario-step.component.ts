@@ -10,7 +10,7 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { ButtonComponent } from '../../../../shared/components/button/button.component';
+import { BotaoComponent } from '../../../../shared/components/botao/botao.component';
 import { InputComponent } from '../../../../shared/components/input/input.component';
 import {
   NivelFormacao,
@@ -31,7 +31,7 @@ export interface DadosVoluntarioSubmit {
     ReactiveFormsModule,
     MatFormFieldModule,
     MatSelectModule,
-    ButtonComponent,
+    BotaoComponent,
     InputComponent,
   ],
   templateUrl: './dados-voluntario-step.component.html',

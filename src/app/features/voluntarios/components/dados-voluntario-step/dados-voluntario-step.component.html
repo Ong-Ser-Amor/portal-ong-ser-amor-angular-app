@@ -33,19 +33,19 @@
     </mat-form-field>
 
     <div class="step-actions">
-      <app-button
+      <app-botao
         label="Voltar"
-        color="basic"
-        type="button"
-        [disabled]="carregando()"
+        variante="stroked"
+        tipo="button"
+        [desabilitado]="carregando()"
         (click)="aoVoltar()"
       />
-      <app-button
+      <app-botao
         [label]="textoBotaoSubmit"
-        color="primary"
-        type="submit"
-        [loading]="carregando()"
-        [disabled]="carregando()"
+        cor="primary"
+        tipo="submit"
+        [carregando]="carregando()"
+        [desabilitado]="carregando()"
       />
     </div>
   </form>
