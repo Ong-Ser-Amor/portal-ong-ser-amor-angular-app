@@ -1,12 +1,11 @@
 <div class="container">
-  <header>
-    <h1>Voluntários</h1>
+  <app-cabecalho-pagina titulo="Voluntários">
     <app-button
       label="Novo Voluntário"
       icon="add"
       (click)="abrirModalCadastroVoluntario()"
     />
-  </header>
+  </app-cabecalho-pagina>
 
   @if (estaCarregando()) {
     <div class="loading-shade">

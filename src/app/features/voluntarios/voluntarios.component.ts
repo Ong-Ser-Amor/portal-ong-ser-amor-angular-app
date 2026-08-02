@@ -12,6 +12,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { VoluntarioFormComponent } from './components/voluntario-form/voluntario-form.component';
 import { ButtonComponent } from '../../shared/components/button/button.component';
+import { CabecalhoPaginaComponent } from '../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
 import { CriarLoginComponent } from './components/criar-login/criar-login.component';
 
 @Component({
@@ -26,6 +27,7 @@ import { CriarLoginComponent } from './components/criar-login/criar-login.compon
     MatSnackBarModule,
     MatChipsModule,
     ButtonComponent,
+    CabecalhoPaginaComponent,
   ],
   templateUrl: './voluntarios.component.html',
   styleUrl: './voluntarios.component.scss',
