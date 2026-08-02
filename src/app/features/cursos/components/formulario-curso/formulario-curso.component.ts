@@ -1,4 +1,4 @@
-import { ButtonComponent } from '../../../../shared/components/button/button.component';
+import { BotaoComponent } from '../../../../shared/components/botao/botao.component';
 import { Component, inject, signal } from '@angular/core';
 import {
   FormBuilder,
@@ -25,7 +25,7 @@ import { CursoService } from '../../../../core/services/curso.service';
     MatDialogModule,
     MatSnackBarModule,
     MatProgressBarModule,
-    ButtonComponent,
+    BotaoComponent,
     InputComponent,
   ],
   templateUrl: './formulario-curso.component.html',

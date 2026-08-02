@@ -19,11 +19,16 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <app-button
+  <app-botao
     label="Cancelar"
-    color="basic"
+    variante="stroked"
     (click)="onCancel()"
-    [disabled]="isSaving()"
+    [desabilitado]="isSaving()"
   />
-  <app-button label="Salvar" [disabled]="isSaving()" (click)="onSubmit()" />
+  <app-botao
+    label="Salvar"
+    cor="primary"
+    [desabilitado]="isSaving()"
+    (click)="onSubmit()"
+  />
 </mat-dialog-actions>
