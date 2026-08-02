@@ -27,9 +27,9 @@ export class BeneficiariosComponent implements OnInit {
   estaCarregando = signal(false);
 
   // ESTADOS DE PAGINAÇÃO
-  totalItens = signal(0);
-  itensPorPagina = signal(10);
   paginaAtual = signal(1);
+  itensPorPagina = signal(10);
+  totalItens = signal(0);
 
   colunasExibidas: string[] = ['nome', 'cpf', 'acoes'];
 
@@ -41,7 +41,7 @@ export class BeneficiariosComponent implements OnInit {
     this.estaCarregando.set(true);
 
     this.beneficiarioService
-      .getAll(this.itensPorPagina(), this.paginaAtual())
+      .getAll(this.paginaAtual(), this.itensPorPagina())
       .subscribe({
         next: (resposta) => {
           this.beneficiarios.set(resposta.dados);
