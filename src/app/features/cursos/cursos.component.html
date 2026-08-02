@@ -1,32 +1,30 @@
-<div class="container-cursos">
-  <app-cabecalho-pagina titulo="Cursos">
-    <app-botao label="Novo Curso" icone="add" cor="primary" (click)="adicionar()" />
-  </app-cabecalho-pagina>
+<app-cabecalho-pagina titulo="Cursos">
+  <app-botao label="Novo Curso" icone="add" cor="primary" (click)="adicionar()" />
+</app-cabecalho-pagina>
 
-  <app-tabela
-    [dados]="cursos()"
-    [colunas]="colunas"
-    [carregando]="estaCarregando()"
-    textoSemDados="Nenhum curso encontrado."
-    [totalItens]="totalItens()"
-    [paginaAtual]="paginaAtual()"
-    [itensPorPagina]="itensPorPagina()"
-    (mudarPagina)="mudarPagina($event)"
-  >
-    <ng-template appTabelaCelula="acoes" let-curso>
-      <app-botao
-        variante="icon"
-        icone="edit"
-        cor="primary"
-        (click)="editar(curso)"
-      />
-      <app-botao
-        variante="icon"
-        icone="delete"
-        cor="warn"
-        [desabilitado]="estaCarregando()"
-        (click)="excluir(curso)"
-      />
-    </ng-template>
-  </app-tabela>
-</div>
+<app-tabela
+  [dados]="cursos()"
+  [colunas]="colunas"
+  [carregando]="estaCarregando()"
+  textoSemDados="Nenhum curso encontrado."
+  [totalItens]="totalItens()"
+  [paginaAtual]="paginaAtual()"
+  [itensPorPagina]="itensPorPagina()"
+  (mudarPagina)="mudarPagina($event)"
+>
+  <ng-template appTabelaCelula="acoes" let-curso>
+    <app-botao
+      variante="icon"
+      icone="edit"
+      cor="primary"
+      (click)="editar(curso)"
+    />
+    <app-botao
+      variante="icon"
+      icone="delete"
+      cor="warn"
+      [desabilitado]="estaCarregando()"
+      (click)="excluir(curso)"
+    />
+  </ng-template>
+</app-tabela>
