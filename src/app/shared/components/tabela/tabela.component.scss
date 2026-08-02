@@ -1,0 +1,32 @@
+.container-tabela {
+  position: relative;
+  min-height: 200px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  table {
+    width: 100%;
+
+    td.mat-cell,
+    th.mat-header-cell {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      background: transparent;
+    }
+  }
+
+  .sem-dados {
+    text-align: center;
+    padding: 32px 16px;
+    color: #666;
+    font-style: italic;
+  }
+
+  mat-paginator {
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    background: #fff;
+    font-size: 14px;
+  }
+}

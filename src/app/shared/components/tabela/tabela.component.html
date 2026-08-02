@@ -1,0 +1,45 @@
+<div class="container-tabela mat-elevation-z2">
+  <app-spinner [carregando]="carregando()" />
+
+  <table mat-table [dataSource]="dados()">
+    @for (coluna of colunas(); track coluna.chave) {
+      <ng-container [matColumnDef]="coluna.chave">
+        <th mat-header-cell *matHeaderCellDef [style.width]="coluna.largura">
+          {{ coluna.titulo }}
+        </th>
+        <td mat-cell *matCellDef="let item">
+          @if (obterTemplateCelula(coluna.chave); as template) {
+            <ng-container
+              *ngTemplateOutlet="template; context: { $implicit: item, coluna: coluna.chave }"
+            ></ng-container>
+          } @else if (coluna.celula) {
+            {{ coluna.celula(item) }}
+          } @else {
+            {{ item[coluna.chave] }}
+          }
+        </td>
+      </ng-container>
+    }
+
+    <tr mat-header-row *matHeaderRowDef="chavesColunas()"></tr>
+    <tr mat-row *matRowDef="let row; columns: chavesColunas()"></tr>
+
+    @if (!carregando()) {
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell sem-dados" [attr.colspan]="chavesColunas().length">
+          {{ textoSemDados() }}
+        </td>
+      </tr>
+    }
+  </table>
+
+  <mat-paginator
+    [length]="totalItens()"
+    [pageSize]="itensPorPagina()"
+    [pageIndex]="paginaAtual() - 1"
+    [pageSizeOptions]="opcoesItensPorPagina()"
+    (page)="mudarPagina.emit($event)"
+    aria-label="Selecione a página"
+  >
+  </mat-paginator>
+</div>
