@@ -1,6 +1,6 @@
 <div class="container">
   <app-cabecalho-pagina titulo="Beneficiários">
-    <app-button label="Novo Beneficiário" icon="add" routerLink="novo" />
+    <app-botao label="Novo Beneficiário" icone="add" cor="primary" routerLink="novo" />
   </app-cabecalho-pagina>
 
   @if (estaCarregando()) {
@@ -29,17 +29,17 @@
         <th mat-header-cell *matHeaderCellDef>Ações</th>
         <td mat-cell *matCellDef="let beneficiario" class="actions-cell">
           <div class="actions-wrapper">
-            <app-button
-              variant="icon"
-              icon="edit"
-              color="primary"
+            <app-botao
+              variante="icon"
+              icone="edit"
+              cor="primary"
               (click)="editar(beneficiario)"
             />
-            <app-button
-              variant="icon"
-              icon="delete"
-              color="warn"
-              [disabled]="estaCarregando()"
+            <app-botao
+              variante="icon"
+              icone="delete"
+              cor="warn"
+              [desabilitado]="estaCarregando()"
               (click)="excluir(beneficiario)"
             />
           </div>

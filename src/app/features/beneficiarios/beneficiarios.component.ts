@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ButtonComponent } from '../../shared/components/button/button.component';
+import { BotaoComponent } from '../../shared/components/botao/botao.component';
 import { CabecalhoPaginaComponent } from '../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
 import { Beneficiario } from '../../core/models/beneficiario.model';
 import { MatTableModule } from '@angular/material/table';
@@ -16,7 +16,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     RouterLink,
     CabecalhoPaginaComponent,
     MatTableModule,
-    ButtonComponent,
+    BotaoComponent,
     MatProgressSpinnerModule,
     MatPaginatorModule,
   ],
