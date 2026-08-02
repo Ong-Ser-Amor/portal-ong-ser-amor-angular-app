@@ -2,10 +2,13 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BotaoComponent } from '../../shared/components/botao/botao.component';
 import { CabecalhoPaginaComponent } from '../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
-import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
+import {
+  TabelaComponent,
+  ColunaTabela,
+} from '../../shared/components/tabela/tabela.component';
+import { TabelaCelulaDirective } from '../../shared/components/tabela/directives/tabela-celula.directive';
 import { Beneficiario } from '../../core/models/beneficiario.model';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { PageEvent } from '@angular/material/paginator';
 import { BeneficiarioService } from '../../core/services/beneficiario.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -14,14 +17,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   standalone: true,
   imports: [
     RouterLink,
-    MatTableModule,
-    MatPaginatorModule,
     BotaoComponent,
     CabecalhoPaginaComponent,
-    SpinnerComponent,
+    TabelaComponent,
+    TabelaCelulaDirective,
   ],
   templateUrl: './beneficiarios.component.html',
-  styleUrls: ['./beneficiarios.component.scss'],
 })
 export class BeneficiariosComponent implements OnInit {
   private beneficiarioService = inject(BeneficiarioService);
@@ -35,7 +36,11 @@ export class BeneficiariosComponent implements OnInit {
   itensPorPagina = signal(10);
   totalItens = signal(0);
 
-  colunasExibidas: string[] = ['nome', 'cpf', 'acoes'];
+  colunas: ColunaTabela<Beneficiario>[] = [
+    { chave: 'nome', titulo: 'Nome', celula: (b) => b.pessoa.nome },
+    { chave: 'cpf', titulo: 'CPF', celula: (b) => b.pessoa.cpf },
+    { chave: 'acoes', titulo: 'Ações', largura: '120px' },
+  ];
 
   ngOnInit(): void {
     this.carregarBeneficiarios();
