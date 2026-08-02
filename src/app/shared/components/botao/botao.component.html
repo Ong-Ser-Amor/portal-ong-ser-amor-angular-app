@@ -1,0 +1,56 @@
+@if (variante() === 'basic') {
+<button
+  mat-button
+  [color]="cor()"
+  [type]="tipo()"
+  [disabled]="desabilitado() || carregando()"
+>
+  <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+</button>
+} @if (variante() === 'raised') {
+<button
+  mat-raised-button
+  [color]="cor()"
+  [type]="tipo()"
+  [disabled]="desabilitado() || carregando()"
+>
+  <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+</button>
+} @if (variante() === 'flat') {
+<button
+  mat-flat-button
+  [color]="cor()"
+  [type]="tipo()"
+  [disabled]="desabilitado() || carregando()"
+>
+  <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+</button>
+} @if (variante() === 'stroked') {
+<button
+  mat-stroked-button
+  [color]="cor()"
+  [type]="tipo()"
+  [disabled]="desabilitado() || carregando()"
+>
+  <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+</button>
+} @if (variante() === 'icon') {
+<button
+  mat-icon-button
+  [color]="cor()"
+  [type]="tipo()"
+  [disabled]="desabilitado() || carregando()"
+>
+  <mat-icon>{{ icone() }}</mat-icon>
+</button>
+}
+
+<ng-template #contentTpl>
+  @if (carregando()) {
+  <span>Carregando...</span>
+  } @else { @if (icone()) {
+  <mat-icon>{{ icone() }}</mat-icon>
+  }
+  <span>{{ label() }}</span>
+  }
+</ng-template>
