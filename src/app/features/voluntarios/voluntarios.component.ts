@@ -42,7 +42,7 @@ export class VoluntariosComponent implements OnInit {
   // ESTADOS DE PAGINAÇÃO (convertendo entre página UI e skip de API)
   totalItens = signal(0);
   itensPorPagina = signal(10);
-  paginaAtual = signal(0); // PageEvent usa 0-indexed
+  paginaAtual = signal(1);
 
   colunasExibidas: string[] = [
     'nome',
@@ -58,22 +58,21 @@ export class VoluntariosComponent implements OnInit {
   carregarVoluntarios() {
     this.estaCarregando.set(true);
 
-    // Converter página 0-indexed para skip
-    const skip = this.paginaAtual() * this.itensPorPagina();
-
-    this.voluntarioService.getAll(this.itensPorPagina(), skip).subscribe({
-      next: (response) => {
-        this.voluntarios.set(response.dados);
-        this.totalItens.set(response.meta.totalItens);
-        this.itensPorPagina.set(response.meta.itensPorPagina);
-        this.estaCarregando.set(false);
-      },
-      error: (err) => {
-        console.error('Erro ao carregar voluntários:', err);
-        this.snackBar.open('Erro ao carregar voluntários.', 'Fechar');
-        this.estaCarregando.set(false);
-      },
-    });
+    this.voluntarioService
+      .getAll(this.itensPorPagina(), this.paginaAtual())
+      .subscribe({
+        next: (response) => {
+          this.voluntarios.set(response.dados);
+          this.totalItens.set(response.meta.totalItens);
+          this.itensPorPagina.set(response.meta.itensPorPagina);
+          this.estaCarregando.set(false);
+        },
+        error: (err) => {
+          console.error('Erro ao carregar voluntários:', err);
+          this.snackBar.open('Erro ao carregar voluntários.', 'Fechar');
+          this.estaCarregando.set(false);
+        },
+      });
   }
 
   mudarPagina(event: PageEvent) {

@@ -17,14 +17,13 @@ export class VoluntarioService {
   private readonly API_URL = `${environment.apiUrl}/voluntarios`;
 
   getAll(
-    take: number = 10,
-    skip: number = 0
+    limite: number = 10,
+    pagina: number = 0,
   ): Observable<PaginacaoResposta<Voluntario>> {
-    // A API espera take e skip; calculamos internamente a partir de página
     return this.http.get<PaginacaoResposta<Voluntario>>(this.API_URL, {
       params: {
-        take: take.toString(),
-        skip: skip.toString(),
+        limite: limite.toString(),
+        pagina: pagina.toString(),
       },
     });
   }
