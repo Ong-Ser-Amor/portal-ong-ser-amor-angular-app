@@ -46,7 +46,6 @@ export class CursosComponent implements OnInit {
   paginaAtual = signal(1);
   itensPorPagina = signal(5);
   totalItens = signal(0);
-  totalPaginas = signal(0);
 
   colunasExibidas: string[] = ['nome', 'acoes'];
 
@@ -66,7 +65,6 @@ export class CursosComponent implements OnInit {
           this.paginaAtual.set(response.meta.paginaAtual);
           this.itensPorPagina.set(response.meta.itensPorPagina);
           this.totalItens.set(response.meta.totalItens);
-          this.totalPaginas.set(response.meta.totalPaginas);
 
           this.estaCarregando.set(false);
         },
@@ -77,14 +75,14 @@ export class CursosComponent implements OnInit {
       });
   }
 
-  aoMudarPagina(event: PageEvent) {
+  mudarPagina(event: PageEvent) {
     this.paginaAtual.set(event.pageIndex + 1);
     this.itensPorPagina.set(event.pageSize);
 
     this.carregarCursos();
   }
 
-  aoAdicionar() {
+  adicionar() {
     const dialogRef = this.dialog.open(CursoFormComponent, {
       width: '400px',
       data: null,
@@ -97,7 +95,7 @@ export class CursosComponent implements OnInit {
     });
   }
 
-  aoEditar(curso: Curso) {
+  editar(curso: Curso) {
     const dialogRef = this.dialog.open(CursoFormComponent, {
       width: '400px',
       data: curso,
@@ -110,7 +108,7 @@ export class CursosComponent implements OnInit {
     });
   }
 
-  aoExcluir(curso: Curso) {
+  excluir(curso: Curso) {
     if (confirm(`Tem certeza que deseja excluir o curso "${curso.nome}"?`)) {
       this.estaCarregando.set(true);
 

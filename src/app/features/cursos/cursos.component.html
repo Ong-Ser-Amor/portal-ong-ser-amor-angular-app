@@ -1,7 +1,7 @@
 <div class="container-cursos">
   <header class="page-header">
     <h1>Cursos</h1>
-    <app-button label="Novo Curso" icon="add" (click)="aoAdicionar()" />
+    <app-button label="Novo Curso" icon="add" (click)="adicionar()" />
   </header>
 
   @if (estaCarregando()) {
@@ -24,14 +24,14 @@
             variant="icon"
             icon="edit"
             color="primary"
-            (click)="aoEditar(curso)"
+            (click)="editar(curso)"
           />
           <app-button
             variant="icon"
             icon="delete"
             color="warn"
             [disabled]="estaCarregando()"
-            (click)="aoExcluir(curso)"
+            (click)="excluir(curso)"
           />
         </td>
       </ng-container>
@@ -50,7 +50,7 @@
       [pageSize]="itensPorPagina()"
       [pageIndex]="paginaAtual() - 1"
       [pageSizeOptions]="[5, 10, 25, 50]"
-      (page)="aoMudarPagina($event)"
+      (page)="mudarPagina($event)"
       aria-label="Selecione a página"
     >
     </mat-paginator>
