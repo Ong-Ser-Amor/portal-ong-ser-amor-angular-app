@@ -3,52 +3,30 @@
     <app-botao label="Novo Curso" icone="add" cor="primary" (click)="adicionar()" />
   </app-cabecalho-pagina>
 
-  <div class="table-container mat-elevation-z2">
-    <app-spinner [carregando]="estaCarregando()" />
-    <table mat-table [dataSource]="cursos()">
-      <ng-container matColumnDef="nome">
-        <th mat-header-cell *matHeaderCellDef>Nome</th>
-        <td mat-cell *matCellDef="let curso">{{ curso.nome }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="acoes">
-        <th mat-header-cell *matHeaderCellDef>Ações</th>
-        <td mat-cell *matCellDef="let curso">
-          <app-botao
-            variante="icon"
-            icone="edit"
-            cor="primary"
-            (click)="editar(curso)"
-          />
-          <app-botao
-            variante="icon"
-            icone="delete"
-            cor="warn"
-            [desabilitado]="estaCarregando()"
-            (click)="excluir(curso)"
-          />
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="colunasExibidas"></tr>
-      <tr mat-row *matRowDef="let row; columns: colunasExibidas"></tr>
-
-      @if (!estaCarregando()) {
-        <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell no-data" [attr.colspan]="colunasExibidas.length">
-            Nenhum curso encontrado.
-          </td>
-        </tr>
-      }
-    </table>
-    <mat-paginator
-      [length]="totalItens()"
-      [pageSize]="itensPorPagina()"
-      [pageIndex]="paginaAtual() - 1"
-      [pageSizeOptions]="[5, 10, 25, 50]"
-      (page)="mudarPagina($event)"
-      aria-label="Selecione a página"
-    >
-    </mat-paginator>
-  </div>
+  <app-tabela
+    [dados]="cursos()"
+    [colunas]="colunas"
+    [carregando]="estaCarregando()"
+    textoSemDados="Nenhum curso encontrado."
+    [totalItens]="totalItens()"
+    [paginaAtual]="paginaAtual()"
+    [itensPorPagina]="itensPorPagina()"
+    (mudarPagina)="mudarPagina($event)"
+  >
+    <ng-template appTabelaCelula="acoes" let-curso>
+      <app-botao
+        variante="icon"
+        icone="edit"
+        cor="primary"
+        (click)="editar(curso)"
+      />
+      <app-botao
+        variante="icon"
+        icone="delete"
+        cor="warn"
+        [desabilitado]="estaCarregando()"
+        (click)="excluir(curso)"
+      />
+    </ng-template>
+  </app-tabela>
 </div>

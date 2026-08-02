@@ -1,18 +1,19 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Curso } from '../../core/models/curso.model';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
+import { PageEvent } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatPaginatorIntl } from '@angular/material/paginator';
-import { CustomPaginatorIntl } from '../../core/i18n/custom-paginator-intl';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BotaoComponent } from '../../shared/components/botao/botao.component';
 import { CabecalhoPaginaComponent } from '../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
-import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
+import {
+  TabelaComponent,
+  ColunaTabela,
+} from '../../shared/components/tabela/tabela.component';
+import { TabelaCelulaDirective } from '../../shared/components/tabela/directives/tabela-celula.directive';
 import { CursoService } from '../../core/services/curso.service';
 import { CursoFormComponent } from './components/formulario-curso/formulario-curso.component';
 
@@ -21,20 +22,18 @@ import { CursoFormComponent } from './components/formulario-curso/formulario-cur
   standalone: true,
   imports: [
     CommonModule,
-    MatTableModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatPaginatorModule,
     MatDialogModule,
     MatSnackBarModule,
     BotaoComponent,
     CabecalhoPaginaComponent,
-    SpinnerComponent,
+    TabelaComponent,
+    TabelaCelulaDirective,
   ],
   templateUrl: './cursos.component.html',
   styleUrl: './cursos.component.scss',
-  providers: [{ provide: MatPaginatorIntl, useClass: CustomPaginatorIntl }],
 })
 export class CursosComponent implements OnInit {
   private cursoService = inject(CursoService);
@@ -49,7 +48,10 @@ export class CursosComponent implements OnInit {
   itensPorPagina = signal(5);
   totalItens = signal(0);
 
-  colunasExibidas: string[] = ['nome', 'acoes'];
+  colunas: ColunaTabela<Curso>[] = [
+    { chave: 'nome', titulo: 'Nome' },
+    { chave: 'acoes', titulo: 'Ações', largura: '120px' },
+  ];
 
   ngOnInit(): void {
     this.carregarCursos();
