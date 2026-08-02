@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { AfterViewChecked, AfterViewInit, Component, inject, Input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { ButtonComponent } from '../../../../shared/components/button/button.component';
+import { BotaoComponent } from '../../../../shared/components/botao/botao.component';
 import { InputComponent } from '../../../../shared/components/input/input.component';
 import { CpfInputComponent } from '../../../../shared/components/cpf-input/cpf-input.component';
 
@@ -19,7 +19,7 @@ export interface DadosPessoaSubmit {
     CommonModule,
     ReactiveFormsModule,
     MatProgressBarModule,
-    ButtonComponent,
+    BotaoComponent,
     InputComponent,
     CpfInputComponent,
   ],
