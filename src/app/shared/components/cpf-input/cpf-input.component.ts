@@ -21,7 +21,6 @@ function normalizarCpf(valor: string): string {
   standalone: true,
   imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule],
   templateUrl: './cpf-input.component.html',
-  styleUrl: './cpf-input.component.scss',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -41,8 +40,8 @@ export class CpfInputComponent implements ControlValueAccessor {
   value = signal<string>('');
   disabled = signal<boolean>(false);
 
-  private onChange: (value: string) => void = () => {};
-  private onTouched: () => void = () => {};
+  private onChange: (value: string) => void = () => { };
+  private onTouched: () => void = () => { };
 
   formatarCpf(event: Event): void {
     const input = event.target as HTMLInputElement;
