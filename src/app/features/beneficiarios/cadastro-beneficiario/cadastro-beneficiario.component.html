@@ -1,7 +1,93 @@
 <app-cabecalho-pagina titulo="Cadastro de Beneficiário" [exibirBotaoVoltar]="true" (voltar)="voltar()" />
 
-<main class="content-card mat-elevation-z2">
-  <div class="content-placeholder">
-    <p>Estrutura da tela de cadastro de beneficiários pronta.</p>
-  </div>
-</main>
+<div class="content-card mat-elevation-z2">
+  <form [formGroup]="form" class="form-cadastro" (submit)="$event.preventDefault()">
+    <h3 class="secao-titulo">Dados Pessoais</h3>
+
+    <div class="form-grid">
+      <!-- Linha 1 -->
+      <app-input
+        formControlName="nome"
+        label="Nome completo"
+        placeholder="Ex: Maria da Silva"
+        [required]="true"
+        class="col-span-2"
+      />
+
+      <app-cpf-input
+        formControlName="cpf"
+        label="CPF"
+        placeholder="000.000.000-00"
+        [required]="true"
+        class="col-span-1"
+      />
+
+      <!-- Linha 2 -->
+      <app-input
+        formControlName="dataNascimento"
+        label="Data de Nascimento"
+        type="date"
+        [required]="true"
+        class="col-span-1"
+      />
+
+      <mat-form-field appearance="outline" class="w-full col-span-1">
+        <mat-label>Escolaridade</mat-label>
+        <mat-select formControlName="escolaridade">
+          @for (nivel of niveisEscolaridade; track nivel) {
+            <mat-option [value]="nivel">{{ nivel }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full col-span-1">
+        <mat-label>Estado Civil</mat-label>
+        <mat-select formControlName="estadoCivil">
+          @for (estado of estadosCivis; track estado) {
+            <mat-option [value]="estado">{{ estado }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Linha 3 -->
+      <mat-form-field appearance="outline" class="w-full col-span-1">
+        <mat-label>Vínculo Empregatício</mat-label>
+        <mat-select formControlName="vinculoEmpregaticio">
+          @for (vinculo of vinculosEmpregaticios; track vinculo) {
+            <mat-option [value]="vinculo">{{ vinculo }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <app-input
+        formControlName="quantidadeFilhos"
+        label="Quantidade de Filhos"
+        type="number"
+        placeholder="0"
+        class="col-span-1"
+      />
+
+      <div class="checkbox-group col-span-1">
+        <mat-checkbox formControlName="emancipado" color="primary">
+          Emancipado(a)
+        </mat-checkbox>
+        <mat-checkbox formControlName="podeSairSozinho" color="primary">
+          Pode sair sozinho(a)
+        </mat-checkbox>
+      </div>
+    </div>
+
+    <div class="form-acoes">
+      <app-botao
+        label="Cancelar"
+        variante="stroked"
+        (click)="voltar()"
+      />
+      <app-botao
+        label="Salvar Beneficiário"
+        cor="primary"
+        tipo="submit"
+      />
+    </div>
+  </form>
+</div>

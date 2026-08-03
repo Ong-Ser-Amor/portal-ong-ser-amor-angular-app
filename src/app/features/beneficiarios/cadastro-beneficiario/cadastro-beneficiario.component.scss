@@ -1,17 +1,73 @@
 .content-card {
   background: #ffffff;
   border-radius: 8px;
-  padding: 24px;
-  min-height: 400px;
+  padding: 32px;
+  width: 100%;
+  box-sizing: border-box;
 
-  .content-placeholder {
+  .form-cadastro {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .secao-titulo {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 8px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px 24px;
+
+    .col-span-1 {
+      grid-column: span 1;
+    }
+
+    .col-span-2 {
+      grid-column: span 2;
+    }
+
+    .col-span-3 {
+      grid-column: span 3;
+    }
+
+    @media (max-width: 900px) {
+      grid-template-columns: 1fr;
+
+      .col-span-1,
+      .col-span-2,
+      .col-span-3 {
+        grid-column: span 1;
+      }
+    }
+  }
+
+  .checkbox-group {
+    display: flex;
+    flex-direction: row;
     align-items: center;
-    min-height: 300px;
-    color: #888;
-    font-size: 1rem;
-    border: 2px dashed #e0e0e0;
-    border-radius: 8px;
+    gap: 16px;
+    padding-top: 8px;
+  }
+
+  .checkbox-field {
+    display: flex;
+    align-items: center;
+    padding-top: 8px;
+  }
+
+  .form-acoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
   }
 }
