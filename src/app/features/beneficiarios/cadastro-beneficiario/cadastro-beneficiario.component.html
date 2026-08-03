@@ -79,7 +79,38 @@
     </div>
   </div>
 
-  <!-- Card 2: Canais de Contato -->
+  <!-- Card 2: Dados da Família -->
+  <div class="content-card mat-elevation-z2">
+    <h3 class="secao-titulo">Dados da Família</h3>
+
+    <div class="form-grid">
+      <mat-form-field appearance="outline" class="w-full col-span-1">
+        <mat-label>Faixa de Renda</mat-label>
+        <mat-select formControlName="faixaRenda">
+          @for (opcao of faixasRenda; track opcao.valor) {
+            <mat-option [value]="opcao.valor">{{ opcao.rotulo }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full col-span-1">
+        <mat-label>Tipo de Moradia</mat-label>
+        <mat-select formControlName="tipoMoradia">
+          @for (opcao of tiposMoradia; track opcao.valor) {
+            <mat-option [value]="opcao.valor">{{ opcao.rotulo }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <div class="checkbox-field col-span-1">
+        <mat-checkbox formControlName="possuiBeneficioSocial" color="primary">
+          Recebe benefício social
+        </mat-checkbox>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Canais de Contato -->
   <div class="content-card mat-elevation-z2">
     <div class="secao-cabecalho">
       <div>

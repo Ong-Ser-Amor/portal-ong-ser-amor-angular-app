@@ -15,6 +15,12 @@ import {
   OPCOES_ESTADO_CIVIL,
   OPCOES_VINCULO_EMPREGATICIO,
 } from '../../../core/models/beneficiario.model';
+import {
+  FaixaRenda,
+  TipoMoradia,
+  OPCOES_FAIXA_RENDA,
+  OPCOES_TIPO_MORADIA,
+} from '../../../core/models/familia.model';
 
 @Component({
   selector: 'app-cadastro-beneficiario',
@@ -43,8 +49,11 @@ export class CadastroBeneficiarioComponent implements OnInit {
   niveisEscolaridade = OPCOES_NIVEL_ESCOLARIDADE;
   estadosCivis = OPCOES_ESTADO_CIVIL;
   vinculosEmpregaticios = OPCOES_VINCULO_EMPREGATICIO;
+  faixasRenda = OPCOES_FAIXA_RENDA;
+  tiposMoradia = OPCOES_TIPO_MORADIA;
 
   form: FormGroup = this.fb.group({
+    // Dados Pessoais
     nome: ['', [Validators.required, Validators.minLength(3)]],
     cpf: ['', [Validators.required]],
     dataNascimento: ['', [Validators.required]],
@@ -54,6 +63,13 @@ export class CadastroBeneficiarioComponent implements OnInit {
     quantidadeFilhos: [0, [Validators.min(0)]],
     emancipado: [false],
     podeSairSozinho: [false],
+
+    // Dados da Família
+    faixaRenda: ['ATE_1_SALARIO' as FaixaRenda, Validators.required],
+    tipoMoradia: ['PROPRIA' as TipoMoradia, Validators.required],
+    possuiBeneficioSocial: [false],
+
+    // Canais de Contato
     contatos: this.fb.array([], [Validators.required, Validators.minLength(1)]),
   });
 
