@@ -2,9 +2,6 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { Curso } from '../../core/models/curso.model';
 import { CommonModule } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BotaoComponent } from '../../shared/components/botao/botao.component';
@@ -22,9 +19,6 @@ import { CursoFormComponent } from './components/formulario-curso/formulario-cur
   standalone: true,
   imports: [
     CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
     MatDialogModule,
     MatSnackBarModule,
     BotaoComponent,
