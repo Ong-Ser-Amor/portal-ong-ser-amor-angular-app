@@ -1,7 +1,8 @@
 <app-cabecalho-pagina titulo="Cadastro de Beneficiário" [exibirBotaoVoltar]="true" (voltar)="voltar()" />
 
-<div class="content-card mat-elevation-z2">
-  <form [formGroup]="form" class="form-cadastro" (submit)="$event.preventDefault()">
+<form [formGroup]="form" (submit)="$event.preventDefault()">
+  <!-- Card 1: Dados Pessoais -->
+  <div class="content-card mat-elevation-z2">
     <h3 class="secao-titulo">Dados Pessoais</h3>
 
     <div class="form-grid">
@@ -34,8 +35,8 @@
       <mat-form-field appearance="outline" class="w-full col-span-1">
         <mat-label>Escolaridade</mat-label>
         <mat-select formControlName="escolaridade">
-          @for (nivel of niveisEscolaridade; track nivel) {
-            <mat-option [value]="nivel">{{ nivel }}</mat-option>
+          @for (opcao of niveisEscolaridade; track opcao.valor) {
+            <mat-option [value]="opcao.valor">{{ opcao.rotulo }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -43,8 +44,8 @@
       <mat-form-field appearance="outline" class="w-full col-span-1">
         <mat-label>Estado Civil</mat-label>
         <mat-select formControlName="estadoCivil">
-          @for (estado of estadosCivis; track estado) {
-            <mat-option [value]="estado">{{ estado }}</mat-option>
+          @for (opcao of estadosCivis; track opcao.valor) {
+            <mat-option [value]="opcao.valor">{{ opcao.rotulo }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -53,8 +54,8 @@
       <mat-form-field appearance="outline" class="w-full col-span-1">
         <mat-label>Vínculo Empregatício</mat-label>
         <mat-select formControlName="vinculoEmpregaticio">
-          @for (vinculo of vinculosEmpregaticios; track vinculo) {
-            <mat-option [value]="vinculo">{{ vinculo }}</mat-option>
+          @for (opcao of vinculosEmpregaticios; track opcao.valor) {
+            <mat-option [value]="opcao.valor">{{ opcao.rotulo }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -76,18 +77,87 @@
         </mat-checkbox>
       </div>
     </div>
+  </div>
 
-    <div class="form-acoes">
+  <!-- Card 2: Canais de Contato -->
+  <div class="content-card mat-elevation-z2">
+    <div class="secao-cabecalho">
+      <div>
+        <h3 class="secao-titulo">Canais de Contato</h3>
+        <span class="secao-subtitulo">Cadastre até {{ limiteContatos }} canais de contato</span>
+      </div>
+
       <app-botao
-        label="Cancelar"
-        variante="stroked"
-        (click)="voltar()"
-      />
-      <app-botao
-        label="Salvar Beneficiário"
+        label="Adicionar"
+        icone="add"
         cor="primary"
-        tipo="submit"
+        variante="stroked"
+        [desabilitado]="contatos.length >= limiteContatos"
+        (click)="adicionarContato()"
       />
     </div>
-  </form>
-</div>
+
+    @if (contatos.length === 0) {
+      <div class="lista-vazia">
+        <p>Nenhum canal de contato adicionado ainda. Clique em <strong>"Adicionar"</strong> acima para incluir.</p>
+      </div>
+    } @else {
+      <div formArrayName="contatos" class="lista-contatos">
+        @for (contato of contatos.controls; track $index) {
+          <div [formGroupName]="$index" class="contato-item">
+            <mat-form-field appearance="outline" class="tipo-field">
+              <mat-label>Tipo</mat-label>
+              <mat-select formControlName="tipoContato">
+                @for (tipo of tiposContato; track tipo.valor) {
+                  <mat-option [value]="tipo.valor">{{ tipo.rotulo }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <app-input
+              formControlName="valor"
+              label="Contato"
+              placeholder="Ex: (11) 99999-9999 ou email@exemplo.com"
+              [required]="true"
+              class="valor-field"
+            />
+
+            <div class="principal-field">
+              <mat-radio-button
+                [checked]="contato.get('ehPrincipal')?.value"
+                (change)="marcarPrincipal($index)"
+                color="primary"
+              >
+                Principal
+              </mat-radio-button>
+            </div>
+
+            <div class="acoes-field">
+              <app-botao
+                icone="delete"
+                cor="warn"
+                variante="icon"
+                (click)="removerContato($index)"
+                aria-label="Remover contato"
+              />
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Ações Globais do Formulário -->
+  <div class="form-acoes">
+    <app-botao
+      label="Cancelar"
+      variante="stroked"
+      (click)="voltar()"
+    />
+    <app-botao
+      label="Salvar Beneficiário"
+      cor="primary"
+      tipo="submit"
+    />
+  </div>
+</form>

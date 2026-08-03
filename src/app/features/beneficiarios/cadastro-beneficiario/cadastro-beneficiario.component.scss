@@ -5,6 +5,10 @@
   width: 100%;
   box-sizing: border-box;
 
+  & + .content-card {
+    margin-top: 24px;
+  }
+
   .form-cadastro {
     display: flex;
     flex-direction: column;
@@ -15,9 +19,28 @@
     font-size: 1.1rem;
     font-weight: 600;
     color: #333;
-    margin: 0 0 8px 0;
+    margin: 0 0 16px 0;
     padding-bottom: 12px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .secao-cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .secao-titulo {
+      margin: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+  }
+
+  .secao-subtitulo {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 4px;
+    display: block;
   }
 
   .form-grid {
@@ -62,12 +85,86 @@
     padding-top: 8px;
   }
 
-  .form-acoes {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
+  .lista-vazia {
+    padding: 32px 16px;
+    text-align: center;
+    color: #777;
+    background-color: #fafafa;
+    border: 1px dashed rgba(0, 0, 0, 0.12);
+    border-radius: 6px;
     margin-top: 16px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+    p {
+      margin: 0;
+      font-size: 0.95rem;
+    }
   }
+
+  .lista-contatos {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .contato-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background-color: #fcfcfc;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      border-color: rgba(0, 0, 0, 0.18);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    .tipo-field {
+      width: 180px;
+      flex-shrink: 0;
+    }
+
+    .valor-field {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .principal-field {
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      flex-shrink: 0;
+    }
+
+    .acoes-field {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+
+      .tipo-field,
+      .valor-field {
+        width: 100%;
+      }
+
+      .principal-field,
+      .acoes-field {
+        justify-content: space-between;
+      }
+    }
+  }
+}
+
+.form-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
 }
