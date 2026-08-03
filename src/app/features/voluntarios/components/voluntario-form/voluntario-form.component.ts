@@ -8,7 +8,6 @@ import {
   signal,
 } from '@angular/core';
 
-import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
@@ -47,7 +46,6 @@ import { DadosVoluntarioStepComponent } from '../dados-voluntario-step/dados-vol
     MatSnackBarModule,
     MatProgressBarModule,
     MatStepperModule,
-    MatButtonModule,
     ValidacaoCpfStepComponent,
     DadosPessoaStepComponent,
     DadosVoluntarioStepComponent,
