@@ -11,7 +11,7 @@ import { DateInputComponent } from '../../../shared/components/date-input/date-i
 import { BotaoComponent } from '../../../shared/components/botao/botao.component';
 import { FormularioDadosPessoaisComponent } from '../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.component';
 import { criarFormGroupPessoa } from '../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.utils';
-import { finalize } from 'rxjs';
+import { Subject, debounceTime, finalize } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -34,7 +34,6 @@ import { UF, OPCOES_UF } from '../../../core/models/endereco.model';
 import { BeneficiarioService } from '../../../core/services/beneficiario.service';
 import { PessoaService } from '../../../core/services/pessoa.service';
 import { PessoaResposta } from '../../../core/models/pessoa.model';
-import { PaginacaoResposta } from '../../../core/models/api-paginacao-resposta.model';
 
 @Component({
   selector: 'app-cadastro-beneficiario',
@@ -65,12 +64,19 @@ export class CadastroBeneficiarioComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly snackBar = inject(MatSnackBar);
 
+  private readonly buscaResponsavelSubject = new Subject<string>();
+
   estaCarregando = signal(false);
   responsavelSelecionado = signal<PessoaResposta | null>(null);
   familiaIdSelecionada = signal<string | null>(null);
   opcoesResponsavel = signal<Beneficiario[]>([]);
   buscandoResponsavel = signal<boolean>(false);
   erroResponsavel = signal<string>('');
+  nenhumResponsavelEncontrado = signal<boolean>(false);
+
+  solicitarBuscaResponsavel(termo: string): void {
+    this.buscaResponsavelSubject.next(termo);
+  }
 
   definirResponsavel(beneficiario: Beneficiario): void {
     this.responsavelSelecionado.set(beneficiario.pessoa);
@@ -147,49 +153,61 @@ export class CadastroBeneficiarioComponent implements OnInit {
     if (enderecoDisabled) enderecoGroup.disable({ emitEvent: false });
   }
 
-  buscarResponsavel(event: Event): void {
-    const rawValue = (event.target as HTMLInputElement).value || '';
-    const termo = rawValue.trim();
+  buscaResponsavel(termo: string): void {
+    const termoLimpo = (termo || '').trim();
+    const somenteNumeros = termoLimpo.replace(/\D/g, '');
+    const ehNumerico = somenteNumeros.length > 0 && (somenteNumeros.length === termoLimpo.length || termoLimpo.includes('.') || termoLimpo.includes('-'));
 
-    if (!termo) {
+    if (!termoLimpo) {
       this.opcoesResponsavel.set([]);
       this.erroResponsavel.set('');
+      this.nenhumResponsavelEncontrado.set(false);
       return;
     }
 
-    const apenasNumeros = termo.replace(/\D/g, '');
-    let filtro: FiltroBuscaBeneficiario;
+    const filtro: FiltroBuscaBeneficiario = {
+      pagina: 1,
+      itensPorPagina: 10,
+    };
 
-    if (apenasNumeros.length === 11) {
-      filtro = { pagina: 1, itensPorPagina: 1, cpf: apenasNumeros };
-    } else if (termo.length >= 3) {
-      filtro = { pagina: 1, itensPorPagina: 10, nome: termo };
+    if (ehNumerico) {
+      if (somenteNumeros.length === 11) {
+        filtro.cpf = somenteNumeros;
+      } else {
+        this.opcoesResponsavel.set([]);
+        this.nenhumResponsavelEncontrado.set(false);
+        this.erroResponsavel.set('');
+        return;
+      }
     } else {
-      this.erroResponsavel.set('Digite pelo menos 3 letras para pesquisar por nome ou 11 números para CPF.');
-      return;
+      if (termoLimpo.length >= 3) {
+        filtro.nome = termoLimpo;
+      } else {
+        this.opcoesResponsavel.set([]);
+        this.nenhumResponsavelEncontrado.set(false);
+        this.erroResponsavel.set('');
+        return;
+      }
     }
 
     this.buscandoResponsavel.set(true);
     this.erroResponsavel.set('');
-    this.opcoesResponsavel.set([]);
+    this.nenhumResponsavelEncontrado.set(false);
 
     this.beneficiarioService
       .buscarTodos(filtro)
       .pipe(finalize(() => this.buscandoResponsavel.set(false)))
       .subscribe({
         next: (resposta) => {
-          if (resposta.dados.length === 1) {
-            this.definirResponsavel(resposta.dados[0]);
-          } else if (resposta.dados.length > 1) {
-            this.opcoesResponsavel.set(resposta.dados);
-          } else {
-            const complemento = filtro.cpf ? 'com este CPF' : 'com este nome';
-            this.erroResponsavel.set(`Nenhum responsável encontrado ${complemento}.`);
-          }
+          const lista = resposta.dados || [];
+          this.opcoesResponsavel.set(lista);
+          this.nenhumResponsavelEncontrado.set(lista.length === 0);
         },
         error: (err) => {
           console.error('Erro ao buscar responsável:', err);
           this.erroResponsavel.set('Erro ao realizar a busca pelo responsável.');
+          this.opcoesResponsavel.set([]);
+          this.nenhumResponsavelEncontrado.set(true);
         },
       });
   }
@@ -272,6 +290,10 @@ export class CadastroBeneficiarioComponent implements OnInit {
 
     // Estado inicial
     this.atualizarEstadoControles();
+
+    this.buscaResponsavelSubject
+      .pipe(debounceTime(300))
+      .subscribe((termo) => this.buscaResponsavel(termo));
   }
 
   atualizarEstadoControles(): void {

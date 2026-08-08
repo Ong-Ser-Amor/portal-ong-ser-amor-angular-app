@@ -29,59 +29,6 @@
         }
         <app-checkbox formControlName="podeSairSozinho" label="Pode sair sozinho(a)" />
       </div>
-
-      <!-- Linha 4: Responsável Legal (Exibido dinamicamente apenas para menores não emancipados) -->
-      @if (ehMenorNaoEmancipado) {
-      <div class="col-span-3 secao-responsavel">
-        <div class="responsavel-header">
-          <mat-icon class="responsavel-icon">family_restroom</mat-icon>
-          <span class="responsavel-label">Responsável Legal</span>
-          <span class="badge-info">(Obrigatório para menores de 18 anos não emancipados)</span>
-        </div>
-
-        @if (buscandoResponsavel()) {
-        <mat-progress-bar mode="indeterminate" class="my-2"></mat-progress-bar>
-        }
-
-        @if (!responsavelSelecionado()) {
-        <div class="responsavel-busca">
-          <app-input label="Responsável Legal (CPF ou Nome)"
-            placeholder="Digite o CPF (11 números) ou o Nome do Responsável" prefixIcon="search" [required]="true"
-            (blur)="buscarResponsavel($event)" class="w-full" />
-          @if (erroResponsavel()) {
-          <span class="erro-mensagem">{{ erroResponsavel() }}</span>
-          }
-
-          @if (opcoesResponsavel().length > 1) {
-          <div class="opcoes-responsavel-lista">
-            <span class="subtitulo-busca">Selecione o responsável abaixo:</span>
-            @for (opcao of opcoesResponsavel(); track opcao.id) {
-            <div class="opcao-item" (click)="definirResponsavel(opcao)">
-              <div class="opcao-info">
-                <strong>{{ opcao.pessoa.nome }}</strong>
-                <span class="opcao-cpf">CPF: {{ opcao.pessoa.cpf }}</span>
-              </div>
-              <app-botao label="Selecionar" variante="stroked" cor="primary" />
-            </div>
-            }
-          </div>
-          }
-        </div>
-        } @else {
-        <div class="responsavel-selecionado-card">
-          <div class="responsavel-info">
-            <mat-icon class="icon-check">check_circle</mat-icon>
-            <div class="flex flex-col">
-              <strong class="responsavel-nome">{{ responsavelSelecionado()?.nome }}</strong>
-              <span class="responsavel-cpf">CPF: {{ responsavelSelecionado()?.cpf }}</span>
-            </div>
-          </div>
-          <app-botao icone="delete" cor="warn" variante="icon" (click)="limparResponsavel()"
-            aria-label="Remover responsável" />
-        </div>
-        }
-      </div>
-      }
     </div>
 
     @if (!dadosPessoaisPreenchidos) {
@@ -92,6 +39,68 @@
     </div>
     }
   </div>
+
+  <!-- Card Próprio: Responsável Legal (Exibido dinamicamente apenas para menores não emancipados) -->
+  @if (ehMenorNaoEmancipado) {
+  <div class="content-card mat-elevation-z2 card-responsavel">
+    <div class="responsavel-header">
+      <div class="header-titulo-container">
+        <mat-icon class="responsavel-icon">family_restroom</mat-icon>
+        <h3 class="responsavel-titulo">Responsável Legal</h3>
+      </div>
+      <span class="badge-info">Obrigatório para menores de 18 anos não emancipados</span>
+    </div>
+
+    @if (!responsavelSelecionado()) {
+    <div class="responsavel-busca">
+      <app-input label="Pesquisar Responsável Legal" placeholder="Digite o Nome (3+ letras) ou CPF (11 números) do Responsável"
+        prefixIcon="search" (valueChange)="solicitarBuscaResponsavel($event)" class="w-full input-busca-responsavel" />
+
+      @if (buscandoResponsavel()) {
+      <mat-progress-bar mode="indeterminate" class="my-2"></mat-progress-bar>
+      }
+
+      @if (erroResponsavel()) {
+      <div class="aviso-erro">
+        <mat-icon>error</mat-icon>
+        <span>{{ erroResponsavel() }}</span>
+      </div>
+      }
+
+      @if (nenhumResponsavelEncontrado()) {
+      <div class="aviso-nao-encontrado">
+        <mat-icon>warning</mat-icon>
+        <span>Nenhum beneficiário cadastrado foi encontrado com o termo digitado.</span>
+      </div>
+      }
+
+      @if (opcoesResponsavel().length > 0) {
+      <div class="opcoes-responsavel-lista">
+        <span class="subtitulo-busca">Clique sobre o responsável abaixo para selecionar:</span>
+        @for (opcao of opcoesResponsavel(); track opcao.id) {
+        <div class="opcao-item" (click)="definirResponsavel(opcao)">
+          <div class="opcao-info">
+            <strong class="opcao-nome">{{ opcao.pessoa.nome }}</strong>
+            <span class="opcao-cpf">CPF: {{ opcao.pessoa.cpf }}</span>
+          </div>
+          <app-botao label="Selecionar" variante="stroked" cor="primary" size="small" />
+        </div>
+        }
+      </div>
+      }
+    </div>
+    } @else {
+    <div class="responsavel-selecionado-card">
+      <div class="opcao-info">
+        <strong class="opcao-nome">{{ responsavelSelecionado()?.nome }}</strong>
+        <span class="opcao-cpf">CPF: {{ responsavelSelecionado()?.cpf }}</span>
+      </div>
+      <app-botao label="Desvincular" cor="warn" variante="stroked" size="small" (click)="limparResponsavel()"
+        aria-label="Remover responsável" />
+    </div>
+    }
+  </div>
+  }
 
   <!-- Cards Dependentes (Dados da Família, Endereço, Contatos) -->
   <fieldset [disabled]="!dadosPessoaisPreenchidos" class="secoes-dependentes"
