@@ -5,36 +5,24 @@
   <mat-icon matPrefix>{{ prefixIcon() }}</mat-icon>
   }
 
-  <input
-    matInput
-    [type]="inputType"
-    [placeholder]="placeholder()"
-    [disabled]="disabled()"
-    [required]="required()"
-    [readonly]="readonly()"
-    [attr.autocomplete]="autocomplete()"
-    [attr.maxlength]="maxLength()"
-    [attr.minlength]="minLength()"
-    [formControl]="$any(control)"
-  />
+  <input matInput [appMask]="mask()" [type]="inputType" [placeholder]="placeholder()" [disabled]="disabled()"
+    [required]="required()" [readonly]="readonly()" [attr.autocomplete]="autocomplete()" [attr.maxlength]="maxLength()"
+    [attr.minlength]="minLength()" [attr.min]="min()" [attr.max]="max()" [attr.step]="step()"
+    [formControl]="$any(control)" (blur)="onBlur($event)" />
 
   @if (showPasswordToggle() && type() === 'password') {
-  <button
-    mat-icon-button
-    matSuffix
-    (click)="togglePasswordVisibility($event)"
-    [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
-    [attr.aria-pressed]="showPassword()"
-    type="button"
-    tabindex="-1"
-  >
+  <button mat-icon-button matSuffix (click)="togglePasswordVisibility($event)"
+    [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'" [attr.aria-pressed]="showPassword()"
+    type="button" tabindex="-1">
     <mat-icon>{{ showPassword() ? "visibility" : "visibility_off" }}</mat-icon>
   </button>
   } @else if (suffixIcon()) {
   <mat-icon matSuffix>{{ suffixIcon() }}</mat-icon>
-  } @if (hasError) {
+  }
+  @if (hasError) {
   <mat-error>{{ errorMessage }}</mat-error>
-  } @if (hint()) {
+  }
+  @if (hint()) {
   <mat-hint>{{ hint() }}</mat-hint>
   }
 </mat-form-field>

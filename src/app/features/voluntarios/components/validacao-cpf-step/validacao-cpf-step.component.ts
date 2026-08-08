@@ -10,7 +10,7 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { BotaoComponent } from '../../../../shared/components/botao/botao.component';
-import { CpfInputComponent } from '../../../../shared/components/cpf-input/cpf-input.component';
+import { InputComponent } from '../../../../shared/components/input/input.component';
 
 @Component({
   selector: 'app-validacao-cpf-step',
@@ -20,7 +20,7 @@ import { CpfInputComponent } from '../../../../shared/components/cpf-input/cpf-i
     ReactiveFormsModule,
     MatProgressBarModule,
     BotaoComponent,
-    CpfInputComponent,
+    InputComponent,
   ],
   templateUrl: './validacao-cpf-step.component.html',
   styleUrl: './validacao-cpf-step.component.scss',

@@ -3,6 +3,7 @@ import {
   input,
   signal,
   inject,
+  output,
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -14,6 +15,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import {
+  AppMaskDirective,
+  InputMaskType,
+} from '../../directives/app-mask.directive';
 
 export type InputType =
   | 'text'
@@ -22,8 +27,7 @@ export type InputType =
   | 'number'
   | 'tel'
   | 'url'
-  | 'search'
-  | 'date';
+  | 'search';
 
 @Component({
   selector: 'app-input',
@@ -35,6 +39,7 @@ export type InputType =
     MatInputModule,
     MatIconModule,
     MatButtonModule,
+    AppMaskDirective,
   ],
   templateUrl: './input.component.html',
   styleUrl: './input.component.scss',
@@ -54,9 +59,17 @@ export class InputComponent implements ControlValueAccessor {
   autocomplete = input<string>('off');
   maxLength = input<number>();
   minLength = input<number>();
+  min = input<number>();
+  max = input<number>();
+  step = input<number>();
   prefixIcon = input<string>('');
   suffixIcon = input<string>('');
   showPasswordToggle = input<boolean>(true);
+
+  /** Tipo de máscara a ser aplicada ('cpf' | 'cep' | 'celular' | 'telefone_fixo') */
+  mask = input<InputMaskType>();
+
+  blur = output<FocusEvent>();
 
   // Signals de Estado
   value = signal<string>('');
@@ -64,13 +77,18 @@ export class InputComponent implements ControlValueAccessor {
   showPassword = signal<boolean>(false);
 
   // ControlValueAccessor callbacks
-  private onChange: (value: any) => void = () => {};
-  private onTouched: () => void = () => {};
+  private onChange: (value: any) => void = () => { };
+  private onTouched: () => void = () => { };
 
   constructor() {
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
     }
+  }
+
+  onBlur(event: FocusEvent): void {
+    this.onTouched();
+    this.blur.emit(event);
   }
 
   get control() {
@@ -127,7 +145,13 @@ export class InputComponent implements ControlValueAccessor {
     if (errors['max']) {
       return `Valor máximo: ${errors['max'].max}`;
     }
-    if (errors['pattern']) {
+    if (errors['pattern'] || errors['cpfInvalido']) {
+      if (this.mask() === 'cpf') {
+        return 'CPF deve conter 11 dígitos';
+      }
+      if (this.mask() === 'cep') {
+        return 'CEP deve conter 8 dígitos';
+      }
       return 'Formato inválido';
     }
 

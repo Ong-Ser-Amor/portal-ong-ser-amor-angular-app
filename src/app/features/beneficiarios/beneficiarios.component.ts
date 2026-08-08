@@ -7,7 +7,7 @@ import {
   ColunaTabela,
 } from '../../shared/components/tabela/tabela.component';
 import { TabelaCelulaDirective } from '../../shared/components/tabela/directives/tabela-celula.directive';
-import { Beneficiario } from '../../core/models/beneficiario.model';
+import { Beneficiario, FiltroBuscaBeneficiario } from '../../core/models/beneficiario.model';
 import { PageEvent } from '@angular/material/paginator';
 import { BeneficiarioService } from '../../core/services/beneficiario.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -49,8 +49,13 @@ export class BeneficiariosComponent implements OnInit {
   carregarBeneficiarios() {
     this.estaCarregando.set(true);
 
+    const filtro: FiltroBuscaBeneficiario = {
+      pagina: this.paginaAtual(),
+      itensPorPagina: this.itensPorPagina(),
+    };
+
     this.beneficiarioService
-      .getAll(this.paginaAtual(), this.itensPorPagina())
+      .buscarTodos(filtro)
       .subscribe({
         next: (resposta) => {
           this.beneficiarios.set(resposta.dados);

@@ -85,6 +85,138 @@
     padding-top: 8px;
   }
 
+  .secao-responsavel {
+    margin-top: 12px;
+    padding: 16px 20px;
+    background-color: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .responsavel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+
+      .responsavel-icon {
+        color: #2563eb;
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+      }
+
+      .responsavel-label {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #1e293b;
+      }
+
+      .badge-info {
+        font-size: 0.8rem;
+        color: #475569;
+        background: #e2e8f0;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-weight: 500;
+      }
+    }
+
+    .responsavel-busca {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .erro-mensagem {
+      font-size: 0.82rem;
+      color: #dc2626;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .opcoes-responsavel-lista {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .subtitulo-busca {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #475569;
+      }
+
+      .opcao-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
+
+        &:hover {
+          border-color: #2563eb;
+          background-color: #f0f9ff;
+        }
+
+        .opcao-info {
+          display: flex;
+          flex-direction: column;
+
+          strong {
+            font-size: 0.9rem;
+            color: #1e293b;
+          }
+
+          .opcao-cpf {
+            font-size: 0.8rem;
+            color: #64748b;
+          }
+        }
+      }
+    }
+
+    .responsavel-selecionado-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+
+      .responsavel-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .icon-check {
+          color: #16a34a;
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+
+        .responsavel-nome {
+          font-size: 0.95rem;
+          color: #15803d;
+        }
+
+        .responsavel-cpf {
+          font-size: 0.82rem;
+          color: #166534;
+        }
+      }
+    }
+  }
+
   .lista-vazia {
     padding: 32px 16px;
     text-align: center;
@@ -159,6 +291,62 @@
         justify-content: space-between;
       }
     }
+  }
+}
+
+.secoes-dependentes {
+  border: none;
+  padding: 0;
+  margin: 24px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transition: all 0.3s ease;
+
+  &.bloqueado {
+    opacity: 0.55;
+    filter: grayscale(40%);
+    cursor: not-allowed;
+  }
+}
+
+.aviso-bloqueio {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #fff8e1;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-top: 20px;
+  font-size: 0.88rem;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #b78103;
+  }
+}
+
+.aviso-familia-herdada {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 0.88rem;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #16a34a;
   }
 }
 

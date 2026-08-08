@@ -1,19 +1,28 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { CabecalhoPaginaComponent } from '../../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
-import { InputComponent } from '../../../shared/components/input/input.component';
-import { CpfInputComponent } from '../../../shared/components/cpf-input/cpf-input.component';
+import { InputComponent, InputType } from '../../../shared/components/input/input.component';
+import { SelectComponent } from '../../../shared/components/select/select.component';
+import { CheckboxComponent } from '../../../shared/components/checkbox/checkbox.component';
+import { DateInputComponent } from '../../../shared/components/date-input/date-input.component';
 import { BotaoComponent } from '../../../shared/components/botao/botao.component';
+import { FormularioDadosPessoaisComponent } from '../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.component';
+import { criarFormGroupPessoa } from '../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.utils';
+import { finalize } from 'rxjs';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TipoContato, OPCOES_TIPO_CONTATO } from '../../../core/models/contato.model';
 import {
   OPCOES_NIVEL_ESCOLARIDADE,
   OPCOES_ESTADO_CIVIL,
   OPCOES_VINCULO_EMPREGATICIO,
+  CriarBeneficiarioDto,
+  Beneficiario,
+  FiltroBuscaBeneficiario,
 } from '../../../core/models/beneficiario.model';
 import {
   FaixaRenda,
@@ -21,6 +30,11 @@ import {
   OPCOES_FAIXA_RENDA,
   OPCOES_TIPO_MORADIA,
 } from '../../../core/models/familia.model';
+import { UF, OPCOES_UF } from '../../../core/models/endereco.model';
+import { BeneficiarioService } from '../../../core/services/beneficiario.service';
+import { PessoaService } from '../../../core/services/pessoa.service';
+import { PessoaResposta } from '../../../core/models/pessoa.model';
+import { PaginacaoResposta } from '../../../core/models/api-paginacao-resposta.model';
 
 @Component({
   selector: 'app-cadastro-beneficiario',
@@ -28,20 +42,157 @@ import {
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
-    MatSelectModule,
-    MatCheckboxModule,
     MatRadioModule,
+    MatProgressBarModule,
+    MatIconModule,
+    MatSnackBarModule,
     CabecalhoPaginaComponent,
     InputComponent,
-    CpfInputComponent,
+    SelectComponent,
+    CheckboxComponent,
+    DateInputComponent,
     BotaoComponent,
+    FormularioDadosPessoaisComponent,
   ],
   templateUrl: './cadastro-beneficiario.component.html',
   styleUrl: './cadastro-beneficiario.component.scss',
 })
 export class CadastroBeneficiarioComponent implements OnInit {
-  private router = inject(Router);
-  private fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
+  private readonly beneficiarioService = inject(BeneficiarioService);
+  private readonly pessoaService = inject(PessoaService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly snackBar = inject(MatSnackBar);
+
+  estaCarregando = signal(false);
+  responsavelSelecionado = signal<PessoaResposta | null>(null);
+  familiaIdSelecionada = signal<string | null>(null);
+  opcoesResponsavel = signal<Beneficiario[]>([]);
+  buscandoResponsavel = signal<boolean>(false);
+  erroResponsavel = signal<string>('');
+
+  definirResponsavel(beneficiario: Beneficiario): void {
+    this.responsavelSelecionado.set(beneficiario.pessoa);
+    this.opcoesResponsavel.set([]);
+    this.form.get('responsavelId')?.setValue(beneficiario.pessoa.id);
+    this.erroResponsavel.set('');
+
+    this.atualizarValidacoesPorIdade();
+    this.atualizarEstadoControles();
+
+    const familia = beneficiario.familia;
+    if (familia && familia.id) {
+      this.familiaIdSelecionada.set(familia.id);
+      this.formFamilia.patchValue({
+        faixaRenda: familia.faixaRenda,
+        tipoMoradia: familia.tipoMoradia,
+        possuiBeneficioSocial: familia.possuiBeneficioSocial,
+      });
+      this.formEndereco.patchValue({
+        cep: familia.endereco?.cep || '',
+        logradouro: familia.endereco?.logradouro || '',
+        numero: familia.endereco?.numero || '',
+        complemento: familia.endereco?.complemento || '',
+        bairro: familia.endereco?.bairro || '',
+        cidade: familia.endereco?.cidade || '',
+        uf: familia.endereco?.uf || null,
+      });
+    } else {
+      this.familiaIdSelecionada.set(null);
+    }
+  }
+
+  limparResponsavel(): void {
+    this.responsavelSelecionado.set(null);
+    this.familiaIdSelecionada.set(null);
+    this.opcoesResponsavel.set([]);
+    this.erroResponsavel.set('');
+    this.form.get('responsavelId')?.setValue('', { emitEvent: false });
+
+    // 1. Atualiza validações e estado (habilita ou desabilita controles)
+    this.atualizarValidacoesPorIdade();
+    this.atualizarEstadoControles();
+
+    // 2. Reseta os valores DEPOIS do enable/disable estar no estado final
+    this.resetarCamposFamilia();
+    this.cdr.detectChanges();
+  }
+
+  private resetarCamposFamilia(): void {
+    const familiaGroup = this.formFamilia;
+    const enderecoGroup = this.formEndereco;
+
+    const familiaDisabled = familiaGroup.disabled;
+    const enderecoDisabled = enderecoGroup.disabled;
+
+    if (familiaDisabled) familiaGroup.enable({ emitEvent: false });
+    familiaGroup.reset({
+      faixaRenda: null,
+      tipoMoradia: null,
+      possuiBeneficioSocial: false,
+    });
+    if (familiaDisabled) familiaGroup.disable({ emitEvent: false });
+
+    if (enderecoDisabled) enderecoGroup.enable({ emitEvent: false });
+    enderecoGroup.reset({
+      cep: '',
+      logradouro: '',
+      numero: '',
+      complemento: '',
+      bairro: '',
+      cidade: '',
+      uf: null,
+    });
+    if (enderecoDisabled) enderecoGroup.disable({ emitEvent: false });
+  }
+
+  buscarResponsavel(event: Event): void {
+    const rawValue = (event.target as HTMLInputElement).value || '';
+    const termo = rawValue.trim();
+
+    if (!termo) {
+      this.opcoesResponsavel.set([]);
+      this.erroResponsavel.set('');
+      return;
+    }
+
+    const apenasNumeros = termo.replace(/\D/g, '');
+    let filtro: FiltroBuscaBeneficiario;
+
+    if (apenasNumeros.length === 11) {
+      filtro = { pagina: 1, itensPorPagina: 1, cpf: apenasNumeros };
+    } else if (termo.length >= 3) {
+      filtro = { pagina: 1, itensPorPagina: 10, nome: termo };
+    } else {
+      this.erroResponsavel.set('Digite pelo menos 3 letras para pesquisar por nome ou 11 números para CPF.');
+      return;
+    }
+
+    this.buscandoResponsavel.set(true);
+    this.erroResponsavel.set('');
+    this.opcoesResponsavel.set([]);
+
+    this.beneficiarioService
+      .buscarTodos(filtro)
+      .pipe(finalize(() => this.buscandoResponsavel.set(false)))
+      .subscribe({
+        next: (resposta) => {
+          if (resposta.dados.length === 1) {
+            this.definirResponsavel(resposta.dados[0]);
+          } else if (resposta.dados.length > 1) {
+            this.opcoesResponsavel.set(resposta.dados);
+          } else {
+            const complemento = filtro.cpf ? 'com este CPF' : 'com este nome';
+            this.erroResponsavel.set(`Nenhum responsável encontrado ${complemento}.`);
+          }
+        },
+        error: (err) => {
+          console.error('Erro ao buscar responsável:', err);
+          this.erroResponsavel.set('Erro ao realizar a busca pelo responsável.');
+        },
+      });
+  }
 
   limiteContatos = 3;
 
@@ -51,31 +202,300 @@ export class CadastroBeneficiarioComponent implements OnInit {
   vinculosEmpregaticios = OPCOES_VINCULO_EMPREGATICIO;
   faixasRenda = OPCOES_FAIXA_RENDA;
   tiposMoradia = OPCOES_TIPO_MORADIA;
+  ufs = OPCOES_UF;
 
   form: FormGroup = this.fb.group({
-    // Dados Pessoais
-    nome: ['', [Validators.required, Validators.minLength(3)]],
-    cpf: ['', [Validators.required]],
-    dataNascimento: ['', [Validators.required]],
-    escolaridade: [''],
+    // Sub-grupo de Pessoa (compartilhado com validações centralizadas)
+    pessoa: criarFormGroupPessoa(this.fb),
+
+    // Dados específicos de Beneficiário
+    nivelEscolaridade: ['', [Validators.required]],
     estadoCivil: [''],
     vinculoEmpregaticio: [''],
-    quantidadeFilhos: [0, [Validators.min(0)]],
+    quantidadeFilhos: [null, [Validators.min(0), Validators.max(30), Validators.pattern(/^[0-9]+$/)]],
     emancipado: [false],
     podeSairSozinho: [false],
+    responsavelId: [''],
 
-    // Dados da Família
-    faixaRenda: ['ATE_1_SALARIO' as FaixaRenda, Validators.required],
-    tipoMoradia: ['PROPRIA' as TipoMoradia, Validators.required],
-    possuiBeneficioSocial: [false],
+    // Sub-grupo de Família
+    familia: this.fb.group({
+      faixaRenda: [{ value: null as FaixaRenda | null, disabled: true }, Validators.required],
+      tipoMoradia: [{ value: null as TipoMoradia | null, disabled: true }, Validators.required],
+      possuiBeneficioSocial: [{ value: false, disabled: true }],
+    }),
+
+    // Endereço
+    endereco: this.fb.group({
+      cep: [{ value: '', disabled: true }, [Validators.required, Validators.pattern(/^(\d{8}|\d{5}-\d{3})$/)]],
+      logradouro: [{ value: '', disabled: true }, [Validators.required]],
+      numero: [{ value: '', disabled: true }],
+      complemento: [{ value: '', disabled: true }],
+      bairro: [{ value: '', disabled: true }, [Validators.required]],
+      cidade: [{ value: '', disabled: true }, [Validators.required]],
+      uf: [{ value: null as UF | null, disabled: true }, [Validators.required]],
+    }),
 
     // Canais de Contato
     contatos: this.fb.array([], [Validators.required, Validators.minLength(1)]),
   });
 
+  get formPessoa(): FormGroup {
+    return this.form.get('pessoa') as FormGroup;
+  }
+
+  get formFamilia(): FormGroup {
+    return this.form.get('familia') as FormGroup;
+  }
+
+  get formEndereco(): FormGroup {
+    return this.form.get('endereco') as FormGroup;
+  }
+
   ngOnInit(): void {
     // Adiciona 1 contato inicial por padrão
     this.adicionarContato();
+
+    // Escuta alterações específicas no sub-grupo pessoa e demais controles sem criar loop infinito
+    this.formPessoa.get('dataNascimento')?.valueChanges.subscribe(() => {
+      this.atualizarValidacoesPorIdade();
+      this.atualizarEstadoControles();
+    });
+
+    this.form.get('emancipado')?.valueChanges.subscribe(() => {
+      this.atualizarValidacoesPorIdade();
+      this.atualizarEstadoControles();
+    });
+
+    this.formPessoa.get('cpf')?.valueChanges.subscribe(() => this.atualizarEstadoControles());
+    this.formPessoa.get('nome')?.valueChanges.subscribe(() => this.atualizarEstadoControles());
+    this.form.get('nivelEscolaridade')?.valueChanges.subscribe(() => this.atualizarEstadoControles());
+
+    // Estado inicial
+    this.atualizarEstadoControles();
+  }
+
+  atualizarEstadoControles(): void {
+    const habilitar = this.dadosPessoaisPreenchidos;
+    const familiaGroup = this.formFamilia;
+    const enderecoGroup = this.formEndereco;
+    const contatosArray = this.contatos;
+
+    if (habilitar) {
+      if (familiaGroup.disabled) familiaGroup.enable({ emitEvent: false });
+      if (enderecoGroup.disabled) enderecoGroup.enable({ emitEvent: false });
+      if (contatosArray?.disabled) contatosArray.enable({ emitEvent: false });
+    } else {
+      if (familiaGroup.enabled) familiaGroup.disable({ emitEvent: false });
+      if (enderecoGroup.enabled) enderecoGroup.disable({ emitEvent: false });
+      if (contatosArray?.enabled) contatosArray.disable({ emitEvent: false });
+    }
+  }
+
+  calcularIdade(dataValue: any): number | null {
+    if (!dataValue) return null;
+    let data: Date | null = null;
+    if (dataValue instanceof Date) {
+      data = dataValue;
+    } else if (typeof dataValue === 'string') {
+      if (dataValue.includes('-')) {
+        const parts = dataValue.split('-').map(Number);
+        if (parts.length === 3) data = new Date(parts[0], parts[1] - 1, parts[2]);
+      } else if (dataValue.includes('/')) {
+        const parts = dataValue.split('/').map(Number);
+        if (parts.length === 3) data = new Date(parts[2], parts[1] - 1, parts[0]);
+      }
+    }
+    if (!data || isNaN(data.getTime())) return null;
+
+    const hoje = new Date();
+    let idade = hoje.getFullYear() - data.getFullYear();
+    const m = hoje.getMonth() - data.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < data.getDate())) {
+      idade--;
+    }
+    return idade;
+  }
+
+  get idadeAtual(): number | null {
+    const dataNasc = this.formPessoa.get('dataNascimento')?.value;
+    return this.calcularIdade(dataNasc);
+  }
+
+  get podeSerEmancipado(): boolean {
+    const idade = this.idadeAtual;
+    return idade !== null && idade >= 16 && idade < 18;
+  }
+
+  get ehMenorNaoEmancipado(): boolean {
+    const idade = this.idadeAtual;
+    const emancipado = !!this.form.get('emancipado')?.value;
+    return idade !== null && idade < 18 && !emancipado;
+  }
+
+  get dadosPessoaisPreenchidos(): boolean {
+    const obrigatoriosBasicos = Boolean(
+      this.formPessoa.valid &&
+      this.form.get('nivelEscolaridade')?.valid
+    );
+
+    if (!obrigatoriosBasicos) return false;
+
+    if (this.ehMenorNaoEmancipado) {
+      return Boolean(this.form.get('responsavelId')?.valid);
+    }
+
+    return true;
+  }
+
+  atualizarValidacoesPorIdade(): void {
+    if (!this.podeSerEmancipado) {
+      this.form.get('emancipado')?.setValue(false, { emitEvent: false });
+    }
+
+    const responsavelCtrl = this.form.get('responsavelId');
+    const contatosArray = this.contatos;
+
+    if (this.ehMenorNaoEmancipado) {
+      responsavelCtrl?.setValidators([Validators.required]);
+      contatosArray?.clearValidators();
+    } else {
+      responsavelCtrl?.clearValidators();
+      responsavelCtrl?.setValue('', { emitEvent: false });
+      contatosArray?.setValidators([Validators.required, Validators.minLength(1)]);
+    }
+
+    responsavelCtrl?.updateValueAndValidity({ emitEvent: false });
+    contatosArray?.updateValueAndValidity({ emitEvent: false });
+  }
+
+  buscarDadosPessoa(): void {
+    const cpfControl = this.formPessoa.get('cpf');
+    const cpfRaw = cpfControl?.value || '';
+    const cpfLimpo = cpfRaw.replace(/\D/g, '');
+
+    if (cpfLimpo.length !== 11 || cpfControl?.invalid) {
+      return;
+    }
+
+    this.estaCarregando.set(true);
+
+    this.pessoaService
+      .verificarCadastroBeneficiarioPorCpf(cpfLimpo)
+      .pipe(finalize(() => this.estaCarregando.set(false)))
+      .subscribe({
+        next: (pessoa: PessoaResposta) => {
+          this.formPessoa.patchValue({
+            nome: pessoa.nome,
+            dataNascimento: pessoa.dataNascimento,
+          });
+          this.form.patchValue({
+            podeSairSozinho: pessoa.podeSairSozinho,
+            emancipado: pessoa.emancipado,
+          });
+        },
+        error: (error) => {
+          if (error?.status === 409) {
+            const mensagem = error.error?.message || 'Esta pessoa já possui um cadastro de beneficiário ativo no sistema.';
+            this.snackBar.open(mensagem, 'Fechar', { duration: 5000 });
+          } else {
+            console.error('Erro ao buscar dados da pessoa:', error);
+          }
+        },
+      });
+  }
+
+  salvar(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.snackBar.open('Por favor, preencha corretamente os campos obrigatórios em destaque.', 'Fechar', {
+        duration: 4000,
+      });
+      return;
+    }
+
+    const formValue = this.form.value;
+    const pessoaValue = formValue.pessoa;
+    const familiaValue = formValue.familia;
+
+    const responsavelIdFinal = this.ehMenorNaoEmancipado
+      ? (formValue.responsavelId || undefined)
+      : undefined;
+
+    const contatosMapeados = (formValue.contatos || [])
+      .filter((c: any) => c.valor && c.valor.trim() !== '')
+      .map((c: any) => ({
+        tipoContato: c.tipoContato,
+        valor: c.tipoContato === 'EMAIL' ? c.valor.trim() : (c.valor || '').replace(/\D/g, ''),
+        ehPrincipal: !!c.ehPrincipal,
+      }));
+
+    const familiaIdExistente = this.familiaIdSelecionada();
+
+    let beneficiario: CriarBeneficiarioDto;
+
+    if (familiaIdExistente) {
+      beneficiario = {
+        nome: pessoaValue.nome,
+        cpf: (pessoaValue.cpf || '').replace(/\D/g, ''),
+        dataNascimento: pessoaValue.dataNascimento,
+        emancipado: formValue.emancipado,
+        podeSairSozinho: formValue.podeSairSozinho,
+        responsavelId: responsavelIdFinal,
+        quantidadeFilhos: formValue.quantidadeFilhos || undefined,
+        nivelEscolaridade: formValue.nivelEscolaridade,
+        estadoCivil: formValue.estadoCivil || undefined,
+        vinculoEmpregaticio: formValue.vinculoEmpregaticio || undefined,
+        familiaId: familiaIdExistente,
+        contatos: contatosMapeados,
+      };
+    } else {
+      beneficiario = {
+        nome: pessoaValue.nome,
+        cpf: (pessoaValue.cpf || '').replace(/\D/g, ''),
+        dataNascimento: pessoaValue.dataNascimento,
+        emancipado: formValue.emancipado,
+        podeSairSozinho: formValue.podeSairSozinho,
+        responsavelId: responsavelIdFinal,
+        quantidadeFilhos: formValue.quantidadeFilhos || undefined,
+        nivelEscolaridade: formValue.nivelEscolaridade,
+        estadoCivil: formValue.estadoCivil || undefined,
+        vinculoEmpregaticio: formValue.vinculoEmpregaticio || undefined,
+        novaFamilia: {
+          faixaRenda: familiaValue.faixaRenda,
+          tipoMoradia: familiaValue.tipoMoradia,
+          possuiBeneficioSocial: familiaValue.possuiBeneficioSocial,
+          endereco: {
+            logradouro: formValue.endereco.logradouro,
+            numero: formValue.endereco.numero || undefined,
+            complemento: formValue.endereco.complemento || undefined,
+            bairro: formValue.endereco.bairro,
+            cep: (formValue.endereco.cep || '').replace(/\D/g, ''),
+            cidade: formValue.endereco.cidade,
+            uf: formValue.endereco.uf,
+          },
+        },
+        contatos: contatosMapeados,
+      };
+    }
+
+    this.estaCarregando.set(true);
+
+    this.beneficiarioService
+      .criar(beneficiario)
+      .pipe(finalize(() => this.estaCarregando.set(false)))
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Beneficiário cadastrado com sucesso!', 'Fechar', {
+            duration: 3000,
+          });
+          this.router.navigate(['/beneficiarios']);
+        },
+        error: (error) => {
+          console.error('Erro ao criar beneficiário:', error);
+          const mensagem = error.error?.message || 'Erro ao realizar o cadastro do beneficiário. Tente novamente.';
+          this.snackBar.open(mensagem, 'Fechar', { duration: 5000 });
+        },
+      });
   }
 
   get contatos(): FormArray {
@@ -86,12 +506,46 @@ export class CadastroBeneficiarioComponent implements OnInit {
     if (this.contatos.length < this.limiteContatos) {
       const ehPrimeiro = this.contatos.length === 0;
       const grupoContato = this.fb.group({
-        tipoContato: ['CELULAR' as TipoContato, Validators.required],
-        valor: ['', Validators.required],
+        tipoContato: ['' as TipoContato, Validators.required],
+        valor: ['', [Validators.required, Validators.maxLength(150)]],
         ehPrincipal: [ehPrimeiro],
       });
+
+      grupoContato.get('tipoContato')?.valueChanges.subscribe((tipo) => {
+        this.atualizarValidadoresValorContato(grupoContato, tipo || '');
+      });
+
       this.contatos.push(grupoContato);
     }
+  }
+
+  private atualizarValidadoresValorContato(grupoContato: FormGroup, tipo: TipoContato | string): void {
+    const valorControl = grupoContato.get('valor');
+    if (!valorControl) return;
+
+    valorControl.setValue('', { emitEvent: false });
+
+    if (tipo === 'CELULAR') {
+      valorControl.setValidators([
+        Validators.required,
+        Validators.pattern(/^(\d{11}|\(\d{2}\)\s?\d{5}-\d{4})$/),
+        Validators.maxLength(15),
+      ]);
+    } else if (tipo === 'TELEFONE_FIXO') {
+      valorControl.setValidators([
+        Validators.required,
+        Validators.pattern(/^(\d{10}|\(\d{2}\)\s?\d{4}-\d{4})$/),
+        Validators.maxLength(14),
+      ]);
+    } else {
+      valorControl.setValidators([
+        Validators.required,
+        Validators.email,
+        Validators.maxLength(150),
+      ]);
+    }
+
+    valorControl.updateValueAndValidity();
   }
 
   removerContato(index: number): void {
@@ -106,6 +560,32 @@ export class CadastroBeneficiarioComponent implements OnInit {
     this.contatos.controls.forEach((control, idx) => {
       control.get('ehPrincipal')?.setValue(idx === indexSelecionado);
     });
+  }
+
+  obterTipoInputContato(tipo: TipoContato | string): InputType {
+    return tipo === 'EMAIL' ? 'email' : 'tel';
+  }
+
+  obterPlaceholderContato(tipo: TipoContato | string): string {
+    switch (tipo) {
+      case 'CELULAR':
+        return 'Ex: (11) 99999-9999';
+      case 'TELEFONE_FIXO':
+        return 'Ex: (11) 3333-4444';
+      default:
+        return 'exemplo@email.com';
+    }
+  }
+
+  obterMaxLengthContato(tipo: TipoContato | string): number {
+    switch (tipo) {
+      case 'CELULAR':
+        return 15;
+      case 'TELEFONE_FIXO':
+        return 14;
+      default:
+        return 150;
+    }
   }
 
   voltar(): void {

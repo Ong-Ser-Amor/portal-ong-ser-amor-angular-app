@@ -1,0 +1,33 @@
+<div [formGroup]="formGroup()" class="container">
+  <!-- Nome completo (50% da linha) -->
+  <app-input
+    formControlName="nome"
+    label="Nome completo"
+    placeholder="Ex: Maria da Silva"
+    [required]="true"
+    [minLength]="3"
+    [maxLength]="150"
+    class="campo-nome"
+  />
+
+  <!-- CPF (25% da linha) -->
+  <app-input
+    formControlName="cpf"
+    label="CPF"
+    placeholder="000.000.000-00"
+    mask="cpf"
+    [required]="true"
+    (blur)="cpfAlterado.emit($event)"
+    class="campo-cpf"
+  />
+
+  <!-- Data de Nascimento (25% da linha) -->
+  <app-date-input
+    formControlName="dataNascimento"
+    label="Data de Nascimento"
+    [bloquearFuturo]="true"
+    [maxAnosAtras]="150"
+    [required]="true"
+    class="campo-nascimento"
+  />
+</div>

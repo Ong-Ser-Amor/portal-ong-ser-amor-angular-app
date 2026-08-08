@@ -5,10 +5,11 @@
       vinculada como voluntária.
     </p>
 
-    <app-cpf-input
+    <app-input
       formControlName="cpf"
       label="CPF"
-      placeholder="11 dígitos"
+      placeholder="000.000.000-00"
+      mask="cpf"
       [required]="true"
       autocomplete="off"
     />

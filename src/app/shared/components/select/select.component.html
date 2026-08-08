@@ -1,0 +1,24 @@
+<mat-form-field appearance="outline" class="w-full">
+  <mat-label>{{ label() }}</mat-label>
+
+  <mat-select
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [required]="required()"
+    [multiple]="multiple()"
+    [value]="value()"
+    (selectionChange)="onValueChange($event.value)"
+    (blur)="onTouched()"
+  >
+    @for (opcao of opcoes(); track opcao.valor) {
+      <mat-option [value]="opcao.valor">{{ opcao.rotulo }}</mat-option>
+    }
+  </mat-select>
+
+  @if (hasError) {
+    <mat-error>{{ errorMessage }}</mat-error>
+  }
+  @if (hint()) {
+    <mat-hint>{{ hint() }}</mat-hint>
+  }
+</mat-form-field>

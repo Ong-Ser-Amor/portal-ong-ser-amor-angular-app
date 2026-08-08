@@ -18,18 +18,20 @@
       [minLength]="3"
     />
 
-    <app-cpf-input
+    <app-input
       formControlName="cpf"
       label="CPF"
       placeholder="CPF confirmado"
+      mask="cpf"
       [required]="true"
       autocomplete="off"
     />
 
-    <app-input
+    <app-date-input
       formControlName="dataNascimento"
       label="Data de Nascimento"
-      type="date"
+      [bloquearFuturo]="true"
+      [maxAnosAtras]="150"
       [required]="true"
     />
 

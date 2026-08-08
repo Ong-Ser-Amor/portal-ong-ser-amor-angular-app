@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { BotaoComponent } from '../../../../shared/components/botao/botao.component';
 import { InputComponent } from '../../../../shared/components/input/input.component';
-import { CpfInputComponent } from '../../../../shared/components/cpf-input/cpf-input.component';
+import { DateInputComponent } from '../../../../shared/components/date-input/date-input.component';
 
 export interface DadosPessoaSubmit {
   nome: string;
@@ -21,7 +21,7 @@ export interface DadosPessoaSubmit {
     MatProgressBarModule,
     BotaoComponent,
     InputComponent,
-    CpfInputComponent,
+    DateInputComponent,
   ],
   templateUrl: './dados-pessoa-step.component.html',
   styleUrl: './dados-pessoa-step.component.scss',
@@ -84,7 +84,7 @@ export class DadosPessoaStepComponent implements AfterViewInit, AfterViewChecked
     nome: ['', [Validators.required, Validators.minLength(3)]],
     cpf: [
       { value: '', disabled: true },
-      [Validators.required, Validators.pattern(/^\d{11}$/)],
+      [Validators.required, Validators.pattern(/^(\d{11}|\d{3}\.\d{3}\.\d{3}-\d{2})$/)],
     ],
     dataNascimento: ['', [Validators.required]],
   });

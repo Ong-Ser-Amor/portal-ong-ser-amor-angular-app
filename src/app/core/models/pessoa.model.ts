@@ -4,6 +4,7 @@ export interface PessoaResposta {
   cpf: string;
   dataNascimento: string;
   podeSairSozinho?: boolean;
+  emancipado: boolean;
   responsavelId?: string;
 }
 

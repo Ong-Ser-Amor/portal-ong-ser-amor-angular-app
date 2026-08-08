@@ -1,4 +1,4 @@
-import { CriarEnderecoDto } from './endereco.model';
+import { CriarEnderecoDto, Endereco } from './endereco.model';
 import { OpcaoSelect } from './opcao-select.model';
 
 export type FaixaRenda =
@@ -27,10 +27,11 @@ export const OPCOES_TIPO_MORADIA: OpcaoSelect<TipoMoradia>[] = [
 
 export interface Familia {
   id: string;
-  faixaRenda: string;
+  faixaRenda: FaixaRenda;
   tipoMoradia: TipoMoradia;
   possuiBeneficioSocial: boolean;
-  enderecoId: string;
+  enderecoId?: string;
+  endereco: Endereco;
 }
 
 export interface CriarFamiliaDto {

@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  grid-column: 1 / -1;
+}
+
+.container {
+  display: flex;
+  gap: 24px;
+
+  .campo-nome {
+    flex: 2;
+    min-width: 0;
+  }
+
+  .campo-cpf {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .campo-nascimento {
+    flex: 1;
+    min-width: 0;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+
+    .campo-nome,
+    .campo-cpf,
+    .campo-nascimento {
+      flex: auto;
+      width: 100%;
+    }
+  }
+}
