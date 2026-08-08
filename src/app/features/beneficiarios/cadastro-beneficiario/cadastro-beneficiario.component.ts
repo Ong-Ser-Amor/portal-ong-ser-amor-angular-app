@@ -294,18 +294,40 @@ export class CadastroBeneficiarioComponent implements OnInit {
   calcularIdade(dataValue: any): number | null {
     if (!dataValue) return null;
     let data: Date | null = null;
+
+    const anoAtual = new Date().getFullYear();
+    const anoMinimo = anoAtual - 150;
+    const anoMaximo = anoAtual;
+
     if (dataValue instanceof Date) {
       data = dataValue;
     } else if (typeof dataValue === 'string') {
       if (dataValue.includes('-')) {
-        const parts = dataValue.split('-').map(Number);
-        if (parts.length === 3) data = new Date(parts[0], parts[1] - 1, parts[2]);
+        const parts = dataValue.split('-');
+        if (parts.length === 3 && parts[0].length === 4) {
+          const ano = Number(parts[0]);
+          const mes = Number(parts[1]);
+          const dia = Number(parts[2]);
+          if (ano >= anoMinimo && ano <= anoMaximo && mes >= 1 && mes <= 12 && dia >= 1 && dia <= 31) {
+            data = new Date(ano, mes - 1, dia);
+          }
+        }
       } else if (dataValue.includes('/')) {
-        const parts = dataValue.split('/').map(Number);
-        if (parts.length === 3) data = new Date(parts[2], parts[1] - 1, parts[0]);
+        const parts = dataValue.split('/');
+        if (parts.length === 3 && parts[2].length === 4) {
+          const dia = Number(parts[0]);
+          const mes = Number(parts[1]);
+          const ano = Number(parts[2]);
+          if (ano >= anoMinimo && ano <= anoMaximo && mes >= 1 && mes <= 12 && dia >= 1 && dia <= 31) {
+            data = new Date(ano, mes - 1, dia);
+          }
+        }
       }
     }
     if (!data || isNaN(data.getTime())) return null;
+
+    const ano = data.getFullYear();
+    if (ano < anoMinimo || ano > anoMaximo) return null;
 
     const hoje = new Date();
     let idade = hoje.getFullYear() - data.getFullYear();

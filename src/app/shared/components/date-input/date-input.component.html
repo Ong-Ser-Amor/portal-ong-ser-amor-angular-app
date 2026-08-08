@@ -9,8 +9,8 @@
     [placeholder]="placeholder()"
     [disabled]="disabled()"
     [required]="required()"
-    [min]="minDate"
-    [max]="maxDate"
+    [min]="dataMinima"
+    [max]="dataMaxima"
     (input)="onInput($event)"
     (dateChange)="onDateChange($event)"
     (blur)="onTouched()"
@@ -20,8 +20,8 @@
   <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
   <mat-datepicker #picker></mat-datepicker>
 
-  @if (hasError) {
-    <mat-error>{{ errorMessage }}</mat-error>
+  @if (temErro) {
+    <mat-error>{{ mensagemErro }}</mat-error>
   }
   @if (hint()) {
     <mat-hint>{{ hint() }}</mat-hint>

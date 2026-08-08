@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal, Injectable } from '@angular/core';
 import {
   ControlValueAccessor,
   FormsModule,
@@ -8,7 +8,7 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, NativeDateAdapter } from '@angular/material/core';
 import { AppMaskDirective } from '../../directives/app-mask.directive';
 
 export const BR_DATE_FORMATS = {
@@ -23,6 +23,40 @@ export const BR_DATE_FORMATS = {
   },
 };
 
+@Injectable()
+export class PtBrDateAdapter extends NativeDateAdapter {
+  override parse(valor: any): Date | null {
+    if (typeof valor === 'string' && valor.trim()) {
+      const texto = valor.trim();
+      const partes = texto.split('/');
+      if (partes.length === 3) {
+        const dia = Number(partes[0]);
+        const mes = Number(partes[1]);
+        const anoTexto = partes[2];
+
+        // Exige estritamente 4 dígitos no ano para evitar parsing precoce de anos de 2 dígitos (ex: 20 -> 1920)
+        if (anoTexto.length !== 4) {
+          return new Date(NaN);
+        }
+
+        const ano = Number(anoTexto);
+        if (!isNaN(dia) && !isNaN(mes) && !isNaN(ano)) {
+          const data = new Date(ano, mes - 1, dia);
+          if (
+            data.getFullYear() === ano &&
+            data.getMonth() === mes - 1 &&
+            data.getDate() === dia
+          ) {
+            return data;
+          }
+        }
+        return new Date(NaN);
+      }
+    }
+    return super.parse(valor);
+  }
+}
+
 @Component({
   selector: 'app-date-input',
   standalone: true,
@@ -35,7 +69,8 @@ export const BR_DATE_FORMATS = {
     AppMaskDirective,
   ],
   providers: [
-    provideNativeDateAdapter(BR_DATE_FORMATS),
+    { provide: DateAdapter, useClass: PtBrDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: BR_DATE_FORMATS },
     { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
   ],
   templateUrl: './date-input.component.html',
@@ -89,9 +124,9 @@ export class DateInputComponent implements ControlValueAccessor {
   private converterParaDate(valor: Date | string | undefined | null): Date | null {
     if (!valor) return null;
     if (typeof valor === 'string') {
-      const parts = valor.split('-').map(Number);
-      if (parts.length === 3 && !parts.some(isNaN)) {
-        return new Date(parts[0], parts[1] - 1, parts[2]);
+      const partes = valor.split('-').map(Number);
+      if (partes.length === 3 && !partes.some(isNaN)) {
+        return new Date(partes[0], partes[1] - 1, partes[2]);
       }
     }
     if (valor instanceof Date && !isNaN(valor.getTime())) {
@@ -103,8 +138,7 @@ export class DateInputComponent implements ControlValueAccessor {
   /**
    * Retorna a data mínima aplicando estritamente uma única regra fornecida.
    */
-  get minDate(): Date | null {
-    // 1. Verificação de conflito entre regras de limite mínimo
+  get dataMinima(): Date | null {
     const temMin = !!this.min();
     const temBloquearPassado = this.bloquearPassado();
     const temMaxAnosAtras = this.maxAnosAtras() !== undefined && this.maxAnosAtras() !== null;
@@ -148,8 +182,7 @@ export class DateInputComponent implements ControlValueAccessor {
   /**
    * Retorna a data máxima aplicando estritamente uma única regra fornecida.
    */
-  get maxDate(): Date | null {
-    // 1. Verificação de conflito entre regras de limite máximo
+  get dataMaxima(): Date | null {
     const temMax = !!this.max();
     const temBloquearFuturo = this.bloquearFuturo();
     const temMaxAnosFrente = this.maxAnosFrente() !== undefined && this.maxAnosFrente() !== null;
@@ -178,8 +211,7 @@ export class DateInputComponent implements ControlValueAccessor {
       dataCalculada = dataAnosFrente;
     }
 
-    // 2. Validação de inconsistência entre min e max
-    const minCalculada = this.minDate;
+    const minCalculada = this.dataMinima;
     if (minCalculada && dataCalculada && minCalculada > dataCalculada) {
       console.error(
         `[DateInputComponent]: Conflito no campo "${this.label()}". A data mínima (${minCalculada.toISOString().split('T')[0]}) é maior que a data máxima (${dataCalculada.toISOString().split('T')[0]}).`
@@ -190,7 +222,7 @@ export class DateInputComponent implements ControlValueAccessor {
     return dataCalculada;
   }
 
-  get hasError(): boolean {
+  get temErro(): boolean {
     if (!this.control) return false;
     return !!(
       this.control.invalid &&
@@ -198,21 +230,21 @@ export class DateInputComponent implements ControlValueAccessor {
     );
   }
 
-  get errorMessage(): string {
+  get mensagemErro(): string {
     if (!this.control?.errors) return '';
 
-    const errors = this.control.errors;
+    const erros = this.control.errors;
 
-    if (errors['required']) {
+    if (erros['required']) {
       return `${this.label()} é obrigatório`;
     }
-    if (errors['matDatepickerParse']) {
+    if (erros['matDatepickerParse']) {
       return 'Data inválida';
     }
-    if (errors['matDatepickerMin']) {
+    if (erros['matDatepickerMin']) {
       return 'Data inferior ao limite permitido';
     }
-    if (errors['matDatepickerMax']) {
+    if (erros['matDatepickerMax']) {
       return 'Data superior ao limite permitido';
     }
 
@@ -220,43 +252,43 @@ export class DateInputComponent implements ControlValueAccessor {
   }
 
   onInput(event: Event): void {
-    const inputVal = (event.target as HTMLInputElement).value;
-    if (inputVal && inputVal.length === 10) {
-      const parts = inputVal.split('/');
-      if (parts.length === 3) {
-        const day = Number(parts[0]);
-        const month = Number(parts[1]) - 1;
-        const year = Number(parts[2]);
-        const d = new Date(year, month, day);
+    const valorTexto = (event.target as HTMLInputElement).value;
+    if (valorTexto && valorTexto.length === 10) {
+      const partes = valorTexto.split('/');
+      if (partes.length === 3) {
+        const dia = Number(partes[0]);
+        const mes = Number(partes[1]) - 1;
+        const ano = Number(partes[2]);
+        const data = new Date(ano, mes, dia);
         if (
-          !isNaN(d.getTime()) &&
-          d.getFullYear() === year &&
-          d.getMonth() === month &&
-          d.getDate() === day
+          !isNaN(data.getTime()) &&
+          data.getFullYear() === ano &&
+          data.getMonth() === mes &&
+          data.getDate() === dia
         ) {
-          this.control?.setValue(d);
+          this.control?.setValue(data);
         }
       }
     }
   }
 
   onDateChange(event: any): void {
-    const value = event.value;
-    let formattedValue: string | null = null;
-    if (value instanceof Date && !isNaN(value.getTime())) {
-      const year = value.getFullYear();
-      const month = String(value.getMonth() + 1).padStart(2, '0');
-      const day = String(value.getDate()).padStart(2, '0');
-      formattedValue = `${year}-${month}-${day}`;
+    const valor = event.value;
+    let valorFormatado: string | null = null;
+    if (valor instanceof Date && !isNaN(valor.getTime())) {
+      const ano = valor.getFullYear();
+      const mes = String(valor.getMonth() + 1).padStart(2, '0');
+      const dia = String(valor.getDate()).padStart(2, '0');
+      valorFormatado = `${ano}-${mes}-${dia}`;
     }
-    this.value.set(value);
-    this.onChange(formattedValue);
+    this.value.set(valor);
+    this.onChange(valorFormatado);
     this.onTouched();
   }
 
-  writeValue(value: any): void {
-    const dateVal = this.converterParaDate(value);
-    this.value.set(dateVal);
+  writeValue(valor: any): void {
+    const dataConvertida = this.converterParaDate(valor);
+    this.value.set(dataConvertida);
   }
 
   registerOnChange(fn: any): void {
