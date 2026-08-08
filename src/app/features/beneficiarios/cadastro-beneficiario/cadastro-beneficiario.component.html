@@ -4,7 +4,7 @@
   <!-- Card 1: Dados Pessoais -->
   <div class="content-card mat-elevation-z2">
     @if (estaCarregando()) {
-      <mat-progress-bar mode="indeterminate" class="mb-4"></mat-progress-bar>
+    <mat-progress-bar mode="indeterminate" class="mb-4"></mat-progress-bar>
     }
 
     <h3 class="secao-titulo">Dados Pessoais</h3>
@@ -23,90 +23,88 @@
       <app-input formControlName="quantidadeFilhos" label="Quantidade de Filhos" type="number" [min]="0" [max]="30"
         [step]="1" placeholder="0" class="col-span-1" />
 
-      <div class="checkbox-group col-span-2">
+      <div class="checkbox-group col-span-1">
         @if (podeSerEmancipado) {
-          <app-checkbox formControlName="emancipado" label="Emancipado(a)" />
+        <app-checkbox formControlName="emancipado" label="Emancipado(a)" />
         }
         <app-checkbox formControlName="podeSairSozinho" label="Pode sair sozinho(a)" />
       </div>
 
       <!-- Linha 4: Responsável Legal (Exibido dinamicamente apenas para menores não emancipados) -->
       @if (ehMenorNaoEmancipado) {
-        <div class="col-span-3 secao-responsavel">
-          <div class="responsavel-header">
-            <mat-icon class="responsavel-icon">family_restroom</mat-icon>
-            <span class="responsavel-label">Responsável Legal</span>
-            <span class="badge-info">(Obrigatório para menores de 18 anos não emancipados)</span>
-          </div>
+      <div class="col-span-3 secao-responsavel">
+        <div class="responsavel-header">
+          <mat-icon class="responsavel-icon">family_restroom</mat-icon>
+          <span class="responsavel-label">Responsável Legal</span>
+          <span class="badge-info">(Obrigatório para menores de 18 anos não emancipados)</span>
+        </div>
 
-          @if (buscandoResponsavel()) {
-            <mat-progress-bar mode="indeterminate" class="my-2"></mat-progress-bar>
+        @if (buscandoResponsavel()) {
+        <mat-progress-bar mode="indeterminate" class="my-2"></mat-progress-bar>
+        }
+
+        @if (!responsavelSelecionado()) {
+        <div class="responsavel-busca">
+          <app-input label="Responsável Legal (CPF ou Nome)"
+            placeholder="Digite o CPF (11 números) ou o Nome do Responsável" prefixIcon="search" [required]="true"
+            (blur)="buscarResponsavel($event)" class="w-full" />
+          @if (erroResponsavel()) {
+          <span class="erro-mensagem">{{ erroResponsavel() }}</span>
           }
 
-          @if (!responsavelSelecionado()) {
-            <div class="responsavel-busca">
-              <app-input
-                label="Responsável Legal (CPF ou Nome)"
-                placeholder="Digite o CPF (11 números) ou o Nome do Responsável"
-                prefixIcon="search"
-                [required]="true"
-                (blur)="buscarResponsavel($event)"
-                class="w-full"
-              />
-              @if (erroResponsavel()) {
-                <span class="erro-mensagem">{{ erroResponsavel() }}</span>
-              }
-
-              @if (opcoesResponsavel().length > 1) {
-                <div class="opcoes-responsavel-lista">
-                  <span class="subtitulo-busca">Selecione o responsável abaixo:</span>
-                  @for (opcao of opcoesResponsavel(); track opcao.id) {
-                    <div class="opcao-item" (click)="definirResponsavel(opcao)">
-                      <div class="opcao-info">
-                        <strong>{{ opcao.pessoa.nome }}</strong>
-                        <span class="opcao-cpf">CPF: {{ opcao.pessoa.cpf }}</span>
-                      </div>
-                      <app-botao label="Selecionar" variante="stroked" cor="primary" />
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-          } @else {
-            <div class="responsavel-selecionado-card">
-              <div class="responsavel-info">
-                <mat-icon class="icon-check">check_circle</mat-icon>
-                <div class="flex flex-col">
-                  <strong class="responsavel-nome">{{ responsavelSelecionado()?.nome }}</strong>
-                  <span class="responsavel-cpf">CPF: {{ responsavelSelecionado()?.cpf }}</span>
-                </div>
+          @if (opcoesResponsavel().length > 1) {
+          <div class="opcoes-responsavel-lista">
+            <span class="subtitulo-busca">Selecione o responsável abaixo:</span>
+            @for (opcao of opcoesResponsavel(); track opcao.id) {
+            <div class="opcao-item" (click)="definirResponsavel(opcao)">
+              <div class="opcao-info">
+                <strong>{{ opcao.pessoa.nome }}</strong>
+                <span class="opcao-cpf">CPF: {{ opcao.pessoa.cpf }}</span>
               </div>
-              <app-botao icone="delete" cor="warn" variante="icon" (click)="limparResponsavel()" aria-label="Remover responsável" />
+              <app-botao label="Selecionar" variante="stroked" cor="primary" />
             </div>
+            }
+          </div>
           }
         </div>
+        } @else {
+        <div class="responsavel-selecionado-card">
+          <div class="responsavel-info">
+            <mat-icon class="icon-check">check_circle</mat-icon>
+            <div class="flex flex-col">
+              <strong class="responsavel-nome">{{ responsavelSelecionado()?.nome }}</strong>
+              <span class="responsavel-cpf">CPF: {{ responsavelSelecionado()?.cpf }}</span>
+            </div>
+          </div>
+          <app-botao icone="delete" cor="warn" variante="icon" (click)="limparResponsavel()"
+            aria-label="Remover responsável" />
+        </div>
+        }
+      </div>
       }
     </div>
 
     @if (!dadosPessoaisPreenchidos) {
-      <div class="aviso-bloqueio">
-        <mat-icon>info</mat-icon>
-        <span>Preencha os Dados Pessoais obrigatórios (Nome, CPF, Data de Nascimento e Escolaridade) para liberar os demais blocos do cadastro.</span>
-      </div>
+    <div class="aviso-bloqueio">
+      <mat-icon>info</mat-icon>
+      <span>Preencha os Dados Pessoais obrigatórios (Nome, CPF, Data de Nascimento e Escolaridade) para liberar os
+        demais blocos do cadastro.</span>
+    </div>
     }
   </div>
 
   <!-- Cards Dependentes (Dados da Família, Endereço, Contatos) -->
-  <fieldset [disabled]="!dadosPessoaisPreenchidos" class="secoes-dependentes" [class.bloqueado]="!dadosPessoaisPreenchidos">
+  <fieldset [disabled]="!dadosPessoaisPreenchidos" class="secoes-dependentes"
+    [class.bloqueado]="!dadosPessoaisPreenchidos">
     <!-- Card 2: Dados da Família -->
     <div class="content-card mat-elevation-z2" formGroupName="familia">
       <h3 class="secao-titulo">Dados da Família</h3>
 
       @if (familiaIdSelecionada()) {
-        <div class="aviso-familia-herdada">
-          <mat-icon>home</mat-icon>
-          <span>Dados de Família e Endereço vinculados automaticamente ao Responsável Legal.</span>
-        </div>
+      <div class="aviso-familia-herdada">
+        <mat-icon>home</mat-icon>
+        <span>Dados de Família e Endereço vinculados automaticamente ao Responsável Legal.</span>
+      </div>
       }
 
       <div class="form-grid">
@@ -128,11 +126,11 @@
 
       <div class="form-grid">
         <!-- Linha 1 -->
-        <app-input formControlName="cep" label="CEP" placeholder="00000-000" mask="cep" [required]="true" [maxLength]="9"
-          class="col-span-1" />
+        <app-input formControlName="cep" label="CEP" placeholder="00000-000" mask="cep" [required]="true"
+          [maxLength]="9" class="col-span-1" />
 
-        <app-input formControlName="logradouro" label="Logradouro / Rua" placeholder="Ex: Av. Paulista" [required]="true"
-          class="col-span-2" />
+        <app-input formControlName="logradouro" label="Logradouro / Rua" placeholder="Ex: Av. Paulista"
+          [required]="true" class="col-span-2" />
 
         <!-- Linha 2 -->
         <app-input formControlName="numero" label="Número" placeholder="Ex: 123 ou S/N" class="col-span-1" />
@@ -160,40 +158,41 @@
         </div>
 
         <app-botao label="Adicionar" icone="add" cor="primary" variante="stroked"
-          [desabilitado]="contatos.length >= limiteContatos || !dadosPessoaisPreenchidos" (click)="adicionarContato()" />
+          [desabilitado]="contatos.length >= limiteContatos || !dadosPessoaisPreenchidos"
+          (click)="adicionarContato()" />
       </div>
 
       @if (contatos.length === 0) {
-        <div class="lista-vazia">
-          <p>Nenhum canal de contato adicionado ainda. Clique em <strong>"Adicionar"</strong> acima para incluir.</p>
-        </div>
+      <div class="lista-vazia">
+        <p>Nenhum canal de contato adicionado ainda. Clique em <strong>"Adicionar"</strong> acima para incluir.</p>
+      </div>
       } @else {
-        <div formArrayName="contatos" class="lista-contatos">
-          @for (contato of contatos.controls; track $index) {
-            <div [formGroupName]="$index" class="contato-item">
-              <app-select formControlName="tipoContato" label="Tipo" [opcoes]="tiposContato" [required]="true"
-                class="tipo-field" />
+      <div formArrayName="contatos" class="lista-contatos">
+        @for (contato of contatos.controls; track $index) {
+        <div [formGroupName]="$index" class="contato-item">
+          <app-select formControlName="tipoContato" label="Tipo" [opcoes]="tiposContato" [required]="true"
+            class="tipo-field" />
 
-              <app-input formControlName="valor" label="Contato"
-                [type]="obterTipoInputContato(contato.get('tipoContato')?.value)"
-                [placeholder]="obterPlaceholderContato(contato.get('tipoContato')?.value)"
-                [maxLength]="obterMaxLengthContato(contato.get('tipoContato')?.value)"
-                [mask]="contato.get('tipoContato')?.value" [required]="true" class="valor-field" />
+          <app-input formControlName="valor" label="Contato"
+            [type]="obterTipoInputContato(contato.get('tipoContato')?.value)"
+            [placeholder]="obterPlaceholderContato(contato.get('tipoContato')?.value)"
+            [maxLength]="obterMaxLengthContato(contato.get('tipoContato')?.value)"
+            [mask]="contato.get('tipoContato')?.value" [required]="true" class="valor-field" />
 
-              <div class="principal-field">
-                <mat-radio-button [checked]="contato.get('ehPrincipal')?.value" (change)="marcarPrincipal($index)"
-                  color="primary">
-                  Principal
-                </mat-radio-button>
-              </div>
+          <div class="principal-field">
+            <mat-radio-button [checked]="contato.get('ehPrincipal')?.value" (change)="marcarPrincipal($index)"
+              color="primary">
+              Principal
+            </mat-radio-button>
+          </div>
 
-              <div class="acoes-field">
-                <app-botao icone="delete" cor="warn" variante="icon" (click)="removerContato($index)"
-                  aria-label="Remover contato" />
-              </div>
-            </div>
-          }
+          <div class="acoes-field">
+            <app-botao icone="delete" cor="warn" variante="icon" (click)="removerContato($index)"
+              aria-label="Remover contato" />
+          </div>
         </div>
+        }
+      </div>
       }
     </div>
   </fieldset>
@@ -201,6 +200,7 @@
   <!-- Ações Globais do Formulário -->
   <div class="form-acoes">
     <app-botao label="Cancelar" variante="stroked" (click)="voltar()" />
-    <app-botao label="Salvar Beneficiário" cor="primary" tipo="submit" [desabilitado]="!dadosPessoaisPreenchidos" (click)="salvar()" />
+    <app-botao label="Salvar Beneficiário" cor="primary" tipo="submit" [desabilitado]="!dadosPessoaisPreenchidos"
+      (click)="salvar()" />
   </div>
 </form>
