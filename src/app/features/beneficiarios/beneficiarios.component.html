@@ -2,6 +2,8 @@
   <app-botao label="Novo Beneficiário" icone="add" cor="primary" routerLink="novo" />
 </app-cabecalho-pagina>
 
+<app-card-busca placeholder="Pesquisar beneficiário por nome ou CPF..." (pesquisar)="buscar($event)" />
+
 <app-tabela [dados]="beneficiarios()" [colunas]="colunas" [carregando]="estaCarregando()"
   textoSemDados="Nenhum beneficiário encontrado." [totalItens]="totalItens()" [paginaAtual]="paginaAtual()"
   [itensPorPagina]="itensPorPagina()" (mudarPagina)="mudarPagina($event)">

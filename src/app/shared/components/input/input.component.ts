@@ -65,14 +65,18 @@ export class InputComponent implements ControlValueAccessor {
   prefixIcon = input<string>('');
   suffixIcon = input<string>('');
   showPasswordToggle = input<boolean>(true);
+  subscriptSizing = input<'fixed' | 'dynamic'>('fixed');
 
   /** Tipo de máscara a ser aplicada ('cpf' | 'cep' | 'celular' | 'telefone_fixo') */
   mask = input<InputMaskType>();
 
+  value = input<string>('');
+
   blur = output<FocusEvent>();
+  valueChange = output<string>();
 
   // Signals de Estado
-  value = signal<string>('');
+  valorInterno = signal<string>('');
   disabled = signal<boolean>(false);
   showPassword = signal<boolean>(false);
 
@@ -84,6 +88,13 @@ export class InputComponent implements ControlValueAccessor {
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
     }
+  }
+
+  onInput(event: Event): void {
+    const val = (event.target as HTMLInputElement).value;
+    this.valorInterno.set(val);
+    this.onChange(val);
+    this.valueChange.emit(val);
   }
 
   onBlur(event: FocusEvent): void {
@@ -159,7 +170,7 @@ export class InputComponent implements ControlValueAccessor {
   }
 
   writeValue(value: any): void {
-    this.value.set(value || '');
+    this.valorInterno.set(value || '');
   }
 
   registerOnChange(fn: any): void {
