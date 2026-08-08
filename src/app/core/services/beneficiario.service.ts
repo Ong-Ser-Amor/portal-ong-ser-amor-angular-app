@@ -13,19 +13,19 @@ export class BeneficiarioService {
   private readonly API_URL = `${environment.apiUrl}/beneficiarios`;
 
   buscarTodos(filtros?: FiltroBuscaBeneficiario): Observable<PaginacaoResposta<Beneficiario>> {
-    let params = new HttpParams()
+    let parametros = new HttpParams()
       .set('pagina', (filtros?.pagina ?? 1).toString())
       .set('itensPorPagina', (filtros?.itensPorPagina ?? 10).toString());
 
     if (filtros?.nome) {
-      params = params.set('nome', filtros.nome);
+      parametros = parametros.set('nome', filtros.nome);
     }
     if (filtros?.cpf) {
-      params = params.set('cpf', filtros.cpf);
+      parametros = parametros.set('cpf', filtros.cpf);
     }
 
     return this.http.get<PaginacaoResposta<Beneficiario>>(this.API_URL, {
-      params,
+      params: parametros,
     });
   }
 
