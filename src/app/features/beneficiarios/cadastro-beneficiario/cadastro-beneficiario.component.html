@@ -44,23 +44,16 @@
   <fieldset [disabled]="!dadosPessoaisPreenchidos" class="secoes-dependentes"
     [class.bloqueado]="!dadosPessoaisPreenchidos">
     <!-- Card Único Dinâmico de Seleção (Responsável Legal ou Família Existente) -->
-    <app-card-selecao-beneficiario
-      [titulo]="tituloCardSelecao"
-      [subtitulo]="subtituloCardSelecao"
-      [icone]="iconeCardSelecao"
-      [selecionado]="responsavelSelecionado()"
-      (selecionar)="definirResponsavel($event)"
-      (desvincular)="limparResponsavel()"
-    />
+    <app-card-selecao-beneficiario [titulo]="tituloCardSelecao" [subtitulo]="subtituloCardSelecao"
+      [icone]="iconeCardSelecao" [selecionado]="responsavelSelecionado()" (selecionar)="definirResponsavel($event)"
+      (desvincular)="limparResponsavel()" />
   </fieldset>
 
   <!-- Etapa 2: Libera Família, Endereço e Contatos (Requer Responsável se for Menor) -->
   <fieldset [disabled]="!podePreencherDemaisSecoes" class="secoes-dependentes"
     [class.bloqueado]="!podePreencherDemaisSecoes">
     <!-- Card 2: Dados da Família -->
-    <div class="content-card mat-elevation-z2" formGroupName="familia">
-      <h3 class="secao-titulo">Dados da Família</h3>
-
+    <app-card titulo="Dados da Família" icone="family_restroom" formGroupName="familia">
       @if (familiaIdSelecionada()) {
       <div class="aviso-familia-herdada">
         <mat-icon>home</mat-icon>
@@ -79,7 +72,7 @@
           <app-checkbox formControlName="possuiBeneficioSocial" label="Recebe benefício social" />
         </div>
       </div>
-    </div>
+    </app-card>
 
     <!-- Card 3: Endereço -->
     <div class="content-card mat-elevation-z2" formGroupName="endereco">

@@ -36,36 +36,49 @@
     margin-top: 4px;
     display: block;
   }
+}
 
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px 24px;
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 24px;
 
-    @media (max-width: 900px) {
-      grid-template-columns: 1fr;
+  .col-span-1 {
+    grid-column: span 1;
+  }
 
-      .col-span-1,
-      .col-span-2,
-      .col-span-3 {
-        grid-column: span 1;
-      }
+  .col-span-2 {
+    grid-column: span 2;
+  }
+
+  .col-span-3 {
+    grid-column: span 3;
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+
+    .col-span-1,
+    .col-span-2,
+    .col-span-3 {
+      grid-column: span 1;
     }
   }
+}
 
-  .checkbox-group {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 16px;
-    padding-top: 8px;
-  }
+.checkbox-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  padding-top: 8px;
+}
 
-  .checkbox-field {
-    display: flex;
-    align-items: center;
-    padding-top: 8px;
-  }
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  padding-top: 8px;
+}
 
   .lista-vazia {
     padding: 32px 16px;
@@ -142,7 +155,6 @@
       }
     }
   }
-}
 
 .secoes-dependentes {
   border: none;

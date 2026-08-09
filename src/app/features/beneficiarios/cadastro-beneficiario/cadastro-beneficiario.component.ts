@@ -12,6 +12,7 @@ import { BotaoComponent } from '../../../shared/components/botao/botao.component
 import { FormularioDadosPessoaisComponent } from '../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.component';
 import { criarFormGroupPessoa } from '../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.utils';
 import { CardSelecaoBeneficiarioComponent } from '../../../shared/components/card-selecao-beneficiario/card-selecao-beneficiario.component';
+import { CardComponent } from '../../../shared/components/card/card.component';
 import { Subject, debounceTime, finalize } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
@@ -54,6 +55,7 @@ import { PessoaResposta } from '../../../core/models/pessoa.model';
     BotaoComponent,
     FormularioDadosPessoaisComponent,
     CardSelecaoBeneficiarioComponent,
+    CardComponent,
   ],
   templateUrl: './cadastro-beneficiario.component.html',
   styleUrl: './cadastro-beneficiario.component.scss',
