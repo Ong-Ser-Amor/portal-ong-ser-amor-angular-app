@@ -90,12 +90,6 @@ export class CadastroBeneficiarioComponent implements OnInit {
       : 'group_add';
   }
 
-  get rotuloInputCardSelecao(): string {
-    return this.ehMenorNaoEmancipado
-      ? 'Pesquisar Responsável Legal'
-      : 'Pesquisar Membro da Família';
-  }
-
   solicitarBuscaResponsavel(termo: string): void {
     this.buscaResponsavelSubject.next(termo);
   }

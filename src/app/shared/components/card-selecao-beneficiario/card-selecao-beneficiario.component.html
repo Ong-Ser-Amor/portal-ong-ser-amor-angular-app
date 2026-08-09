@@ -2,7 +2,7 @@
   @if (!selecionado()) {
     <div class="container-busca">
       <app-input
-        [label]="rotuloInput()"
+        label="Pesquisar"
         [placeholder]="placeholder()"
         prefixIcon="search"
         (valueChange)="solicitarBusca($event)"

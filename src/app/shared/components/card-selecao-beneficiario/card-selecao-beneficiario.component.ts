@@ -31,7 +31,6 @@ export class CardSelecaoBeneficiarioComponent implements OnInit {
   subtitulo = input<string>('');
   icone = input<string>('family_restroom');
   placeholder = input<string>('Digite o Nome (3+ letras) ou CPF (11 números)...');
-  rotuloInput = input<string>('Pesquisar');
   selecionado = input<PessoaResposta | null>(null);
 
   // Outputs
