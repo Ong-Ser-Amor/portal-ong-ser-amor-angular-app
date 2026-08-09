@@ -1,0 +1,29 @@
+<div class="container mat-elevation-z2" [class.sem-padding]="semPadding()">
+  @if (titulo() || icone() || subtitulo()) {
+    <div class="cabecalho" [class.com-borda]="bordaCabecalho()">
+      <div class="bloco-titulo">
+        @if (icone()) {
+          <mat-icon class="icone">{{ icone() }}</mat-icon>
+        }
+        <div class="textos-cabecalho">
+          @if (titulo()) {
+            <h3 class="titulo">{{ titulo() }}</h3>
+          }
+          @if (subtitulo()) {
+            <span class="subtitulo">{{ subtitulo() }}</span>
+          }
+        </div>
+      </div>
+
+      <!-- Slot para Ações do Lado Direito do Cabeçalho (Botões, X de Fechar, Badges, etc) -->
+      <div class="acoes">
+        <ng-content select="[acoes-cabecalho]"></ng-content>
+      </div>
+    </div>
+  }
+
+  <!-- Slot Principal (Conteúdo do Card) -->
+  <div class="conteudo">
+    <ng-content></ng-content>
+  </div>
+</div>

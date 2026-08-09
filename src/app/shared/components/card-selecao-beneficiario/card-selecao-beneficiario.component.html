@@ -1,0 +1,61 @@
+<app-card [titulo]="titulo()" [subtitulo]="subtitulo()" [icone]="icone()">
+  @if (!selecionado()) {
+    <div class="container-busca">
+      <app-input
+        [label]="rotuloInput()"
+        [placeholder]="placeholder()"
+        prefixIcon="search"
+        (valueChange)="solicitarBusca($event)"
+        class="w-full input-busca"
+      />
+
+      @if (buscando()) {
+        <mat-progress-bar mode="indeterminate" class="my-2"></mat-progress-bar>
+      }
+
+      @if (erro()) {
+        <div class="aviso-erro">
+          <mat-icon>error</mat-icon>
+          <span>{{ erro() }}</span>
+        </div>
+      }
+
+      @if (nenhumEncontrado()) {
+        <div class="aviso-nao-encontrado">
+          <mat-icon>warning</mat-icon>
+          <span>Nenhum beneficiário cadastrado foi encontrado com o termo digitado.</span>
+        </div>
+      }
+
+      @if (opcoes().length > 0) {
+        <div class="opcoes-lista">
+          <span class="subtitulo-busca">Clique sobre o beneficiário abaixo para selecionar:</span>
+          @for (opcao of opcoes(); track opcao.id) {
+            <div class="opcao-item" (click)="onSelecionar(opcao)">
+              <div class="opcao-info">
+                <strong class="opcao-nome">{{ opcao.pessoa.nome }}</strong>
+                <span class="opcao-cpf">CPF: {{ opcao.pessoa.cpf }}</span>
+              </div>
+              <app-botao label="Selecionar" variante="stroked" cor="primary" size="small" />
+            </div>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="item-selecionado">
+      <div class="opcao-info">
+        <strong class="opcao-nome">{{ selecionado()?.nome }}</strong>
+        <span class="opcao-cpf">CPF: {{ selecionado()?.cpf }}</span>
+      </div>
+      <app-botao
+        label="Desvincular"
+        cor="warn"
+        variante="stroked"
+        size="small"
+        (click)="onDesvincular()"
+        aria-label="Desvincular beneficiário"
+      />
+    </div>
+  }
+</app-card>
