@@ -11,6 +11,7 @@ import { DateInputComponent } from '../../../shared/components/date-input/date-i
 import { BotaoComponent } from '../../../shared/components/botao/botao.component';
 import { FormularioDadosPessoaisComponent } from '../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.component';
 import { criarFormGroupPessoa } from '../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.utils';
+import { CardSelecaoBeneficiarioComponent } from '../../../shared/components/card-selecao-beneficiario/card-selecao-beneficiario.component';
 import { Subject, debounceTime, finalize } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
@@ -52,6 +53,7 @@ import { PessoaResposta } from '../../../core/models/pessoa.model';
     DateInputComponent,
     BotaoComponent,
     FormularioDadosPessoaisComponent,
+    CardSelecaoBeneficiarioComponent,
   ],
   templateUrl: './cadastro-beneficiario.component.html',
   styleUrl: './cadastro-beneficiario.component.scss',
@@ -69,10 +71,30 @@ export class CadastroBeneficiarioComponent implements OnInit {
   estaCarregando = signal(false);
   responsavelSelecionado = signal<PessoaResposta | null>(null);
   familiaIdSelecionada = signal<string | null>(null);
-  opcoesResponsavel = signal<Beneficiario[]>([]);
-  buscandoResponsavel = signal<boolean>(false);
-  erroResponsavel = signal<string>('');
-  nenhumResponsavelEncontrado = signal<boolean>(false);
+
+  get tituloCardSelecao(): string {
+    return this.ehMenorNaoEmancipado
+      ? 'Responsável Legal'
+      : 'Vincular a uma Família Existente';
+  }
+
+  get subtituloCardSelecao(): string {
+    return this.ehMenorNaoEmancipado
+      ? 'Obrigatório para menores de 18 anos não emancipados'
+      : 'Opcional. Selecione um familiar para herdar os dados da família e endereço';
+  }
+
+  get iconeCardSelecao(): string {
+    return this.ehMenorNaoEmancipado
+      ? 'family_restroom'
+      : 'group_add';
+  }
+
+  get rotuloInputCardSelecao(): string {
+    return this.ehMenorNaoEmancipado
+      ? 'Pesquisar Responsável Legal'
+      : 'Pesquisar Membro da Família';
+  }
 
   solicitarBuscaResponsavel(termo: string): void {
     this.buscaResponsavelSubject.next(termo);
@@ -80,9 +102,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
 
   definirResponsavel(beneficiario: Beneficiario): void {
     this.responsavelSelecionado.set(beneficiario.pessoa);
-    this.opcoesResponsavel.set([]);
     this.form.get('responsavelId')?.setValue(beneficiario.pessoa.id);
-    this.erroResponsavel.set('');
 
     this.atualizarValidacoesPorIdade();
     this.atualizarEstadoControles();
@@ -112,11 +132,8 @@ export class CadastroBeneficiarioComponent implements OnInit {
   limparResponsavel(): void {
     this.responsavelSelecionado.set(null);
     this.familiaIdSelecionada.set(null);
-    this.opcoesResponsavel.set([]);
-    this.erroResponsavel.set('');
     this.form.get('responsavelId')?.setValue('', { emitEvent: false });
 
-    // 1. Atualiza validações e estado (habilita ou desabilita controles)
     this.atualizarValidacoesPorIdade();
     this.atualizarEstadoControles();
 
@@ -151,65 +168,6 @@ export class CadastroBeneficiarioComponent implements OnInit {
       uf: null,
     });
     if (enderecoDisabled) enderecoGroup.disable({ emitEvent: false });
-  }
-
-  buscaResponsavel(termo: string): void {
-    const termoLimpo = (termo || '').trim();
-    const somenteNumeros = termoLimpo.replace(/\D/g, '');
-    const ehNumerico = somenteNumeros.length > 0 && (somenteNumeros.length === termoLimpo.length || termoLimpo.includes('.') || termoLimpo.includes('-'));
-
-    if (!termoLimpo) {
-      this.opcoesResponsavel.set([]);
-      this.erroResponsavel.set('');
-      this.nenhumResponsavelEncontrado.set(false);
-      return;
-    }
-
-    const filtro: FiltroBuscaBeneficiario = {
-      pagina: 1,
-      itensPorPagina: 10,
-    };
-
-    if (ehNumerico) {
-      if (somenteNumeros.length === 11) {
-        filtro.cpf = somenteNumeros;
-      } else {
-        this.opcoesResponsavel.set([]);
-        this.nenhumResponsavelEncontrado.set(false);
-        this.erroResponsavel.set('');
-        return;
-      }
-    } else {
-      if (termoLimpo.length >= 3) {
-        filtro.nome = termoLimpo;
-      } else {
-        this.opcoesResponsavel.set([]);
-        this.nenhumResponsavelEncontrado.set(false);
-        this.erroResponsavel.set('');
-        return;
-      }
-    }
-
-    this.buscandoResponsavel.set(true);
-    this.erroResponsavel.set('');
-    this.nenhumResponsavelEncontrado.set(false);
-
-    this.beneficiarioService
-      .buscarTodos(filtro)
-      .pipe(finalize(() => this.buscandoResponsavel.set(false)))
-      .subscribe({
-        next: (resposta) => {
-          const lista = resposta.dados || [];
-          this.opcoesResponsavel.set(lista);
-          this.nenhumResponsavelEncontrado.set(lista.length === 0);
-        },
-        error: (err) => {
-          console.error('Erro ao buscar responsável:', err);
-          this.erroResponsavel.set('Erro ao realizar a busca pelo responsável.');
-          this.opcoesResponsavel.set([]);
-          this.nenhumResponsavelEncontrado.set(true);
-        },
-      });
   }
 
   limiteContatos = 3;
@@ -290,10 +248,6 @@ export class CadastroBeneficiarioComponent implements OnInit {
 
     // Estado inicial
     this.atualizarEstadoControles();
-
-    this.buscaResponsavelSubject
-      .pipe(debounceTime(300))
-      .subscribe((termo) => this.buscaResponsavel(termo));
   }
 
   atualizarEstadoControles(): void {
@@ -377,15 +331,17 @@ export class CadastroBeneficiarioComponent implements OnInit {
   }
 
   get dadosPessoaisPreenchidos(): boolean {
-    const obrigatoriosBasicos = Boolean(
+    return Boolean(
       this.formPessoa.valid &&
       this.form.get('nivelEscolaridade')?.valid
     );
+  }
 
-    if (!obrigatoriosBasicos) return false;
+  get podePreencherDemaisSecoes(): boolean {
+    if (!this.dadosPessoaisPreenchidos) return false;
 
     if (this.ehMenorNaoEmancipado) {
-      return Boolean(this.form.get('responsavelId')?.valid);
+      return Boolean(this.responsavelSelecionado());
     }
 
     return true;
