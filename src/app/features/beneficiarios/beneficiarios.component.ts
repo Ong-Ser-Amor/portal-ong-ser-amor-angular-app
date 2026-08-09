@@ -11,6 +11,7 @@ import { Beneficiario, FiltroBuscaBeneficiario } from '../../core/models/benefic
 import { PageEvent } from '@angular/material/paginator';
 import { BeneficiarioService } from '../../core/services/beneficiario.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ofuscarCpf } from '../../shared/utils/cpf.utils';
 
 import { CardBuscaComponent } from '../../shared/components/card-busca/card-busca.component';
 
@@ -43,7 +44,7 @@ export class BeneficiariosComponent implements OnInit {
 
   colunas: ColunaTabela<Beneficiario>[] = [
     { chave: 'nome', titulo: 'Nome', celula: (b) => b.pessoa.nome },
-    { chave: 'cpf', titulo: 'CPF', celula: (b) => b.pessoa.cpf },
+    { chave: 'cpf', titulo: 'CPF', celula: (b) => ofuscarCpf(b.pessoa.cpf) },
     { chave: 'acoes', titulo: '' },
   ];
 
