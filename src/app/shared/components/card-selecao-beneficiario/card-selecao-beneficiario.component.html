@@ -26,7 +26,7 @@
     <div class="opcoes-lista">
       <span class="subtitulo-busca">Clique sobre o beneficiário abaixo para selecionar:</span>
       @for (opcao of opcoes(); track opcao.id) {
-      <div class="opcao-item" (click)="onSelecionar(opcao)">
+      <div class="opcao-item" (click)="aoSelecionar(opcao)">
         <div class="opcao-info">
           <strong class="opcao-nome">{{ opcao.pessoa.nome }}</strong>
           <span class="opcao-cpf">CPF: {{ opcao.pessoa.cpf }}</span>
@@ -43,7 +43,7 @@
       <strong class="opcao-nome">{{ selecionado()?.nome }}</strong>
       <span class="opcao-cpf">CPF: {{ selecionado()?.cpf }}</span>
     </div>
-    <app-botao label="Desvincular" cor="warn" variante="stroked" size="small" (click)="onDesvincular()"
+    <app-botao label="Desvincular" cor="warn" variante="stroked" size="small" (click)="aoDesvincular()"
       aria-label="Desvincular beneficiário" />
   </div>
   }

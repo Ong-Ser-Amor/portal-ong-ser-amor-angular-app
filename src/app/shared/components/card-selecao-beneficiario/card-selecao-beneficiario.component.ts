@@ -115,14 +115,14 @@ export class CardSelecaoBeneficiarioComponent implements OnInit {
       });
   }
 
-  onSelecionar(beneficiario: Beneficiario): void {
+  aoSelecionar(beneficiario: Beneficiario): void {
     this.opcoes.set([]);
     this.nenhumEncontrado.set(false);
     this.erro.set('');
     this.selecionar.emit(beneficiario);
   }
 
-  onDesvincular(): void {
+  aoDesvincular(): void {
     this.opcoes.set([]);
     this.erro.set('');
     this.nenhumEncontrado.set(false);
