@@ -8,6 +8,7 @@ import { CardComponent } from '../card/card.component';
 import { Beneficiario, FiltroBuscaBeneficiario } from '../../../core/models/beneficiario.model';
 import { PessoaResposta } from '../../../core/models/pessoa.model';
 import { BeneficiarioService } from '../../../core/services/beneficiario.service';
+import { ofuscarCpf } from '../../utils/cpf.utils';
 
 @Component({
   selector: 'app-card-selecao-beneficiario',
@@ -25,6 +26,8 @@ import { BeneficiarioService } from '../../../core/services/beneficiario.service
 export class CardSelecaoBeneficiarioComponent implements OnInit {
   private readonly beneficiarioService = inject(BeneficiarioService);
   private readonly buscaSubject = new Subject<string>();
+
+  readonly ofuscarCpf = ofuscarCpf;
 
   // Inputs configuráveis
   titulo = input.required<string>();

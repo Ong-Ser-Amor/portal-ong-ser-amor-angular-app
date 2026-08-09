@@ -29,7 +29,7 @@
       <div class="opcao-item" (click)="aoSelecionar(opcao)">
         <div class="opcao-info">
           <strong class="opcao-nome">{{ opcao.pessoa.nome }}</strong>
-          <span class="opcao-cpf">CPF: {{ opcao.pessoa.cpf }}</span>
+          <span class="opcao-cpf">CPF: {{ ofuscarCpf(opcao.pessoa.cpf) }}</span>
         </div>
         <app-botao label="Selecionar" variante="stroked" cor="primary" size="small" />
       </div>
@@ -41,7 +41,7 @@
   <div class="item-selecionado">
     <div class="opcao-info">
       <strong class="opcao-nome">{{ selecionado()?.nome }}</strong>
-      <span class="opcao-cpf">CPF: {{ selecionado()?.cpf }}</span>
+      <span class="opcao-cpf">CPF: {{ ofuscarCpf(selecionado()?.cpf) }}</span>
     </div>
     <app-botao label="Desvincular" cor="warn" variante="stroked" size="small" (click)="aoDesvincular()"
       aria-label="Desvincular beneficiário" />
