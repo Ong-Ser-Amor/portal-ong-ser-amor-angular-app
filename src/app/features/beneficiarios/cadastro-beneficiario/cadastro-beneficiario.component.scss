@@ -1,59 +1,7 @@
-.content-card {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 32px;
-  width: 100%;
-  box-sizing: border-box;
-
-  & + .content-card {
-    margin-top: 24px;
-  }
-
-  .secao-titulo {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #333;
-    margin: 0 0 16px 0;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  }
-
-  .secao-cabecalho {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .secao-titulo {
-      margin: 0;
-      padding-bottom: 0;
-      border-bottom: none;
-    }
-  }
-
-  .secao-subtitulo {
-    font-size: 0.85rem;
-    color: #666;
-    margin-top: 4px;
-    display: block;
-  }
-}
-
 .form-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px 24px;
-
-  .col-span-1 {
-    grid-column: span 1;
-  }
-
-  .col-span-2 {
-    grid-column: span 2;
-  }
-
-  .col-span-3 {
-    grid-column: span 3;
-  }
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
