@@ -1,6 +1,4 @@
-<app-cabecalho-pagina titulo="Detalhes do Beneficiário" [exibirBotaoVoltar]="true" (voltar)="voltar()">
-  <app-botao label="Editar" icone="edit" cor="primary" (click)="editar()" />
-</app-cabecalho-pagina>
+<app-cabecalho-pagina titulo="Detalhes do Beneficiário" [exibirBotaoVoltar]="true" (voltar)="voltar()" />
 
 @if (carregando()) {
 <mat-progress-bar mode="indeterminate" class="mb-4"></mat-progress-bar>
@@ -10,6 +8,9 @@
   @if (beneficiario(); as beneficiario) {
   <!-- Card 1: Dados Pessoais -->
   <app-card titulo="Dados Pessoais" icone="person">
+    <div acoes-cabecalho>
+      <app-botao variante="icon" icone="edit" cor="primary" (click)="abrirModalEditarDadosPessoais(beneficiario)" aria-label="Editar Dados Pessoais" />
+    </div>
     <div class="grid-detalhes">
       <div class="detalhe-item">
         <span class="label">Nome Completo</span>
@@ -18,7 +19,7 @@
 
       <div class="detalhe-item">
         <span class="label">CPF</span>
-        <span class="valor">{{ ofuscarCpf(beneficiario.pessoa.cpf) }}</span>
+        <span class="valor">{{ formatarCpf(beneficiario.pessoa.cpf) }}</span>
       </div>
 
       <div class="detalhe-item">
@@ -28,7 +29,7 @@
 
       <div class="detalhe-item">
         <span class="label">Idade</span>
-        <span class="valor">{{ calcularIdade(beneficiario.pessoa.dataNascimento) }}</span>
+        <span class="valor">{{ calcularIdade(beneficiario.pessoa.dataNascimento) !== null ? calcularIdade(beneficiario.pessoa.dataNascimento) + ' anos' : '-' }}</span>
       </div>
 
       <div class="detalhe-item">

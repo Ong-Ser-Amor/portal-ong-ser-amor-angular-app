@@ -1,0 +1,36 @@
+<div class="cabecalho">
+  <div class="sessao-titulo">
+    @if (icone()) {
+    <mat-icon color="primary">{{ icone() }}</mat-icon>
+    }
+    <div class="textos">
+      @if (titulo()) {
+      <h2>{{ titulo() }}</h2>
+      }
+      @if (subtitulo()) {
+      <span class="subtitulo">{{ subtitulo() }}</span>
+      }
+    </div>
+  </div>
+  <app-botao variante="icon" icone="close" tamanho="sm" (click)="fechar.emit()" aria-label="Fechar modal" />
+</div>
+
+@if (carregando()) {
+<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+}
+
+<mat-dialog-content class="corpo">
+  <ng-content></ng-content>
+</mat-dialog-content>
+
+@if (exibirCancelar() || exibirConfirmar()) {
+<mat-dialog-actions align="end" class="rodape">
+  @if (exibirCancelar()) {
+  <app-botao [label]="textoCancelar()" variante="stroked" (click)="fechar.emit()" [desabilitado]="carregando()" />
+  }
+  @if (exibirConfirmar()) {
+  <app-botao [label]="textoConfirmar()" cor="primary" (click)="salvar.emit()"
+    [desabilitado]="carregando() || confirmarDesabilitado()" />
+  }
+</mat-dialog-actions>
+}

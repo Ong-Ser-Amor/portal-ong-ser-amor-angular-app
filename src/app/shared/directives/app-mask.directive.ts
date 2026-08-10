@@ -1,4 +1,4 @@
-import { Directive, ElementRef, HostListener, inject, input } from '@angular/core';
+import { Directive, ElementRef, HostListener, inject, input, OnInit, AfterViewInit } from '@angular/core';
 import { NgControl } from '@angular/forms';
 
 export type InputMaskType =
@@ -19,19 +19,38 @@ export type InputMaskType =
   selector: '[appMask]',
   standalone: true,
 })
-export class AppMaskDirective {
+export class AppMaskDirective implements OnInit, AfterViewInit {
   private readonly el = inject(ElementRef);
   private readonly ngControl = inject(NgControl, { optional: true });
 
   appMask = input<InputMaskType>();
 
+  ngOnInit(): void {
+    setTimeout(() => this.aplicarMascara(), 0);
+    if (this.ngControl && this.ngControl.valueChanges) {
+      this.ngControl.valueChanges.subscribe(() => {
+        setTimeout(() => this.aplicarMascara(), 0);
+      });
+    }
+  }
+
+  ngAfterViewInit(): void {
+    this.aplicarMascara();
+  }
+
   @HostListener('input', ['$event'])
   onInput(): void {
+    this.aplicarMascara();
+  }
+
+  public aplicarMascara(): void {
     const mask = this.appMask()?.toLowerCase();
     if (!mask) return;
 
     const inputEl = this.el.nativeElement as HTMLInputElement;
-    const valorLimpo = inputEl.value.replace(/\D/g, '');
+    if (!inputEl) return;
+
+    const valorLimpo = (inputEl.value || '').replace(/\D/g, '');
     let novoValor = inputEl.value;
 
     switch (mask) {
@@ -52,10 +71,11 @@ export class AppMaskDirective {
         break;
     }
 
-    inputEl.value = novoValor;
-
-    if (mask !== 'data' && this.ngControl && this.ngControl.control) {
-      this.ngControl.control.setValue(novoValor, { emitModelToViewChange: false });
+    if (inputEl.value !== novoValor) {
+      inputEl.value = novoValor;
+      if (mask !== 'data' && this.ngControl && this.ngControl.control) {
+        this.ngControl.control.setValue(novoValor, { emitModelToViewChange: false });
+      }
     }
   }
 }

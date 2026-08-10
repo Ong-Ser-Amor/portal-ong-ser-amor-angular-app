@@ -30,3 +30,33 @@ body {
 .col-span-3 {
   grid-column: span 3;
 }
+
+/* Estilos e Tamanhos de Modais (Design System) */
+.modal-sm { width: 450px; max-width: 100vw; }
+.modal-md { width: 650px; max-width: 100vw; }
+.modal-lg { width: 850px; max-width: 100vw; }
+.modal-full { width: 1200px; max-width: 100vw; }
+
+@media (max-width: 600px) {
+  .cdk-overlay-pane.mat-mdc-dialog-panel.modal-sm,
+  .cdk-overlay-pane.mat-mdc-dialog-panel.modal-md,
+  .cdk-overlay-pane.mat-mdc-dialog-panel.modal-lg,
+  .cdk-overlay-pane.mat-mdc-dialog-panel.modal-full {
+    width: 100vw;
+    height: 100dvh;
+    max-width: 100vw;
+    max-height: 100dvh;
+
+    .mat-mdc-dialog-container {
+      border-radius: 0;
+      height: 100%;
+
+      & > * {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+      }
+    }
+  }
+}

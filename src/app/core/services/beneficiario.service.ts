@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { PaginacaoResposta } from '../models/api-paginacao-resposta.model';
-import { Beneficiario, BeneficiarioResumo, FiltroBuscaBeneficiario, CriarBeneficiarioDto } from '../models/beneficiario.model';
+import { Beneficiario, BeneficiarioResumo, FiltroBuscaBeneficiario, CriarBeneficiarioDto, AtualizarBeneficiarioDto } from '../models/beneficiario.model';
 
 @Injectable({
   providedIn: 'root',
@@ -41,5 +41,9 @@ export class BeneficiarioService {
 
   buscarPorId(id: number | string): Observable<Beneficiario> {
     return this.http.get<Beneficiario>(`${this.API_URL}/${id}`);
+  }
+
+  atualizar(id: string, dto: AtualizarBeneficiarioDto): Observable<Beneficiario> {
+    return this.http.patch<Beneficiario>(`${this.API_URL}/${id}`, dto);
   }
 }

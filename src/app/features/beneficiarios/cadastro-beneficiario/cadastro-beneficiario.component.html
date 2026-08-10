@@ -21,7 +21,7 @@
       <app-input formControlName="quantidadeFilhos" label="Quantidade de Filhos" type="number" [min]="0" [max]="30"
         [step]="1" placeholder="0" class="col-span-1" />
 
-      <div class="checkbox-group col-span-1">
+      <div class="grupo-checkbox col-span-2">
         @if (podeSerEmancipado) {
         <app-checkbox formControlName="emancipado" label="Emancipado(a)" />
         }
@@ -68,7 +68,7 @@
         <app-select formControlName="tipoMoradia" label="Tipo de Moradia" [opcoes]="tiposMoradia" [required]="true"
           class="col-span-1" />
 
-        <div class="checkbox-field col-span-1">
+        <div class="campo-checkbox col-span-1">
           <app-checkbox formControlName="possuiBeneficioSocial" label="Recebe benefício social" />
         </div>
       </div>

@@ -3,6 +3,7 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CabecalhoPaginaComponent } from '../../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
 import { BotaoComponent } from '../../../shared/components/botao/botao.component';
 import { CardComponent } from '../../../shared/components/card/card.component';
@@ -24,8 +25,11 @@ import {
   TipoMoradia,
 } from '../../../core/models/familia.model';
 import { OPCOES_TIPO_CONTATO, TipoContato } from '../../../core/models/contato.model';
-import { ofuscarCpf } from '../../../shared/utils/cpf.utils';
+import { formatarCpf, ofuscarCpf } from '../../../shared/utils/cpf.utils';
 import { formatarCep } from '../../../shared/utils/cep.utils';
+import { calcularIdade, formatarData } from '../../../shared/utils/data.utils';
+import { ModalEditarDadosPessoaisComponent } from './components/modal-editar-dados-pessoais/modal-editar-dados-pessoais.component';
+import { CONFIG_MODAL } from '../../../shared/components/modal/modal.config';
 
 @Component({
   selector: 'app-detalhes-beneficiario',
@@ -35,6 +39,7 @@ import { formatarCep } from '../../../shared/utils/cep.utils';
     BotaoComponent,
     CardComponent,
     MatProgressBarModule,
+    MatDialogModule,
   ],
   templateUrl: './detalhes-beneficiario.component.html',
   styleUrl: './detalhes-beneficiario.component.scss',
@@ -44,9 +49,13 @@ export class DetalhesBeneficiarioComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly beneficiarioService = inject(BeneficiarioService);
+  private readonly dialog = inject(MatDialog);
 
   readonly ofuscarCpf = ofuscarCpf;
+  readonly formatarCpf = formatarCpf;
   readonly formatarCep = formatarCep;
+  readonly formatarData = formatarData;
+  readonly calcularIdade = calcularIdade;
 
   beneficiario = signal<Beneficiario | null>(null);
   carregando = signal<boolean>(false);
@@ -165,36 +174,20 @@ export class DetalhesBeneficiarioComponent implements OnInit {
     return valor;
   }
 
-  formatarData(dataStr?: string | null): string {
-    if (!dataStr) return '-';
-    const parts = dataStr.split('-');
-    if (parts.length === 3) {
-      return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    }
-    return dataStr;
-  }
-
-  calcularIdade(dataStr?: string | null): string {
-    if (!dataStr) return '-';
-    const nascimento = new Date(dataStr);
-    if (isNaN(nascimento.getTime())) return '-';
-    const hoje = new Date();
-    let idade = hoje.getFullYear() - nascimento.getFullYear();
-    const m = hoje.getMonth() - nascimento.getMonth();
-    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
-      idade--;
-    }
-    return `${idade} anos`;
-  }
-
   voltar(): void {
     this.location.back();
   }
 
-  editar(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.router.navigate(['/beneficiarios', id, 'editar']);
-    }
+  abrirModalEditarDadosPessoais(beneficiario: Beneficiario): void {
+    const dialogRef = this.dialog.open(ModalEditarDadosPessoaisComponent, {
+      ...CONFIG_MODAL.md,
+      data: { beneficiario },
+    });
+
+    dialogRef.afterClosed().subscribe((resultado) => {
+      if (resultado) {
+        this.beneficiario.set(resultado);
+      }
+    });
   }
 }
