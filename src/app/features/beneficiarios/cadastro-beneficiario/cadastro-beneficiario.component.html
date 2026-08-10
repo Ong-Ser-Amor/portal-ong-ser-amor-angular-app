@@ -25,7 +25,9 @@
         @if (podeSerEmancipado) {
         <app-checkbox formControlName="emancipado" label="Emancipado(a)" />
         }
+        @if (ehMenorNaoEmancipado) {
         <app-checkbox formControlName="podeSairSozinho" label="Pode sair sozinho(a)" />
+        }
       </div>
     </div>
 

@@ -74,7 +74,7 @@ export interface CriarBeneficiarioComPessoaEFamiliaExistentesDto {
   estadoCivil?: EstadoCivil;
   vinculoEmpregaticio?: VinculoEmpregaticio;
   quantidadeFilhos?: number;
-  contatos: CriarContatoDto[];
+  contatos?: CriarContatoDto[];
 }
 
 export interface CriarBeneficiarioComPessoaExistenteEFamiliaNovaDto {
@@ -84,7 +84,7 @@ export interface CriarBeneficiarioComPessoaExistenteEFamiliaNovaDto {
   estadoCivil?: EstadoCivil;
   vinculoEmpregaticio?: VinculoEmpregaticio;
   quantidadeFilhos?: number;
-  contatos: CriarContatoDto[];
+  contatos?: CriarContatoDto[];
 }
 
 export interface CriarBeneficiarioComPessoaEFamiliaNovasDto {
@@ -99,7 +99,7 @@ export interface CriarBeneficiarioComPessoaEFamiliaNovasDto {
   estadoCivil?: EstadoCivil;
   vinculoEmpregaticio?: VinculoEmpregaticio;
   novaFamilia: CriarFamiliaDto;
-  contatos: CriarContatoDto[];
+  contatos?: CriarContatoDto[];
 }
 
 export interface CriarBeneficiarioComPessoaNovaEFamiliaExistenteDto {
@@ -114,7 +114,7 @@ export interface CriarBeneficiarioComPessoaNovaEFamiliaExistenteDto {
   estadoCivil?: EstadoCivil;
   vinculoEmpregaticio?: VinculoEmpregaticio;
   familiaId: string;
-  contatos: CriarContatoDto[];
+  contatos?: CriarContatoDto[];
 }
 
 export type CriarBeneficiarioDto =

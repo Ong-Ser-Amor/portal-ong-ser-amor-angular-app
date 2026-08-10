@@ -17,7 +17,7 @@ import { Subject, debounceTime, finalize } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { TipoContato, OPCOES_TIPO_CONTATO } from '../../../core/models/contato.model';
+import { TipoContato, OPCOES_TIPO_CONTATO, CriarContatoDto } from '../../../core/models/contato.model';
 import {
   OPCOES_NIVEL_ESCOLARIDADE,
   OPCOES_ESTADO_CIVIL,
@@ -459,19 +459,23 @@ export class CadastroBeneficiarioComponent implements OnInit {
     const pessoaValue = formValue.pessoa;
     const familiaValue = formValue.familia;
 
-    const responsavelIdFinal = this.ehMenorNaoEmancipado
+    const responsavelId = this.ehMenorNaoEmancipado
       ? (formValue.responsavelId || undefined)
       : undefined;
 
-    const contatosMapeados = (formValue.contatos || [])
-      .filter((c: any) => c.valor && c.valor.trim() !== '')
-      .map((c: any) => ({
-        tipoContato: c.tipoContato,
-        valor: c.tipoContato === 'EMAIL' ? c.valor.trim() : (c.valor || '').replace(/\D/g, ''),
-        ehPrincipal: !!c.ehPrincipal,
+    const podeSairSozinho = this.ehMenorNaoEmancipado
+      ? Boolean(formValue.podeSairSozinho)
+      : undefined;
+
+    const contatosMapeados: CriarContatoDto[] = (formValue.contatos || [])
+      .filter((contato: CriarContatoDto) => contato.valor && contato.valor.trim() !== '')
+      .map((contato: CriarContatoDto) => ({
+        tipoContato: contato.tipoContato,
+        valor: contato.tipoContato === 'EMAIL' ? contato.valor.trim() : (contato.valor || '').replace(/\D/g, ''),
+        ehPrincipal: !!contato.ehPrincipal,
       }));
 
-    const contatosFinal = contatosMapeados.length > 0 ? contatosMapeados : undefined;
+    const contatos = contatosMapeados.length > 0 ? contatosMapeados : undefined;
 
     const familiaIdExistente = this.familiaIdSelecionada();
 
@@ -483,14 +487,14 @@ export class CadastroBeneficiarioComponent implements OnInit {
         cpf: (pessoaValue.cpf || '').replace(/\D/g, ''),
         dataNascimento: pessoaValue.dataNascimento,
         emancipado: formValue.emancipado,
-        podeSairSozinho: formValue.podeSairSozinho,
-        responsavelId: responsavelIdFinal,
+        podeSairSozinho,
+        responsavelId,
         quantidadeFilhos: formValue.quantidadeFilhos || undefined,
         nivelEscolaridade: formValue.nivelEscolaridade,
         estadoCivil: formValue.estadoCivil || undefined,
         vinculoEmpregaticio: formValue.vinculoEmpregaticio || undefined,
         familiaId: familiaIdExistente,
-        contatos: contatosFinal,
+        contatos,
       };
     } else {
       beneficiario = {
@@ -498,8 +502,8 @@ export class CadastroBeneficiarioComponent implements OnInit {
         cpf: (pessoaValue.cpf || '').replace(/\D/g, ''),
         dataNascimento: pessoaValue.dataNascimento,
         emancipado: formValue.emancipado,
-        podeSairSozinho: formValue.podeSairSozinho,
-        responsavelId: responsavelIdFinal,
+        podeSairSozinho,
+        responsavelId,
         quantidadeFilhos: formValue.quantidadeFilhos || undefined,
         nivelEscolaridade: formValue.nivelEscolaridade,
         estadoCivil: formValue.estadoCivil || undefined,
@@ -518,7 +522,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
             uf: formValue.endereco.uf,
           },
         },
-        contatos: contatosFinal,
+        contatos,
       };
     }
 
