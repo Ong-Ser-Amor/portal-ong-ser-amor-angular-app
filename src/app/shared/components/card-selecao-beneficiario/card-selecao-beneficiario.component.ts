@@ -5,8 +5,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { InputComponent } from '../input/input.component';
 import { BotaoComponent } from '../botao/botao.component';
 import { CardComponent } from '../card/card.component';
-import { Beneficiario, FiltroBuscaBeneficiario } from '../../../core/models/beneficiario.model';
-import { PessoaResposta } from '../../../core/models/pessoa.model';
+import { BeneficiarioResumo, FiltroBuscaBeneficiario } from '../../../core/models/beneficiario.model';
+import { Pessoa } from '../../../core/models/pessoa.model';
 import { BeneficiarioService } from '../../../core/services/beneficiario.service';
 import { ofuscarCpf } from '../../utils/cpf.utils';
 
@@ -33,17 +33,17 @@ export class CardSelecaoBeneficiarioComponent implements OnInit {
   titulo = input.required<string>();
   subtitulo = input<string>('');
   icone = input<string>('family_restroom');
-  selecionado = input<PessoaResposta | null>(null);
+  selecionado = input<Pessoa | null>(null);
 
   // Outputs
-  selecionar = output<Beneficiario>();
+  selecionar = output<BeneficiarioResumo>();
   desvincular = output<void>();
 
   // Signals de estado interno
   buscando = signal<boolean>(false);
   erro = signal<string>('');
   nenhumEncontrado = signal<boolean>(false);
-  opcoes = signal<Beneficiario[]>([]);
+  opcoes = signal<BeneficiarioResumo[]>([]);
 
   ngOnInit(): void {
     this.buscaSubject
@@ -118,7 +118,7 @@ export class CardSelecaoBeneficiarioComponent implements OnInit {
       });
   }
 
-  aoSelecionar(beneficiario: Beneficiario): void {
+  aoSelecionar(beneficiario: BeneficiarioResumo): void {
     this.opcoes.set([]);
     this.nenhumEncontrado.set(false);
     this.erro.set('');

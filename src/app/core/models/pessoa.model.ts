@@ -1,17 +1,17 @@
-export interface PessoaResposta {
+import { ContatoResposta } from './contato.model';
+
+export interface PessoaResumo {
   id: string;
   nome: string;
   cpf: string;
   dataNascimento: string;
-  podeSairSozinho?: boolean;
   emancipado: boolean;
-  responsavelId?: string;
+  podeSairSozinho: boolean | null;
+  responsavelId: string | null;
 }
 
-export interface AtualizarPessoaRequest {
-  nome?: string;
-  cpf?: string;
-  dataNascimento?: string;
-  podeSairSozinho?: boolean;
-  responsavelId?: string;
+export interface Pessoa extends PessoaResumo {
+  contatos?: ContatoResposta[];
 }
+
+export type AtualizarPessoaRequest = Partial<Omit<PessoaResumo, 'id'>>;

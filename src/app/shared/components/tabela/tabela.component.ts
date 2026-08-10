@@ -40,6 +40,7 @@ export class TabelaComponent<T> {
   dados = input.required<T[]>();
   colunas = input.required<ColunaTabela<T>[]>();
   carregando = input<boolean>(false);
+  clicavel = input<boolean>(false);
   textoSemDados = input<string>('Nenhum registro encontrado.');
 
   // Paginação
@@ -48,12 +49,19 @@ export class TabelaComponent<T> {
   itensPorPagina = input<number>(10);
   opcoesItensPorPagina = input<number[]>([5, 10, 25, 50]);
 
-  mudarPagina = output<PageEvent>();
+  paginaAlterada = output<PageEvent>();
+  linhaClicada = output<T>();
 
   @ContentChildren(TabelaCelulaDirective)
   celulasCustomizadas!: QueryList<TabelaCelulaDirective<T>>;
 
   chavesColunas = computed(() => this.colunas().map((c) => c.chave));
+
+  aoClicarNaLinha(linha: T): void {
+    if (this.clicavel()) {
+      this.linhaClicada.emit(linha);
+    }
+  }
 
   obterTemplateCelula(nomeColuna: string): TemplateRef<any> | null {
     const celula = this.celulasCustomizadas?.find(

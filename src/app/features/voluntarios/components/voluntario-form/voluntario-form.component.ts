@@ -32,7 +32,7 @@ import {
   TipoVoluntario,
   Voluntario,
 } from '../../../../core/models/voluntario.model';
-import { PessoaResposta } from '../../../../core/models/pessoa.model';
+import { Pessoa } from '../../../../core/models/pessoa.model';
 import { CreateUsuarioRequest } from '../../../../core/models/usuario.model';
 import { DadosPessoaStepComponent } from '../dados-pessoa-step/dados-pessoa-step.component';
 import { DadosVoluntarioStepComponent } from '../dados-voluntario-step/dados-voluntario-step.component';
@@ -70,7 +70,7 @@ export class VoluntarioFormComponent implements OnInit, AfterViewInit {
   buscandoCpf = signal(false);
 
   // ESTADO DA PESSOA CENTRALIZADO
-  pessoaOriginal = signal<PessoaResposta | null>(null);
+  pessoaOriginal = signal<Pessoa | null>(null);
   dadosPessoaisPreenchidos = signal<{
     nome: string;
     cpf: string;
@@ -318,7 +318,7 @@ export class VoluntarioFormComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private configurarPessoa(pessoa: PessoaResposta, existeNoBd: boolean) {
+  private configurarPessoa(pessoa: Pessoa, existeNoBd: boolean) {
     this.pessoaOriginal.set(existeNoBd ? pessoa : null);
     this.modoPessoaExistente.set(existeNoBd);
 

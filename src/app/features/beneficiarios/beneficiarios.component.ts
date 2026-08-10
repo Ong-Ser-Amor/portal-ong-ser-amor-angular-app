@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { BotaoComponent } from '../../shared/components/botao/botao.component';
 import { CabecalhoPaginaComponent } from '../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
 import {
@@ -7,7 +7,7 @@ import {
   ColunaTabela,
 } from '../../shared/components/tabela/tabela.component';
 import { TabelaCelulaDirective } from '../../shared/components/tabela/directives/tabela-celula.directive';
-import { Beneficiario, FiltroBuscaBeneficiario } from '../../core/models/beneficiario.model';
+import { BeneficiarioResumo, FiltroBuscaBeneficiario } from '../../core/models/beneficiario.model';
 import { PageEvent } from '@angular/material/paginator';
 import { BeneficiarioService } from '../../core/services/beneficiario.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -31,8 +31,9 @@ import { CardBuscaComponent } from '../../shared/components/card-busca/card-busc
 export class BeneficiariosComponent implements OnInit {
   private beneficiarioService = inject(BeneficiarioService);
   private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
 
-  beneficiarios = signal<Beneficiario[]>([]);
+  beneficiarios = signal<BeneficiarioResumo[]>([]);
   estaCarregando = signal(false);
 
   termoBusca = signal('');
@@ -42,7 +43,7 @@ export class BeneficiariosComponent implements OnInit {
   itensPorPagina = signal(10);
   totalItens = signal(0);
 
-  colunas: ColunaTabela<Beneficiario>[] = [
+  colunas: ColunaTabela<BeneficiarioResumo>[] = [
     { chave: 'nome', titulo: 'Nome', celula: (b) => b.pessoa.nome },
     { chave: 'cpf', titulo: 'CPF', celula: (b) => ofuscarCpf(b.pessoa.cpf) },
     { chave: 'acoes', titulo: '' },
@@ -107,17 +108,21 @@ export class BeneficiariosComponent implements OnInit {
     this.carregarBeneficiarios();
   }
 
-  mudarPagina(event: PageEvent) {
+  aoMudarPagina(event: PageEvent) {
     this.paginaAtual.set(event.pageIndex);
     this.itensPorPagina.set(event.pageSize);
     this.carregarBeneficiarios();
   }
 
-  editar(beneficiario: Beneficiario) {
+  verDetalhes(beneficiario: BeneficiarioResumo): void {
+    this.router.navigate(['/beneficiarios', beneficiario.id]);
+  }
+
+  editar(beneficiario: BeneficiarioResumo) {
     console.log('Editar beneficiário:', beneficiario);
   }
 
-  excluir(beneficiario: Beneficiario) {
+  excluir(beneficiario: BeneficiarioResumo) {
     console.log('Excluir beneficiário:', beneficiario);
   }
 }

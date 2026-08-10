@@ -24,6 +24,7 @@ import {
   OPCOES_VINCULO_EMPREGATICIO,
   CriarBeneficiarioDto,
   Beneficiario,
+  BeneficiarioResumo,
   FiltroBuscaBeneficiario,
 } from '../../../core/models/beneficiario.model';
 import {
@@ -33,9 +34,9 @@ import {
   OPCOES_TIPO_MORADIA,
 } from '../../../core/models/familia.model';
 import { UF, OPCOES_UF } from '../../../core/models/endereco.model';
+import { Pessoa } from '../../../core/models/pessoa.model';
 import { BeneficiarioService } from '../../../core/services/beneficiario.service';
 import { PessoaService } from '../../../core/services/pessoa.service';
-import { PessoaResposta } from '../../../core/models/pessoa.model';
 
 @Component({
   selector: 'app-cadastro-beneficiario',
@@ -71,7 +72,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
   private readonly buscaResponsavelSubject = new Subject<string>();
 
   estaCarregando = signal(false);
-  responsavelSelecionado = signal<PessoaResposta | null>(null);
+  responsavelSelecionado = signal<Pessoa | null>(null);
   familiaIdSelecionada = signal<string | null>(null);
 
   get tituloCardSelecao(): string {
@@ -96,33 +97,52 @@ export class CadastroBeneficiarioComponent implements OnInit {
     this.buscaResponsavelSubject.next(termo);
   }
 
-  definirResponsavel(beneficiario: Beneficiario): void {
+  definirResponsavel(beneficiario: BeneficiarioResumo): void {
     this.responsavelSelecionado.set(beneficiario.pessoa);
     this.form.get('responsavelId')?.setValue(beneficiario.pessoa.id);
 
     this.atualizarValidacoesPorIdade();
     this.atualizarEstadoControles();
 
-    const familia = beneficiario.familia;
-    if (familia && familia.id) {
-      this.familiaIdSelecionada.set(familia.id);
-      this.formFamilia.patchValue({
-        faixaRenda: familia.faixaRenda,
-        tipoMoradia: familia.tipoMoradia,
-        possuiBeneficioSocial: familia.possuiBeneficioSocial,
-      });
-      this.formEndereco.patchValue({
-        cep: familia.endereco?.cep || '',
-        logradouro: familia.endereco?.logradouro || '',
-        numero: familia.endereco?.numero || '',
-        complemento: familia.endereco?.complemento || '',
-        bairro: familia.endereco?.bairro || '',
-        cidade: familia.endereco?.cidade || '',
-        uf: familia.endereco?.uf || null,
-      });
+    if (beneficiario.familiaId) {
+      this.familiaIdSelecionada.set(beneficiario.familiaId);
+      this.carregarDadosFamiliaEResponsavel(beneficiario.id);
     } else {
       this.familiaIdSelecionada.set(null);
     }
+  }
+
+  private carregarDadosFamiliaEResponsavel(beneficiarioId: string): void {
+    this.estaCarregando.set(true);
+    this.beneficiarioService
+      .buscarPorId(beneficiarioId)
+      .pipe(finalize(() => this.estaCarregando.set(false)))
+      .subscribe({
+        next: (dadosCompleto) => {
+          const familia = dadosCompleto.familia;
+          if (familia) {
+            this.formFamilia.patchValue({
+              faixaRenda: familia.faixaRenda,
+              tipoMoradia: familia.tipoMoradia,
+              possuiBeneficioSocial: familia.possuiBeneficioSocial,
+            });
+            if (familia.endereco) {
+              this.formEndereco.patchValue({
+                cep: familia.endereco.cep || '',
+                logradouro: familia.endereco.logradouro || '',
+                numero: familia.endereco.numero || '',
+                complemento: familia.endereco.complemento || '',
+                bairro: familia.endereco.bairro || '',
+                cidade: familia.endereco.cidade || '',
+                uf: familia.endereco.uf || null,
+              });
+            }
+          }
+        },
+        error: (erro) => {
+          console.error('Erro ao carregar detalhes da família do responsável:', erro);
+        },
+      });
   }
 
   limparResponsavel(): void {
@@ -354,10 +374,36 @@ export class CadastroBeneficiarioComponent implements OnInit {
     if (this.ehMenorNaoEmancipado) {
       responsavelCtrl?.setValidators([Validators.required]);
       contatosArray?.clearValidators();
+
+      contatosArray?.controls.forEach((group) => {
+        const tipoCtrl = group.get('tipoContato');
+        const valorCtrl = group.get('valor');
+
+        if (!tipoCtrl?.value && !valorCtrl?.value) {
+          tipoCtrl?.clearValidators();
+          valorCtrl?.clearValidators();
+          tipoCtrl?.updateValueAndValidity({ emitEvent: false });
+          valorCtrl?.updateValueAndValidity({ emitEvent: false });
+        }
+      });
     } else {
       responsavelCtrl?.clearValidators();
       responsavelCtrl?.setValue('', { emitEvent: false });
       contatosArray?.setValidators([Validators.required, Validators.minLength(1)]);
+
+      contatosArray?.controls.forEach((group) => {
+        const tipoCtrl = group.get('tipoContato');
+        const valorCtrl = group.get('valor');
+
+        if (!tipoCtrl?.value) {
+          tipoCtrl?.setValidators([Validators.required]);
+          tipoCtrl?.updateValueAndValidity({ emitEvent: false });
+        }
+        if (!valorCtrl?.value) {
+          valorCtrl?.setValidators([Validators.required]);
+          valorCtrl?.updateValueAndValidity({ emitEvent: false });
+        }
+      });
     }
 
     responsavelCtrl?.updateValueAndValidity({ emitEvent: false });
@@ -379,7 +425,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
       .verificarCadastroBeneficiarioPorCpf(cpfLimpo)
       .pipe(finalize(() => this.estaCarregando.set(false)))
       .subscribe({
-        next: (pessoa: PessoaResposta) => {
+        next: (pessoa: Pessoa) => {
           this.formPessoa.patchValue({
             nome: pessoa.nome,
             dataNascimento: pessoa.dataNascimento,
@@ -425,6 +471,8 @@ export class CadastroBeneficiarioComponent implements OnInit {
         ehPrincipal: !!c.ehPrincipal,
       }));
 
+    const contatosFinal = contatosMapeados.length > 0 ? contatosMapeados : undefined;
+
     const familiaIdExistente = this.familiaIdSelecionada();
 
     let beneficiario: CriarBeneficiarioDto;
@@ -442,7 +490,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
         estadoCivil: formValue.estadoCivil || undefined,
         vinculoEmpregaticio: formValue.vinculoEmpregaticio || undefined,
         familiaId: familiaIdExistente,
-        contatos: contatosMapeados,
+        contatos: contatosFinal,
       };
     } else {
       beneficiario = {
@@ -470,7 +518,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
             uf: formValue.endereco.uf,
           },
         },
-        contatos: contatosMapeados,
+        contatos: contatosFinal,
       };
     }
 
@@ -501,9 +549,11 @@ export class CadastroBeneficiarioComponent implements OnInit {
   adicionarContato(): void {
     if (this.contatos.length < this.limiteContatos) {
       const ehPrimeiro = this.contatos.length === 0;
+      const ehObrigatorio = !this.ehMenorNaoEmancipado;
+
       const grupoContato = this.fb.group({
-        tipoContato: ['' as TipoContato, Validators.required],
-        valor: ['', [Validators.required, Validators.maxLength(150)]],
+        tipoContato: ['' as TipoContato, ehObrigatorio ? [Validators.required] : []],
+        valor: ['', ehObrigatorio ? [Validators.required, Validators.maxLength(150)] : [Validators.maxLength(150)]],
         ehPrincipal: [ehPrimeiro],
       });
 
@@ -521,7 +571,13 @@ export class CadastroBeneficiarioComponent implements OnInit {
 
     valorControl.setValue('', { emitEvent: false });
 
-    if (tipo === 'CELULAR') {
+    if (!tipo) {
+      if (this.ehMenorNaoEmancipado) {
+        valorControl.setValidators([Validators.maxLength(150)]);
+      } else {
+        valorControl.setValidators([Validators.required, Validators.maxLength(150)]);
+      }
+    } else if (tipo === 'CELULAR') {
       valorControl.setValidators([
         Validators.required,
         Validators.pattern(/^(\d{11}|\(\d{2}\)\s?\d{5}-\d{4})$/),

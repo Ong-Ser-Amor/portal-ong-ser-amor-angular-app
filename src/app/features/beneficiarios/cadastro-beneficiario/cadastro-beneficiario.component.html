@@ -115,14 +115,14 @@
       <div formArrayName="contatos" class="lista-contatos">
         @for (contato of contatos.controls; track $index) {
         <div [formGroupName]="$index" class="contato-item">
-          <app-select formControlName="tipoContato" label="Tipo" [opcoes]="tiposContato" [required]="true"
+          <app-select formControlName="tipoContato" label="Tipo" [opcoes]="tiposContato" [required]="!ehMenorNaoEmancipado"
             class="tipo-field" />
 
           <app-input formControlName="valor" label="Contato"
             [type]="obterTipoInputContato(contato.get('tipoContato')?.value)"
             [placeholder]="obterPlaceholderContato(contato.get('tipoContato')?.value)"
             [maxLength]="obterMaxLengthContato(contato.get('tipoContato')?.value)"
-            [mask]="contato.get('tipoContato')?.value" [required]="true" class="valor-field" />
+            [mask]="contato.get('tipoContato')?.value" [required]="!ehMenorNaoEmancipado" class="valor-field" />
 
           <div class="principal-field">
             <mat-radio-button [checked]="contato.get('ehPrincipal')?.value" (change)="marcarPrincipal($index)"

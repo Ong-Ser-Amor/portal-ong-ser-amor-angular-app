@@ -23,6 +23,18 @@
       text-align: right;
       padding-right: 16px;
     }
+
+    tr.linha-tabela {
+      transition: background-color 0.15s ease-in-out;
+
+      &:hover {
+        background-color: #f8fafc;
+      }
+
+      &.linha-clicavel {
+        cursor: pointer;
+      }
+    }
   }
 
   .sem-dados {

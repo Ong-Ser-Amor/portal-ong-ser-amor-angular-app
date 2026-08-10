@@ -22,7 +22,7 @@
     }
 
     <tr mat-header-row *matHeaderRowDef="chavesColunas()"></tr>
-    <tr mat-row *matRowDef="let row; columns: chavesColunas()"></tr>
+    <tr mat-row *matRowDef="let linha; columns: chavesColunas()" class="linha-tabela" [class.linha-clicavel]="clicavel()" (click)="aoClicarNaLinha(linha)"></tr>
 
     @if (!carregando()) {
       <tr class="mat-row" *matNoDataRow>
@@ -38,7 +38,7 @@
     [pageSize]="itensPorPagina()"
     [pageIndex]="paginaAtual() - 1"
     [pageSizeOptions]="opcoesItensPorPagina()"
-    (page)="mudarPagina.emit($event)"
+    (page)="paginaAlterada.emit($event)"
     aria-label="Selecione a página"
   >
   </mat-paginator>

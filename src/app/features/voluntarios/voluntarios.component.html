@@ -15,7 +15,7 @@
   [totalItens]="totalItens()"
   [paginaAtual]="paginaAtual()"
   [itensPorPagina]="itensPorPagina()"
-  (mudarPagina)="mudarPagina($event)"
+  (paginaAlterada)="mudarPagina($event)"
 >
   <ng-template appTabelaCelula="tipoVoluntario" let-voluntario>
     <span class="badge-tipo-voluntario">

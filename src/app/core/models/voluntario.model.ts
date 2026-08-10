@@ -1,11 +1,11 @@
-import { PessoaResposta } from './pessoa.model';
+import { Pessoa } from './pessoa.model';
 
 export type NivelFormacao = 'COMPLETO' | 'CURSANDO' | 'INCOMPLETO';
 export type TipoVoluntario = 'COORDENADOR' | 'PROFESSOR' | 'GERAL';
 
 export interface Voluntario {
   id: string;
-  pessoa: PessoaResposta;
+  pessoa: Pessoa;
   formacaoAcademica: string | null;
   statusFormacao: NivelFormacao | null;
   tipoVoluntario: TipoVoluntario;

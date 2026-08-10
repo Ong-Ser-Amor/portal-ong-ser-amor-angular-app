@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { PaginacaoResposta } from '../models/api-paginacao-resposta.model';
-import { Beneficiario, FiltroBuscaBeneficiario, CriarBeneficiarioDto } from '../models/beneficiario.model';
+import { Beneficiario, BeneficiarioResumo, FiltroBuscaBeneficiario, CriarBeneficiarioDto } from '../models/beneficiario.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +12,7 @@ export class BeneficiarioService {
   private http = inject(HttpClient);
   private readonly API_URL = `${environment.apiUrl}/beneficiarios`;
 
-  buscarTodos(filtros?: FiltroBuscaBeneficiario): Observable<PaginacaoResposta<Beneficiario>> {
+  buscarTodos(filtros?: FiltroBuscaBeneficiario): Observable<PaginacaoResposta<BeneficiarioResumo>> {
     let parametros = new HttpParams()
       .set('pagina', (filtros?.pagina ?? 1).toString())
       .set('itensPorPagina', (filtros?.itensPorPagina ?? 10).toString());
@@ -23,13 +23,23 @@ export class BeneficiarioService {
     if (filtros?.cpf) {
       parametros = parametros.set('cpf', filtros.cpf);
     }
+    if (filtros?.familiaId) {
+      parametros = parametros.set('familiaId', filtros.familiaId);
+    }
+    if (filtros?.ignorarId) {
+      parametros = parametros.set('ignorarId', filtros.ignorarId);
+    }
 
-    return this.http.get<PaginacaoResposta<Beneficiario>>(this.API_URL, {
+    return this.http.get<PaginacaoResposta<BeneficiarioResumo>>(this.API_URL, {
       params: parametros,
     });
   }
 
   criar(criarBeneficiarioDto: CriarBeneficiarioDto): Observable<Beneficiario> {
     return this.http.post<Beneficiario>(this.API_URL, criarBeneficiarioDto);
+  }
+
+  buscarPorId(id: number | string): Observable<Beneficiario> {
+    return this.http.get<Beneficiario>(`${this.API_URL}/${id}`);
   }
 }

@@ -10,7 +10,7 @@
   [totalItens]="totalItens()"
   [paginaAtual]="paginaAtual()"
   [itensPorPagina]="itensPorPagina()"
-  (mudarPagina)="mudarPagina($event)"
+  (paginaAlterada)="mudarPagina($event)"
 >
   <ng-template appTabelaCelula="acoes" let-curso>
     <app-botao

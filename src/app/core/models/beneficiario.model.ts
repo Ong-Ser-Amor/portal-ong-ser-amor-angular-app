@@ -1,8 +1,7 @@
-import { CriarFamiliaDto, FaixaRenda, Familia, TipoMoradia } from './familia.model';
-import { PessoaResposta } from './pessoa.model';
-import { ContatoResposta, CriarContatoDto } from './contato.model';
+import { CriarFamiliaDto, Familia } from './familia.model';
+import { Pessoa, PessoaResumo } from './pessoa.model';
+import { CriarContatoDto } from './contato.model';
 import { OpcaoSelect } from './opcao-select.model';
-import { UF } from './endereco.model';
 
 export type NivelEscolaridade =
   | 'ENSINO_FUNDAMENTAL_INCOMPLETO'
@@ -53,15 +52,19 @@ export const OPCOES_VINCULO_EMPREGATICIO: OpcaoSelect<VinculoEmpregaticio>[] = [
   { valor: 'APOSENTADO', rotulo: 'Aposentado(a)' },
 ];
 
-export interface Beneficiario {
+export interface BeneficiarioResumo {
   id: string;
-  pessoa: PessoaResposta;
-  familia?: Familia;
+  familiaId: string | null;
+  pessoa: PessoaResumo;
   nivelEscolaridade: NivelEscolaridade;
   estadoCivil: EstadoCivil | null;
   vinculoEmpregaticio: VinculoEmpregaticio | null;
   quantidadeFilhos: number | null;
-  contatos?: ContatoResposta[];
+}
+
+export interface Beneficiario extends Omit<BeneficiarioResumo, 'pessoa' | 'familiaId'> {
+  pessoa: Pessoa;
+  familia: Familia;
 }
 
 export interface CriarBeneficiarioComPessoaEFamiliaExistentesDto {
@@ -132,5 +135,7 @@ export interface FiltroBuscaBeneficiario {
   itensPorPagina?: number;
   nome?: string;
   cpf?: string;
+  familiaId?: string;
+  ignorarId?: string;
 }
 

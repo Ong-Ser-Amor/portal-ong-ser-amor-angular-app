@@ -4,12 +4,12 @@
 
 <app-card-busca placeholder="Pesquisar beneficiário por nome ou CPF..." (pesquisar)="buscar($event)" />
 
-<app-tabela [dados]="beneficiarios()" [colunas]="colunas" [carregando]="estaCarregando()"
+<app-tabela [dados]="beneficiarios()" [colunas]="colunas" [carregando]="estaCarregando()" [clicavel]="true"
   textoSemDados="Nenhum beneficiário encontrado." [totalItens]="totalItens()" [paginaAtual]="paginaAtual()"
-  [itensPorPagina]="itensPorPagina()" (mudarPagina)="mudarPagina($event)">
+  [itensPorPagina]="itensPorPagina()" (paginaAlterada)="aoMudarPagina($event)" (linhaClicada)="verDetalhes($event)">
   <ng-template appTabelaCelula="acoes" let-beneficiario>
-    <app-botao variante="icon" icone="edit" cor="primary" (click)="editar(beneficiario)" />
+    <app-botao variante="icon" icone="edit" cor="primary" (click)="$event.stopPropagation(); editar(beneficiario)" />
     <app-botao variante="icon" icone="delete" cor="warn" [desabilitado]="estaCarregando()"
-      (click)="excluir(beneficiario)" />
+      (click)="$event.stopPropagation(); excluir(beneficiario)" />
   </ng-template>
 </app-tabela>
