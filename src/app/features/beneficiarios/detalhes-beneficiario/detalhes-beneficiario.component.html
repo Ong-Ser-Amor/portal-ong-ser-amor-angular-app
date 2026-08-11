@@ -6,98 +6,101 @@
 
 <div class="container">
   @if (beneficiario(); as beneficiario) {
-  <!-- Card 1: Dados Pessoais -->
-  <app-card titulo="Dados Pessoais" icone="person">
-    <div acoes-cabecalho>
-      <app-botao variante="icon" icone="edit" cor="primary" (click)="abrirModalEditarDadosPessoais(beneficiario)" aria-label="Editar Dados Pessoais" />
-    </div>
-    <div class="grid-detalhes">
-      <div class="detalhe-item">
-        <span class="label">Nome Completo</span>
-        <span class="valor">{{ beneficiario.pessoa.nome }}</span>
+  <!-- Seção Superior: Dados Pessoais + Canais de Contato Lado a Lado -->
+  <div class="secao-superior-detalhes">
+    <!-- Card 1: Dados Pessoais -->
+    <app-card titulo="Dados Pessoais" icone="person">
+      <div acoes-cabecalho>
+        <app-botao variante="icon" icone="edit" cor="primary" (click)="abrirModalEditarDadosPessoais(beneficiario)" aria-label="Editar Dados Pessoais" />
       </div>
+      <div class="grid-detalhes">
+        <div class="detalhe-item">
+          <span class="label">Nome Completo</span>
+          <span class="valor">{{ beneficiario.pessoa.nome }}</span>
+        </div>
 
-      <div class="detalhe-item">
-        <span class="label">CPF</span>
-        <span class="valor">{{ formatarCpf(beneficiario.pessoa.cpf) }}</span>
-      </div>
+        <div class="detalhe-item">
+          <span class="label">CPF</span>
+          <span class="valor">{{ formatarCpf(beneficiario.pessoa.cpf) }}</span>
+        </div>
 
-      <div class="detalhe-item">
-        <span class="label">Data de Nascimento</span>
-        <span class="valor">{{ formatarData(beneficiario.pessoa.dataNascimento) }}</span>
-      </div>
+        <div class="detalhe-item">
+          <span class="label">Data de Nascimento</span>
+          <span class="valor">{{ formatarData(beneficiario.pessoa.dataNascimento) }}</span>
+        </div>
 
-      <div class="detalhe-item">
-        <span class="label">Idade</span>
-        <span class="valor">{{ calcularIdade(beneficiario.pessoa.dataNascimento) !== null ? calcularIdade(beneficiario.pessoa.dataNascimento) + ' anos' : '-' }}</span>
-      </div>
+        <div class="detalhe-item">
+          <span class="label">Idade</span>
+          <span class="valor">{{ calcularIdade(beneficiario.pessoa.dataNascimento) !== null ? calcularIdade(beneficiario.pessoa.dataNascimento) + ' anos' : '-' }}</span>
+        </div>
 
-      <div class="detalhe-item">
-        <span class="label">Escolaridade</span>
-        <span class="valor">{{ obterRotuloEscolaridade(beneficiario.nivelEscolaridade) }}</span>
-      </div>
+        <div class="detalhe-item">
+          <span class="label">Escolaridade</span>
+          <span class="valor">{{ obterRotuloEscolaridade(beneficiario.nivelEscolaridade) }}</span>
+        </div>
 
-      <div class="detalhe-item">
-        <span class="label">Estado Civil</span>
-        <span class="valor">{{ obterRotuloEstadoCivil(beneficiario.estadoCivil) }}</span>
-      </div>
+        <div class="detalhe-item">
+          <span class="label">Estado Civil</span>
+          <span class="valor">{{ obterRotuloEstadoCivil(beneficiario.estadoCivil) }}</span>
+        </div>
 
-      <div class="detalhe-item">
-        <span class="label">Vínculo Empregatício</span>
-        <span class="valor">{{ obterRotuloVinculo(beneficiario.vinculoEmpregaticio) }}</span>
-      </div>
+        <div class="detalhe-item">
+          <span class="label">Vínculo Empregatício</span>
+          <span class="valor">{{ obterRotuloVinculo(beneficiario.vinculoEmpregaticio) }}</span>
+        </div>
 
-      <div class="detalhe-item">
-        <span class="label">Quantidade de Filhos</span>
-        <span class="valor">{{ beneficiario.quantidadeFilhos ?? 0 }}</span>
-      </div>
+        <div class="detalhe-item">
+          <span class="label">Quantidade de Filhos</span>
+          <span class="valor">{{ beneficiario.quantidadeFilhos ?? 0 }}</span>
+        </div>
 
-      <div class="detalhe-item">
-        <span class="label">Emancipado</span>
-        <span class="valor">{{ beneficiario.pessoa.emancipado ? 'Sim' : 'Não' }}</span>
-      </div>
+        <div class="detalhe-item">
+          <span class="label">Emancipado</span>
+          <span class="valor">{{ beneficiario.pessoa.emancipado ? 'Sim' : 'Não' }}</span>
+        </div>
 
-      <div class="detalhe-item">
-        <span class="label">Pode Sair Sozinho</span>
-        <span class="valor">
-          {{ beneficiario.pessoa.podeSairSozinho === true ? 'Sim' : beneficiario.pessoa.podeSairSozinho === false ? 'Não' : '-' }}
-        </span>
-      </div>
-    </div>
-  </app-card>
-
-  <!-- Card 2: Canais de Contato -->
-  <app-card titulo="Canais de Contato" icone="contacts">
-    <div acoes-cabecalho>
-      <app-botao variante="icon" icone="add" cor="primary" (click)="abrirModalAdicionarContato(beneficiario)"
-        aria-label="Adicionar Canal de Contato" />
-    </div>
-    @if (beneficiario.pessoa.contatos && beneficiario.pessoa.contatos.length > 0) {
-    <div class="grid-contatos">
-      @for (contato of beneficiario.pessoa.contatos; track contato.id || contato.valor) {
-      <div class="detalhe-item item-com-acoes">
-        <div class="info-contato">
-          <span class="label">
-            {{ obterRotuloTipoContato(contato.tipoContato) }}
-            @if (contato.ehPrincipal) {
-            <span class="badge-principal">Principal</span>
-            }
+        <div class="detalhe-item">
+          <span class="label">Pode Sair Sozinho</span>
+          <span class="valor">
+            {{ beneficiario.pessoa.podeSairSozinho === true ? 'Sim' : beneficiario.pessoa.podeSairSozinho === false ? 'Não' : '-' }}
           </span>
-          <span class="valor">{{ formatarValorContato(contato.tipoContato, contato.valor) }}</span>
-        </div>
-        <div class="acoes-item">
-          <app-botao variante="icon" icone="edit" cor="primary"
-            (click)="abrirModalEditarContato(beneficiario, contato)" aria-label="Editar Contato" />
-          <app-botao variante="icon" icone="delete" cor="warn"
-            (click)="confirmarExcluirContato(beneficiario, contato)" aria-label="Excluir Contato" />
         </div>
       </div>
+    </app-card>
+
+    <!-- Card 2: Canais de Contato -->
+    <app-card titulo="Canais de Contato" icone="contacts">
+      <div acoes-cabecalho>
+        <app-botao variante="icon" icone="add" cor="primary" (click)="abrirModalAdicionarContato(beneficiario)"
+          aria-label="Adicionar Canal de Contato" />
+      </div>
+      @if (beneficiario.pessoa.contatos && beneficiario.pessoa.contatos.length > 0) {
+      <div class="grid-contatos">
+        @for (contato of beneficiario.pessoa.contatos; track contato.id || contato.valor) {
+        <div class="detalhe-item item-com-acoes">
+          <div class="info-contato">
+            <span class="label">
+              {{ obterRotuloTipoContato(contato.tipoContato) }}
+              @if (contato.ehPrincipal) {
+              <span class="badge-principal">Principal</span>
+              }
+            </span>
+            <span class="valor">{{ formatarValorContato(contato.tipoContato, contato.valor) }}</span>
+          </div>
+          <div class="acoes-item">
+            <app-botao variante="icon" icone="edit" cor="primary"
+              (click)="abrirModalEditarContato(beneficiario, contato)" aria-label="Editar Contato" />
+            <app-botao variante="icon" icone="delete" cor="warn"
+              (click)="confirmarExcluirContato(beneficiario, contato)" aria-label="Excluir Contato" />
+          </div>
+        </div>
+        }
+      </div>
+      } @else {
+      <p class="texto-vazio">Nenhum canal de contato cadastrado.</p>
       }
-    </div>
-    } @else {
-    <p class="texto-vazio">Nenhum canal de contato cadastrado.</p>
-    }
-  </app-card>
+    </app-card>
+  </div>
 
   <!-- Card 3: Núcleo Familiar -->
   <app-card titulo="Núcleo Familiar" icone="family_restroom">
