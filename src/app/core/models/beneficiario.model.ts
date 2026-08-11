@@ -1,6 +1,6 @@
 import { CriarFamiliaDto, Familia } from './familia.model';
 import { Pessoa, PessoaResumo } from './pessoa.model';
-import { CriarContatoDto } from './contato.model';
+import { CriarContatoBeneficiarioDto } from './contato.model';
 import { OpcaoSelect } from './opcao-select.model';
 
 export type NivelEscolaridade =
@@ -74,7 +74,7 @@ export interface CriarBeneficiarioComPessoaEFamiliaExistentesDto {
   estadoCivil?: EstadoCivil;
   vinculoEmpregaticio?: VinculoEmpregaticio;
   quantidadeFilhos?: number;
-  contatos?: CriarContatoDto[];
+  contatos?: CriarContatoBeneficiarioDto[];
 }
 
 export interface CriarBeneficiarioComPessoaExistenteEFamiliaNovaDto {
@@ -84,7 +84,7 @@ export interface CriarBeneficiarioComPessoaExistenteEFamiliaNovaDto {
   estadoCivil?: EstadoCivil;
   vinculoEmpregaticio?: VinculoEmpregaticio;
   quantidadeFilhos?: number;
-  contatos?: CriarContatoDto[];
+  contatos?: CriarContatoBeneficiarioDto[];
 }
 
 export interface CriarBeneficiarioComPessoaEFamiliaNovasDto {
@@ -99,7 +99,7 @@ export interface CriarBeneficiarioComPessoaEFamiliaNovasDto {
   estadoCivil?: EstadoCivil;
   vinculoEmpregaticio?: VinculoEmpregaticio;
   novaFamilia: CriarFamiliaDto;
-  contatos?: CriarContatoDto[];
+  contatos?: CriarContatoBeneficiarioDto[];
 }
 
 export interface CriarBeneficiarioComPessoaNovaEFamiliaExistenteDto {
@@ -114,7 +114,7 @@ export interface CriarBeneficiarioComPessoaNovaEFamiliaExistenteDto {
   estadoCivil?: EstadoCivil;
   vinculoEmpregaticio?: VinculoEmpregaticio;
   familiaId: string;
-  contatos?: CriarContatoDto[];
+  contatos?: CriarContatoBeneficiarioDto[];
 }
 
 export type CriarBeneficiarioDto =

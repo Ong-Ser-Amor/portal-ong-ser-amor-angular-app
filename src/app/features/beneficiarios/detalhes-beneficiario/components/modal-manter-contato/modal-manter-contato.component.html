@@ -1,0 +1,34 @@
+<app-modal
+  [titulo]="titulo"
+  icone="contacts"
+  [confirmarDesabilitado]="form.invalid || salvando()"
+  [carregando]="salvando()"
+  (fechar)="fechar()"
+  (salvar)="salvar()">
+
+  <form [formGroup]="form" class="form-grid">
+    <app-select
+      label="Tipo de Contato"
+      formControlName="tipoContato"
+      [opcoes]="tiposContato"
+      placeholder="Selecione o tipo de contato"
+      [required]="true" />
+
+    <app-input
+      label="Contato"
+      formControlName="valor"
+      [type]="obterTipoInput()"
+      [mask]="obterMascaraContato()"
+      [required]="true"
+      placeholder="Informe o número ou e-mail" />
+
+    @if (form.get('tipoContato')?.value !== 'EMAIL') {
+      <div class="grupo-checkbox">
+        <app-checkbox
+          label="Contato Principal"
+          formControlName="ehPrincipal"
+          class="campo-checkbox" />
+      </div>
+    }
+  </form>
+</app-modal>

@@ -4,10 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CabecalhoPaginaComponent } from '../../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
 import { BotaoComponent } from '../../../shared/components/botao/botao.component';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { BeneficiarioService } from '../../../core/services/beneficiario.service';
+import { ContatoService } from '../../../core/services/contato.service';
 import {
   Beneficiario,
   BeneficiarioResumo,
@@ -24,11 +26,12 @@ import {
   OPCOES_TIPO_MORADIA,
   TipoMoradia,
 } from '../../../core/models/familia.model';
-import { OPCOES_TIPO_CONTATO, TipoContato } from '../../../core/models/contato.model';
+import { ContatoResposta, OPCOES_TIPO_CONTATO, TipoContato } from '../../../core/models/contato.model';
 import { formatarCpf, ofuscarCpf } from '../../../shared/utils/cpf.utils';
 import { formatarCep } from '../../../shared/utils/cep.utils';
 import { calcularIdade, formatarData } from '../../../shared/utils/data.utils';
 import { ModalEditarDadosPessoaisComponent } from './components/modal-editar-dados-pessoais/modal-editar-dados-pessoais.component';
+import { ModalManterContatoComponent } from './components/modal-manter-contato/modal-manter-contato.component';
 import { CONFIG_MODAL } from '../../../shared/components/modal/modal.config';
 
 @Component({
@@ -40,6 +43,7 @@ import { CONFIG_MODAL } from '../../../shared/components/modal/modal.config';
     CardComponent,
     MatProgressBarModule,
     MatDialogModule,
+    MatSnackBarModule,
   ],
   templateUrl: './detalhes-beneficiario.component.html',
   styleUrl: './detalhes-beneficiario.component.scss',
@@ -49,7 +53,9 @@ export class DetalhesBeneficiarioComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly beneficiarioService = inject(BeneficiarioService);
+  private readonly contatoService = inject(ContatoService);
   private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
 
   readonly ofuscarCpf = ofuscarCpf;
   readonly formatarCpf = formatarCpf;
@@ -189,5 +195,54 @@ export class DetalhesBeneficiarioComponent implements OnInit {
         this.beneficiario.set(resultado);
       }
     });
+  }
+
+  abrirModalAdicionarContato(beneficiario: Beneficiario): void {
+    const dialogRef = this.dialog.open(ModalManterContatoComponent, {
+      ...CONFIG_MODAL.sm,
+      data: { beneficiario },
+    });
+
+    dialogRef.afterClosed().subscribe((sucesso) => {
+      if (sucesso) {
+        this.carregarBeneficiario(beneficiario.id);
+      }
+    });
+  }
+
+  abrirModalEditarContato(beneficiario: Beneficiario, contato: ContatoResposta): void {
+    const dialogRef = this.dialog.open(ModalManterContatoComponent, {
+      ...CONFIG_MODAL.sm,
+      data: { beneficiario, contato },
+    });
+
+    dialogRef.afterClosed().subscribe((sucesso) => {
+      if (sucesso) {
+        this.carregarBeneficiario(beneficiario.id);
+      }
+    });
+  }
+
+  confirmarExcluirContato(beneficiario: Beneficiario, contato: ContatoResposta): void {
+    const contatosAtuais = beneficiario.pessoa.contatos || [];
+    if (contatosAtuais.length <= 1) {
+      this.snackBar.open('O beneficiário deve possuir pelo menos 1 canal de contato.', 'Fechar', { duration: 4000 });
+      return;
+    }
+
+    const valorFormatado = this.formatarValorContato(contato.tipoContato, contato.valor);
+    if (confirm(`Tem certeza que deseja excluir o contato ${valorFormatado}?`)) {
+      this.contatoService.remover(contato.id).subscribe({
+        next: () => {
+          this.snackBar.open('Contato removido com sucesso!', 'Fechar', { duration: 3000 });
+          this.carregarBeneficiario(beneficiario.id);
+        },
+        error: (err) => {
+          console.error('Erro ao remover contato:', err);
+          const msg = err.error?.message || 'Erro ao remover contato.';
+          this.snackBar.open(msg, 'Fechar', { duration: 4000 });
+        },
+      });
+    }
   }
 }

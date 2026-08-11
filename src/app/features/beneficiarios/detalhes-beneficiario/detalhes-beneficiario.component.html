@@ -167,17 +167,29 @@
 
   <!-- Card 5: Canais de Contato -->
   <app-card titulo="Canais de Contato" icone="contacts">
+    <div acoes-cabecalho>
+      <app-botao variante="icon" icone="add" cor="primary" (click)="abrirModalAdicionarContato(beneficiario)"
+        aria-label="Adicionar Canal de Contato" />
+    </div>
     @if (beneficiario.pessoa.contatos && beneficiario.pessoa.contatos.length > 0) {
-    <div class="grid-detalhes">
+    <div class="grid-contatos">
       @for (contato of beneficiario.pessoa.contatos; track contato.id || contato.valor) {
-      <div class="detalhe-item">
-        <span class="label">
-          {{ obterRotuloTipoContato(contato.tipoContato) }}
-          @if (contato.ehPrincipal) {
-          <span class="badge-principal">Principal</span>
-          }
-        </span>
-        <span class="valor">{{ formatarValorContato(contato.tipoContato, contato.valor) }}</span>
+      <div class="detalhe-item item-com-acoes">
+        <div class="info-contato">
+          <span class="label">
+            {{ obterRotuloTipoContato(contato.tipoContato) }}
+            @if (contato.ehPrincipal) {
+            <span class="badge-principal">Principal</span>
+            }
+          </span>
+          <span class="valor">{{ formatarValorContato(contato.tipoContato, contato.valor) }}</span>
+        </div>
+        <div class="acoes-item">
+          <app-botao variante="icon" icone="edit" cor="primary"
+            (click)="abrirModalEditarContato(beneficiario, contato)" aria-label="Editar Contato" />
+          <app-botao variante="icon" icone="delete" cor="warn"
+            (click)="confirmarExcluirContato(beneficiario, contato)" aria-label="Excluir Contato" />
+        </div>
       </div>
       }
     </div>

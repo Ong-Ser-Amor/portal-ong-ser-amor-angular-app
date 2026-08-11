@@ -17,7 +17,7 @@ import { Subject, debounceTime, finalize } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { TipoContato, OPCOES_TIPO_CONTATO, CriarContatoDto } from '../../../core/models/contato.model';
+import { TipoContato, OPCOES_TIPO_CONTATO, CriarContatoBeneficiarioDto } from '../../../core/models/contato.model';
 import {
   OPCOES_NIVEL_ESCOLARIDADE,
   OPCOES_ESTADO_CIVIL,
@@ -467,9 +467,9 @@ export class CadastroBeneficiarioComponent implements OnInit {
       ? Boolean(formValue.podeSairSozinho)
       : undefined;
 
-    const contatosMapeados: CriarContatoDto[] = (formValue.contatos || [])
-      .filter((contato: CriarContatoDto) => contato.valor && contato.valor.trim() !== '')
-      .map((contato: CriarContatoDto) => ({
+    const contatosMapeados: CriarContatoBeneficiarioDto[] = (formValue.contatos || [])
+      .filter((contato: CriarContatoBeneficiarioDto) => contato.valor && contato.valor.trim() !== '')
+      .map((contato: CriarContatoBeneficiarioDto) => ({
         tipoContato: contato.tipoContato,
         valor: contato.tipoContato === 'EMAIL' ? contato.valor.trim() : (contato.valor || '').replace(/\D/g, ''),
         ehPrincipal: !!contato.ehPrincipal,
