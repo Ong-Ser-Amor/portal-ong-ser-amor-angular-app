@@ -134,71 +134,74 @@
     }
   </app-card>
 
-  <!-- Card 3: Dados da Família -->
-  <app-card titulo="Dados da Família" icone="home">
-    @if (beneficiario.familia; as familia) {
-    <div class="grid-detalhes">
-      <div class="detalhe-item">
-        <span class="label">Faixa de Renda Familiar</span>
-        <span class="valor">{{ obterRotuloFaixaRenda(familia.faixaRenda) }}</span>
-      </div>
-
-      <div class="detalhe-item">
-        <span class="label">Tipo de Moradia</span>
-        <span class="valor">{{ obterRotuloTipoMoradia(familia.tipoMoradia) }}</span>
-      </div>
-
-      <div class="detalhe-item">
-        <span class="label">Participa de Programa Social</span>
-        <span class="valor">{{ familia.possuiBeneficioSocial ? 'Sim' : 'Não' }}</span>
-      </div>
-    </div>
-    } @else {
-    <p class="texto-vazio">Nenhuma informação de família cadastrada.</p>
-    }
-  </app-card>
-
-  <!-- Card 4: Endereço -->
-  <app-card titulo="Endereço" icone="location_on">
-    @if (beneficiario.familia; as familia) {
-      @if (familia.endereco; as endereco) {
+  <!-- Seção Inferior: Dados da Família + Endereço Lado a Lado -->
+  <div class="secao-familia-endereco">
+    <!-- Card 3: Dados da Família -->
+    <app-card titulo="Dados da Família" icone="home">
+      @if (beneficiario.familia; as familia) {
       <div class="grid-detalhes">
         <div class="detalhe-item">
-          <span class="label">CEP</span>
-          <span class="valor">{{ formatarCep(endereco.cep) }}</span>
+          <span class="label">Faixa de Renda Familiar</span>
+          <span class="valor">{{ obterRotuloFaixaRenda(familia.faixaRenda) }}</span>
         </div>
 
         <div class="detalhe-item">
-          <span class="label">Logradouro</span>
-          <span class="valor">{{ endereco.logradouro }}</span>
+          <span class="label">Tipo de Moradia</span>
+          <span class="valor">{{ obterRotuloTipoMoradia(familia.tipoMoradia) }}</span>
         </div>
 
         <div class="detalhe-item">
-          <span class="label">Número</span>
-          <span class="valor">{{ endereco.numero || 'S/N' }}</span>
-        </div>
-
-        <div class="detalhe-item">
-          <span class="label">Complemento</span>
-          <span class="valor">{{ endereco.complemento || '-' }}</span>
-        </div>
-
-        <div class="detalhe-item">
-          <span class="label">Bairro</span>
-          <span class="valor">{{ endereco.bairro }}</span>
-        </div>
-
-        <div class="detalhe-item">
-          <span class="label">Cidade / UF</span>
-          <span class="valor">{{ endereco.cidade }} / {{ endereco.uf }}</span>
+          <span class="label">Participa de Programa Social</span>
+          <span class="valor">{{ familia.possuiBeneficioSocial ? 'Sim' : 'Não' }}</span>
         </div>
       </div>
       } @else {
+      <p class="texto-vazio">Nenhuma informação de família cadastrada.</p>
+      }
+    </app-card>
+
+    <!-- Card 4: Endereço -->
+    <app-card titulo="Endereço" icone="location_on">
+      @if (beneficiario.familia; as familia) {
+        @if (familia.endereco; as endereco) {
+        <div class="grid-detalhes">
+          <div class="detalhe-item">
+            <span class="label">CEP</span>
+            <span class="valor">{{ formatarCep(endereco.cep) }}</span>
+          </div>
+
+          <div class="detalhe-item">
+            <span class="label">Logradouro</span>
+            <span class="valor">{{ endereco.logradouro }}</span>
+          </div>
+
+          <div class="detalhe-item">
+            <span class="label">Número</span>
+            <span class="valor">{{ endereco.numero || 'S/N' }}</span>
+          </div>
+
+          <div class="detalhe-item">
+            <span class="label">Complemento</span>
+            <span class="valor">{{ endereco.complemento || '-' }}</span>
+          </div>
+
+          <div class="detalhe-item">
+            <span class="label">Bairro</span>
+            <span class="valor">{{ endereco.bairro }}</span>
+          </div>
+
+          <div class="detalhe-item">
+            <span class="label">Cidade / UF</span>
+            <span class="valor">{{ endereco.cidade }} / {{ endereco.uf }}</span>
+          </div>
+        </div>
+        } @else {
+        <p class="texto-vazio">Nenhum endereço cadastrado.</p>
+        }
+      } @else {
       <p class="texto-vazio">Nenhum endereço cadastrado.</p>
       }
-    } @else {
-    <p class="texto-vazio">Nenhum endereço cadastrado.</p>
-    }
-  </app-card>
+    </app-card>
+  </div>
   }
 </div>
