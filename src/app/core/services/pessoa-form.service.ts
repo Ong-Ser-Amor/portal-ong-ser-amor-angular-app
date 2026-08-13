@@ -63,4 +63,31 @@ export class PessoaFormService {
       podeSairSozinho: false,
     });
   }
+
+  /**
+   * Bloqueia os campos cadastrais de Pessoa para impedir edição acidental de pessoa pré-existente.
+   * Mantém obrigatoriamente o campo de CPF HABILITADO para permitir trocas ou correções de número.
+   *
+   * @param form FormGroup de Pessoa
+   */
+  bloquearCamposEdicao(form: FormGroup): void {
+    Object.keys(form.controls).forEach((key) => {
+      if (key !== 'cpf') {
+        form.get(key)?.disable({ emitEvent: false });
+      } else {
+        form.get(key)?.enable({ emitEvent: false });
+      }
+    });
+  }
+
+  /**
+   * Desbloqueia todos os campos de Pessoa para o cadastro de uma nova pessoa.
+   *
+   * @param form FormGroup de Pessoa
+   */
+  desbloquearCamposEdicao(form: FormGroup): void {
+    Object.keys(form.controls).forEach((key) => {
+      form.get(key)?.enable({ emitEvent: false });
+    });
+  }
 }
