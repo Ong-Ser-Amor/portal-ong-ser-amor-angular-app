@@ -1,17 +1,20 @@
 import { ContatoResposta } from './contato.model';
 
-export interface PessoaResumo {
-  id: string;
+export interface CriarPessoaDto {
   nome: string;
   cpf: string;
   dataNascimento: string;
-  emancipado: boolean;
-  podeSairSozinho: boolean | null;
-  responsavelId: string | null;
+  emancipado?: boolean;
+  podeSairSozinho?: boolean | null;
+  responsavelId?: string | null;
+}
+
+export interface PessoaResumo extends CriarPessoaDto {
+  id: string;
 }
 
 export interface Pessoa extends PessoaResumo {
   contatos?: ContatoResposta[];
 }
 
-export type AtualizarPessoaRequest = Partial<Omit<PessoaResumo, 'id'>>;
+export type AtualizarPessoaRequest = Partial<CriarPessoaDto>;
