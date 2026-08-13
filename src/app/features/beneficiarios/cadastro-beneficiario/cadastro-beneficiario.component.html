@@ -9,26 +9,7 @@
 
     <div class="form-grid">
       <app-formulario-dados-pessoais [formGroup]="formPessoa" (cpfAlterado)="buscarDadosPessoa()" />
-
-      <app-select formControlName="nivelEscolaridade" label="Escolaridade" [opcoes]="niveisEscolaridade"
-        [required]="true" class="col-span-1" />
-
-      <app-select formControlName="estadoCivil" label="Estado Civil" [opcoes]="estadosCivis" class="col-span-1" />
-
-      <app-select formControlName="vinculoEmpregaticio" label="Vínculo Empregatício" [opcoes]="vinculosEmpregaticios"
-        class="col-span-1" />
-
-      <app-input formControlName="quantidadeFilhos" label="Quantidade de Filhos" type="number" [min]="0" [max]="30"
-        [step]="1" placeholder="0" class="col-span-1" />
-
-      <div class="grupo-checkbox col-span-2">
-        @if (podeSerEmancipado) {
-        <app-checkbox formControlName="emancipado" label="Emancipado(a)" />
-        }
-        @if (ehMenorNaoEmancipado) {
-        <app-checkbox formControlName="podeSairSozinho" label="Pode sair sozinho(a)" />
-        }
-      </div>
+      <app-formulario-dados-beneficiario [formGroup]="form" />
     </div>
 
     @if (!dadosPessoaisPreenchidos) {

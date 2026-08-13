@@ -10,7 +10,9 @@ import { CheckboxComponent } from '../../../shared/components/checkbox/checkbox.
 import { DateInputComponent } from '../../../shared/components/date-input/date-input.component';
 import { BotaoComponent } from '../../../shared/components/botao/botao.component';
 import { FormularioDadosPessoaisComponent } from '../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.component';
-import { criarFormGroupPessoa } from '../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.utils';
+import { FormularioDadosBeneficiarioComponent } from '../../../shared/components/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
+import { PessoaFormService } from '../../../core/services/pessoa-form.service';
+import { PessoaCadastroFacade } from '../../../core/services/pessoa-cadastro-facade.service';
 import { CardSelecaoBeneficiarioComponent } from '../../../shared/components/card-selecao-beneficiario/card-selecao-beneficiario.component';
 import { CardComponent } from '../../../shared/components/card/card.component';
 import { Subject, finalize } from 'rxjs';
@@ -53,6 +55,7 @@ import { PessoaService } from '../../../core/services/pessoa.service';
     DateInputComponent,
     BotaoComponent,
     FormularioDadosPessoaisComponent,
+    FormularioDadosBeneficiarioComponent,
     CardSelecaoBeneficiarioComponent,
     CardComponent,
   ],
@@ -64,10 +67,13 @@ export class CadastroBeneficiarioComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly beneficiarioService = inject(BeneficiarioService);
   private readonly pessoaService = inject(PessoaService);
+  private readonly pessoaFormService = inject(PessoaFormService);
+  private readonly pessoaCadastroFacade = inject(PessoaCadastroFacade);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly snackBar = inject(MatSnackBar);
 
   private readonly buscaResponsavelSubject = new Subject<string>();
+  private readonly buscaCpfSubject = new Subject<string>();
 
   estaCarregando = signal(false);
   responsavelSelecionado = signal<Pessoa | null>(null);
@@ -87,9 +93,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
   }
 
   get iconeCardSelecao(): string {
-    return this.ehMenorNaoEmancipado
-      ? 'family_restroom'
-      : 'group_add';
+    return this.ehMenorNaoEmancipado ? 'supervisor_account' : 'group_add';
   }
 
   solicitarBuscaResponsavel(termo: string): void {
@@ -196,16 +200,14 @@ export class CadastroBeneficiarioComponent implements OnInit {
   ufs = OPCOES_UF;
 
   form: FormGroup = this.fb.group({
-    // Sub-grupo de Pessoa (compartilhado com validações centralizadas)
-    pessoa: criarFormGroupPessoa(this.fb),
+    // Sub-grupo de Pessoa (compartilhado via PessoaFormService)
+    pessoa: this.pessoaFormService.criarForm(),
 
     // Dados específicos de Beneficiário
     nivelEscolaridade: ['', [Validators.required]],
     estadoCivil: [''],
     vinculoEmpregaticio: [''],
     quantidadeFilhos: [null, [Validators.min(0), Validators.max(30), Validators.pattern(/^[0-9]+$/)]],
-    emancipado: [false],
-    podeSairSozinho: [false],
     responsavelId: [''],
 
     // Sub-grupo de Família
@@ -267,8 +269,15 @@ export class CadastroBeneficiarioComponent implements OnInit {
         this.buscarDadosPessoa();
       }
     });
-    this.formPessoa.get('nome')?.valueChanges.subscribe(() => this.atualizarEstadoControles());
-    this.form.get('nivelEscolaridade')?.valueChanges.subscribe(() => this.atualizarEstadoControles());
+
+    const { estaCarregando } = this.pessoaCadastroFacade.iniciarBuscaCpfReativa({
+      cpfSubject: this.buscaCpfSubject,
+      buscarApiFn: (cpfLimpo) => this.pessoaService.verificarCadastroBeneficiarioPorCpf(cpfLimpo),
+      getCpfAtualInput: () => this.formPessoa.get('cpf')?.value || '',
+      onSucesso: (pessoa) => this.tratarSucessoBuscaPessoa(pessoa),
+      onErro: (error) => this.tratarErroBuscaPessoa(error),
+    });
+    this.estaCarregando = estaCarregando;
 
     // Estado inicial
     this.atualizarEstadoControles();
@@ -350,7 +359,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
 
   get ehMenorNaoEmancipado(): boolean {
     const idade = this.idadeAtual;
-    const emancipado = !!this.form.get('emancipado')?.value;
+    const emancipado = !!this.formPessoa.get('emancipado')?.value;
     return idade !== null && idade < 18 && !emancipado;
   }
 
@@ -373,7 +382,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
 
   atualizarValidacoesPorIdade(): void {
     if (!this.podeSerEmancipado) {
-      this.form.get('emancipado')?.setValue(false, { emitEvent: false });
+      this.formPessoa.get('emancipado')?.setValue(false, { emitEvent: false });
     }
 
     const responsavelCtrl = this.form.get('responsavelId');
@@ -419,16 +428,30 @@ export class CadastroBeneficiarioComponent implements OnInit {
   }
 
   private atualizarEstadoCamposPessoa(): void {
-    const ehPessoaExistente = !!this.pessoaExistenteId();
-    const nomeCtrl = this.formPessoa.get('nome');
-    const dataNascCtrl = this.formPessoa.get('dataNascimento');
-
-    if (ehPessoaExistente) {
-      if (nomeCtrl?.enabled) nomeCtrl.disable({ emitEvent: false });
-      if (dataNascCtrl?.enabled) dataNascCtrl.disable({ emitEvent: false });
+    if (this.pessoaExistenteId()) {
+      this.pessoaFormService.bloquearCamposEdicao(this.formPessoa);
     } else {
-      if (nomeCtrl?.disabled) nomeCtrl.enable({ emitEvent: false });
-      if (dataNascCtrl?.disabled) dataNascCtrl.enable({ emitEvent: false });
+      this.pessoaFormService.desbloquearCamposEdicao(this.formPessoa);
+    }
+  }
+
+  private tratarSucessoBuscaPessoa(pessoa: Pessoa): void {
+    this.pessoaExistenteId.set(pessoa.id);
+    this.pessoaFormService.preencherForm(this.formPessoa, pessoa);
+    this.atualizarEstadoCamposPessoa();
+    this.atualizarValidacoesPorIdade();
+    this.atualizarEstadoControles();
+  }
+
+  private tratarErroBuscaPessoa(error: unknown): void {
+    this.pessoaExistenteId.set(null);
+    this.atualizarEstadoCamposPessoa();
+    const err = error as any;
+    if (err?.status === 409) {
+      const mensagem = err.error?.message || 'Esta pessoa já possui um cadastro de beneficiário ativo no sistema.';
+      this.snackBar.open(mensagem, 'Fechar', { duration: 5000 });
+    } else {
+      console.error('Erro ao buscar dados da pessoa:', error);
     }
   }
 
@@ -443,37 +466,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
       return;
     }
 
-    this.estaCarregando.set(true);
-
-    this.pessoaService
-      .verificarCadastroBeneficiarioPorCpf(cpfLimpo)
-      .pipe(finalize(() => this.estaCarregando.set(false)))
-      .subscribe({
-        next: (pessoa: Pessoa) => {
-          this.pessoaExistenteId.set(pessoa.id);
-          this.formPessoa.patchValue({
-            nome: pessoa.nome,
-            dataNascimento: pessoa.dataNascimento,
-          });
-          this.form.patchValue({
-            podeSairSozinho: pessoa.podeSairSozinho,
-            emancipado: pessoa.emancipado,
-          });
-          this.atualizarEstadoCamposPessoa();
-          this.atualizarValidacoesPorIdade();
-          this.atualizarEstadoControles();
-        },
-        error: (error) => {
-          this.pessoaExistenteId.set(null);
-          this.atualizarEstadoCamposPessoa();
-          if (error?.status === 409) {
-            const mensagem = error.error?.message || 'Esta pessoa já possui um cadastro de beneficiário ativo no sistema.';
-            this.snackBar.open(mensagem, 'Fechar', { duration: 5000 });
-          } else {
-            console.error('Erro ao buscar dados da pessoa:', error);
-          }
-        },
-      });
+    this.buscaCpfSubject.next(cpfLimpo);
   }
 
   salvar(): void {
@@ -494,7 +487,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
       : undefined;
 
     const podeSairSozinho = this.ehMenorNaoEmancipado
-      ? Boolean(formValue.podeSairSozinho)
+      ? Boolean(pessoaValue.podeSairSozinho)
       : undefined;
 
     const contatosMapeados: CriarContatoBeneficiarioDto[] = (formValue.contatos || [])
@@ -552,7 +545,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
           nome: pessoaValue.nome,
           cpf: (pessoaValue.cpf || '').replace(/\D/g, ''),
           dataNascimento: pessoaValue.dataNascimento,
-          emancipado: formValue.emancipado,
+          emancipado: pessoaValue.emancipado,
           podeSairSozinho,
           responsavelId,
           quantidadeFilhos: formValue.quantidadeFilhos || undefined,
@@ -567,7 +560,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
           nome: pessoaValue.nome,
           cpf: (pessoaValue.cpf || '').replace(/\D/g, ''),
           dataNascimento: pessoaValue.dataNascimento,
-          emancipado: formValue.emancipado,
+          emancipado: pessoaValue.emancipado,
           podeSairSozinho,
           responsavelId,
           quantidadeFilhos: formValue.quantidadeFilhos || undefined,
