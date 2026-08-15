@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
@@ -14,13 +14,13 @@ import { ContatoFormService } from '../../../../../core/services/contato-form.se
 import { Beneficiario } from '../../../../../core/models/beneficiario.model';
 import { AtualizarContatoDto, ContatoResposta, CriarContatoDto, OPCOES_TIPO_CONTATO, TipoContato } from '../../../../../core/models/contato.model';
 
-export interface ModalManterContatoData {
+export interface ModalEdicaoContatoData {
   beneficiario: Beneficiario;
   contato?: ContatoResposta;
 }
 
 @Component({
-  selector: 'app-modal-manter-contato',
+  selector: 'app-modal-edicao-contato',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -31,16 +31,16 @@ export interface ModalManterContatoData {
     CheckboxComponent,
     ModalComponent,
   ],
-  templateUrl: './modal-manter-contato.component.html',
-  styleUrl: './modal-manter-contato.component.scss',
+  templateUrl: './modal-edicao-contato.component.html',
+  styleUrl: './modal-edicao-contato.component.scss',
 })
-export class ModalManterContatoComponent implements OnInit {
-  private readonly dialogRef = inject(MatDialogRef<ModalManterContatoComponent>);
+export class ModalEdicaoContatoComponent implements OnInit {
+  private readonly dialogRef = inject(MatDialogRef<ModalEdicaoContatoComponent>);
   private readonly snackBar = inject(MatSnackBar);
   private readonly contatoService = inject(ContatoService);
   private readonly contatoFormService = inject(ContatoFormService);
 
-  readonly data = inject<ModalManterContatoData>(MAT_DIALOG_DATA);
+  readonly data = inject<ModalEdicaoContatoData>(MAT_DIALOG_DATA);
 
   readonly tiposContato = OPCOES_TIPO_CONTATO;
   salvando = signal<boolean>(false);

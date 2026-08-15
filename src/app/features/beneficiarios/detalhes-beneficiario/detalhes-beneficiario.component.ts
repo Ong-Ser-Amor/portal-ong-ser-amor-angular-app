@@ -31,7 +31,7 @@ import { formatarCpf, ofuscarCpf } from '../../../shared/utils/cpf.utils';
 import { formatarCep } from '../../../shared/utils/cep.utils';
 import { calcularIdade, formatarData } from '../../../shared/utils/data.utils';
 import { ModalEdicaoDadosBeneficiarioComponent } from './components/modal-edicao-dados-beneficiario/modal-edicao-dados-beneficiario.component';
-import { ModalManterContatoComponent } from './components/modal-manter-contato/modal-manter-contato.component';
+import { ModalEdicaoContatoComponent } from './components/modal-edicao-contato/modal-edicao-contato.component';
 import { CONFIG_MODAL } from '../../../shared/components/ui/modal/modal.config';
 
 @Component({
@@ -198,7 +198,7 @@ export class DetalhesBeneficiarioComponent implements OnInit {
   }
 
   abrirModalAdicionarContato(beneficiario: Beneficiario): void {
-    const dialogRef = this.dialog.open(ModalManterContatoComponent, {
+    const dialogRef = this.dialog.open(ModalEdicaoContatoComponent, {
       ...CONFIG_MODAL.sm,
       data: { beneficiario },
     });
@@ -211,7 +211,7 @@ export class DetalhesBeneficiarioComponent implements OnInit {
   }
 
   abrirModalEditarContato(beneficiario: Beneficiario, contato: ContatoResposta): void {
-    const dialogRef = this.dialog.open(ModalManterContatoComponent, {
+    const dialogRef = this.dialog.open(ModalEdicaoContatoComponent, {
       ...CONFIG_MODAL.sm,
       data: { beneficiario, contato },
     });
