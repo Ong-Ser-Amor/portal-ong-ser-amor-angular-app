@@ -13,7 +13,7 @@
       <app-formulario-permissoes-menor [formGroup]="formPessoa" />
     </div>
 
-    @if (!dadosPessoaisPreenchidos) {
+    @if (!dadosPessoaisPreenchidos()) {
     <div class="aviso-bloqueio">
       <mat-icon>info</mat-icon>
       <span>Preencha os Dados Pessoais obrigatórios (Nome, CPF, Data de Nascimento e Escolaridade) para liberar os
@@ -23,21 +23,21 @@
   </app-card>
 
   <!-- Etapa 1: Libera a Busca de Responsável / Família após Dados Pessoais -->
-  <fieldset [disabled]="!dadosPessoaisPreenchidos" class="secoes-dependentes"
-    [class.bloqueado]="!dadosPessoaisPreenchidos">
+  <fieldset [disabled]="!dadosPessoaisPreenchidos()" class="secoes-dependentes"
+    [class.bloqueado]="!dadosPessoaisPreenchidos()">
     <!-- Card Único Dinâmico de Seleção (Responsável Legal ou Família Existente) -->
-    <app-card-selecao-beneficiario [titulo]="tituloCardSelecao" [subtitulo]="subtituloCardSelecao"
-      [icone]="iconeCardSelecao" [selecionado]="responsavelSelecionado()" (selecionar)="definirResponsavel($event)"
+    <app-card-selecao-beneficiario [titulo]="tituloCardSelecao()" [subtitulo]="subtituloCardSelecao()"
+      [icone]="iconeCardSelecao()" [selecionado]="responsavelSelecionado()" (selecionar)="definirResponsavel($event)"
       (desvincular)="limparResponsavel()" />
   </fieldset>
 
   <!-- Etapa 2: Libera Família, Endereço e Contatos (Requer Responsável se for Menor) -->
-  <fieldset [disabled]="!podePreencherDemaisSecoes" class="secoes-dependentes"
-    [class.bloqueado]="!podePreencherDemaisSecoes">
+  <fieldset [disabled]="!podePreencherDemaisSecoes()" class="secoes-dependentes"
+    [class.bloqueado]="!podePreencherDemaisSecoes()">
     <!-- Bloco de Família e Endereço (Desabilitado quando vinculado a uma Família Existente) -->
     <fieldset [disabled]="!!familiaIdSelecionada()" class="secao-familia-herdada">
       <!-- Card 2: Dados da Família -->
-      <app-card titulo="Dados da Família" icone="family_restroom" formGroupName="familia">
+      <app-card titulo="Dados da Família" icone="family_restroom">
         @if (familiaIdSelecionada()) {
         <div class="aviso-familia-herdada">
           <mat-icon>lock</mat-icon>
@@ -47,15 +47,7 @@
         }
 
         <div class="form-grid">
-          <app-select formControlName="faixaRenda" label="Faixa de Renda" [opcoes]="faixasRenda" [required]="true"
-            class="col-span-1" />
-
-          <app-select formControlName="tipoMoradia" label="Tipo de Moradia" [opcoes]="tiposMoradia" [required]="true"
-            class="col-span-1" />
-
-          <div class="campo-checkbox col-span-1">
-            <app-checkbox formControlName="possuiBeneficioSocial" label="Recebe benefício social" />
-          </div>
+          <app-formulario-dados-familia [formGroup]="formFamilia" />
         </div>
       </app-card>
 
@@ -69,13 +61,13 @@
 
     <!-- Card 4: Canais de Contato -->
     <app-formulario-contatos [contatos]="contatos" [limiteContatos]="limiteContatos"
-      [ehObrigatorio]="!ehMenorNaoEmancipado" [desabilitadoAdicionar]="!dadosPessoaisPreenchidos" />
+      [ehObrigatorio]="!ehMenorNaoEmancipado()" [desabilitadoAdicionar]="!dadosPessoaisPreenchidos()" />
   </fieldset>
 
   <!-- Ações Globais do Formulário -->
   <div class="form-acoes">
     <app-botao label="Cancelar" variante="stroked" (click)="voltar()" />
     <app-botao label="Salvar Beneficiário" cor="primary" tipo="submit" [carregando]="estaCarregando()"
-      [desabilitado]="!dadosPessoaisPreenchidos || estaCarregando()" (click)="salvar()" />
+      [desabilitado]="!dadosPessoaisPreenchidos() || estaCarregando()" (click)="salvar()" />
   </div>
 </form>

@@ -1,0 +1,21 @@
+<div [formGroup]="formGroup()" class="container">
+  <app-select
+    formControlName="faixaRenda"
+    label="Faixa de Renda"
+    [opcoes]="faixasRenda"
+    [required]="true"
+    class="col-span-1" />
+
+  <app-select
+    formControlName="tipoMoradia"
+    label="Tipo de Moradia"
+    [opcoes]="tiposMoradia"
+    [required]="true"
+    class="col-span-1" />
+
+  <div class="campo-checkbox col-span-1">
+    <app-checkbox
+      formControlName="possuiBeneficioSocial"
+      label="Recebe benefício social" />
+  </div>
+</div>

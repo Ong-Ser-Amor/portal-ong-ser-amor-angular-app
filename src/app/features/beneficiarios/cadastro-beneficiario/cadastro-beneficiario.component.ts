@@ -1,4 +1,5 @@
-import { Component, ChangeDetectorRef, inject, OnInit, signal } from '@angular/core';
+import { Component, ChangeDetectorRef, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,35 +12,28 @@ import { DateInputComponent } from '../../../shared/components/ui/date-input/dat
 import { BotaoComponent } from '../../../shared/components/ui/botao/botao.component';
 import { FormularioDadosBeneficiarioComponent } from '../../../shared/components/formularios/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
 import { FormularioDadosPessoaComponent } from '../../../shared/components/formularios/formulario-dados-pessoa/formulario-dados-pessoa.component';
+import { FormularioDadosFamiliaComponent } from '../../../shared/components/formularios/formulario-dados-familia/formulario-dados-familia.component';
 import { FormularioEnderecoComponent } from '../../../shared/components/formularios/formulario-endereco/formulario-endereco.component';
 import { FormularioContatosComponent } from '../../../shared/components/formularios/formulario-contatos/formulario-contatos.component';
 import { FormularioPermissoesMenorComponent } from '../../../shared/components/formularios/formulario-permissoes-menor/formulario-permissoes-menor.component';
 import { PessoaFormService } from '../../../core/services/pessoa-form.service';
 import { BeneficiarioFormService } from '../../../core/services/beneficiario-form.service';
+import { FamiliaFormService } from '../../../core/services/familia-form.service';
 import { EnderecoFormService } from '../../../core/services/endereco-form.service';
 import { ContatoFormService } from '../../../core/services/contato-form.service';
 import { PessoaCadastroFacade } from '../../../core/services/pessoa-cadastro-facade.service';
 import { CardSelecaoBeneficiarioComponent } from '../components/card-selecao-beneficiario/card-selecao-beneficiario.component';
 import { CardComponent } from '../../../shared/components/ui/card/card.component';
-import { Subject, finalize, merge } from 'rxjs';
+import { Subject, finalize, map, merge, startWith } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { calcularIdade } from '../../../shared/utils/data.utils';
 import { CriarContatoBeneficiarioDto } from '../../../core/models/contato.model';
 import {
-  OPCOES_NIVEL_ESCOLARIDADE,
-  OPCOES_ESTADO_CIVIL,
-  OPCOES_VINCULO_EMPREGATICIO,
   CriarBeneficiarioDto,
   BeneficiarioResumo,
 } from '../../../core/models/beneficiario.model';
-import {
-  FaixaRenda,
-  TipoMoradia,
-  OPCOES_FAIXA_RENDA,
-  OPCOES_TIPO_MORADIA,
-} from '../../../core/models/familia.model';
 import { Pessoa } from '../../../core/models/pessoa.model';
 import { BeneficiarioService } from '../../../core/services/beneficiario.service';
 
@@ -61,6 +55,7 @@ import { BeneficiarioService } from '../../../core/services/beneficiario.service
     BotaoComponent,
     FormularioDadosPessoaComponent,
     FormularioDadosBeneficiarioComponent,
+    FormularioDadosFamiliaComponent,
     FormularioEnderecoComponent,
     FormularioContatosComponent,
     FormularioPermissoesMenorComponent,
@@ -76,6 +71,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
   private readonly beneficiarioService = inject(BeneficiarioService);
   private readonly pessoaFormService = inject(PessoaFormService);
   private readonly beneficiarioFormService = inject(BeneficiarioFormService);
+  private readonly familiaFormService = inject(FamiliaFormService);
   private readonly enderecoFormService = inject(EnderecoFormService);
   private readonly contatoFormService = inject(ContatoFormService);
   private readonly pessoaCadastroFacade = inject(PessoaCadastroFacade);
@@ -90,21 +86,98 @@ export class CadastroBeneficiarioComponent implements OnInit {
   familiaIdSelecionada = signal<string | null>(null);
   pessoaExistenteId = signal<string | null>(null);
 
-  get tituloCardSelecao(): string {
-    return this.ehMenorNaoEmancipado
-      ? 'Responsável Legal'
-      : 'Vincular a uma Família Existente';
+  limiteContatos = 3;
+
+  form: FormGroup = this.fb.group({
+    // Sub-grupo de Pessoa (compartilhado via PessoaFormService)
+    pessoa: this.pessoaFormService.criarForm(),
+
+    // Dados específicos de Beneficiário (compartilhado via BeneficiarioFormService)
+    ...this.beneficiarioFormService.criarControles(),
+    responsavelId: [''],
+
+    // Sub-grupo de Família (compartilhado via FamiliaFormService)
+    familia: this.familiaFormService.criarForm(undefined, true),
+
+    // Endereço (compartilhado via EnderecoFormService)
+    endereco: this.enderecoFormService.criarForm(undefined, true),
+
+    // Canais de Contato (compartilhado via ContatoFormService)
+    contatos: this.contatoFormService.criarArrayContatos(),
+  });
+
+  get formPessoa(): FormGroup {
+    return this.form.get('pessoa') as FormGroup;
   }
 
-  get subtituloCardSelecao(): string {
-    return this.ehMenorNaoEmancipado
+  get formFamilia(): FormGroup {
+    return this.form.get('familia') as FormGroup;
+  }
+
+  get formEndereco(): FormGroup {
+    return this.form.get('endereco') as FormGroup;
+  }
+
+  // --- SIGNALS REATIVOS & DERIVADOS ---
+  readonly dataNascimento = toSignal(
+    this.formPessoa.get('dataNascimento')!.valueChanges,
+    { initialValue: this.formPessoa.get('dataNascimento')?.value ?? null }
+  );
+
+  readonly emancipado = toSignal(
+    this.formPessoa.get('emancipado')!.valueChanges,
+    { initialValue: !!this.formPessoa.get('emancipado')?.value }
+  );
+
+  readonly dadosPessoaisPreenchidos = toSignal(
+    merge(
+      this.formPessoa.statusChanges,
+      this.formPessoa.valueChanges,
+      this.form.get('nivelEscolaridade')!.statusChanges,
+      this.form.get('nivelEscolaridade')!.valueChanges
+    ).pipe(
+      map(() => Boolean(this.formPessoa.valid && this.form.get('nivelEscolaridade')?.valid)),
+      startWith(Boolean(this.formPessoa.valid && this.form.get('nivelEscolaridade')?.valid))
+    ),
+    { initialValue: false }
+  );
+
+  readonly idadeAtual = computed(() => {
+    const dataNasc = this.dataNascimento();
+    return calcularIdade(dataNasc);
+  });
+
+  readonly podeSerEmancipado = computed(() => {
+    const idade = this.idadeAtual();
+    return idade !== null && idade >= 16 && idade < 18;
+  });
+
+  readonly ehMenorNaoEmancipado = computed(() => {
+    const idade = this.idadeAtual();
+    return idade !== null && idade < 18 && !this.emancipado();
+  });
+
+  readonly podePreencherDemaisSecoes = computed(() => {
+    if (!this.dadosPessoaisPreenchidos()) return false;
+    if (this.ehMenorNaoEmancipado()) {
+      return Boolean(this.responsavelSelecionado());
+    }
+    return true;
+  });
+
+  readonly tituloCardSelecao = computed(() =>
+    this.ehMenorNaoEmancipado() ? 'Responsável Legal' : 'Vincular a uma Família Existente'
+  );
+
+  readonly subtituloCardSelecao = computed(() =>
+    this.ehMenorNaoEmancipado()
       ? 'Obrigatório para menores de 18 anos não emancipados'
-      : 'Opcional. Selecione um familiar para herdar os dados da família e endereço';
-  }
+      : 'Opcional. Selecione um familiar para herdar os dados da família e endereço'
+  );
 
-  get iconeCardSelecao(): string {
-    return this.ehMenorNaoEmancipado ? 'supervisor_account' : 'group_add';
-  }
+  readonly iconeCardSelecao = computed(() =>
+    this.ehMenorNaoEmancipado() ? 'supervisor_account' : 'group_add'
+  );
 
   solicitarBuscaResponsavel(termo: string): void {
     this.buscaResponsavelSubject.next(termo);
@@ -134,11 +207,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
         next: (dadosCompleto) => {
           const familia = dadosCompleto.familia;
           if (familia) {
-            this.formFamilia.patchValue({
-              faixaRenda: familia.faixaRenda,
-              tipoMoradia: familia.tipoMoradia,
-              possuiBeneficioSocial: familia.possuiBeneficioSocial,
-            });
+            this.familiaFormService.preencherForm(this.formFamilia, familia);
             if (familia.endereco) {
               this.enderecoFormService.preencherForm(this.formEndereco, familia.endereco);
             }
@@ -165,61 +234,8 @@ export class CadastroBeneficiarioComponent implements OnInit {
   }
 
   private resetarCamposFamilia(): void {
-    const familiaGroup = this.formFamilia;
-
-    const familiaDisabled = familiaGroup.disabled;
-
-    if (familiaDisabled) familiaGroup.enable({ emitEvent: false });
-    familiaGroup.reset({
-      faixaRenda: null,
-      tipoMoradia: null,
-      possuiBeneficioSocial: false,
-    });
-    if (familiaDisabled) familiaGroup.disable({ emitEvent: false });
-
+    this.familiaFormService.resetarForm(this.formFamilia);
     this.enderecoFormService.resetarForm(this.formEndereco);
-  }
-
-  limiteContatos = 3;
-
-  niveisEscolaridade = OPCOES_NIVEL_ESCOLARIDADE;
-  estadosCivis = OPCOES_ESTADO_CIVIL;
-  vinculosEmpregaticios = OPCOES_VINCULO_EMPREGATICIO;
-  faixasRenda = OPCOES_FAIXA_RENDA;
-  tiposMoradia = OPCOES_TIPO_MORADIA;
-
-  form: FormGroup = this.fb.group({
-    // Sub-grupo de Pessoa (compartilhado via PessoaFormService)
-    pessoa: this.pessoaFormService.criarForm(),
-
-    // Dados específicos de Beneficiário (compartilhado via BeneficiarioFormService)
-    ...this.beneficiarioFormService.criarControles(),
-    responsavelId: [''],
-
-    // Sub-grupo de Família
-    familia: this.fb.group({
-      faixaRenda: [{ value: null as FaixaRenda | null, disabled: true }, Validators.required],
-      tipoMoradia: [{ value: null as TipoMoradia | null, disabled: true }, Validators.required],
-      possuiBeneficioSocial: [{ value: false, disabled: true }],
-    }),
-
-    // Endereço (compartilhado via EnderecoFormService)
-    endereco: this.enderecoFormService.criarForm(undefined, true),
-
-    // Canais de Contato (compartilhado via ContatoFormService)
-    contatos: this.contatoFormService.criarArrayContatos(),
-  });
-
-  get formPessoa(): FormGroup {
-    return this.form.get('pessoa') as FormGroup;
-  }
-
-  get formFamilia(): FormGroup {
-    return this.form.get('familia') as FormGroup;
-  }
-
-  get formEndereco(): FormGroup {
-    return this.form.get('endereco') as FormGroup;
   }
 
   ngOnInit(): void {
@@ -265,7 +281,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
   }
 
   atualizarEstadoControles(): void {
-    const habilitar = this.podePreencherDemaisSecoes;
+    const habilitar = this.podePreencherDemaisSecoes();
     const familiaGroup = this.formFamilia;
     const enderecoGroup = this.formEndereco;
     const contatosArray = this.contatos;
@@ -287,48 +303,15 @@ export class CadastroBeneficiarioComponent implements OnInit {
     }
   }
 
-  get idadeAtual(): number | null {
-    const dataNasc = this.formPessoa.get('dataNascimento')?.value;
-    return calcularIdade(dataNasc);
-  }
-
-  get podeSerEmancipado(): boolean {
-    const idade = this.idadeAtual;
-    return idade !== null && idade >= 16 && idade < 18;
-  }
-
-  get ehMenorNaoEmancipado(): boolean {
-    const idade = this.idadeAtual;
-    const emancipado = !!this.formPessoa.get('emancipado')?.value;
-    return idade !== null && idade < 18 && !emancipado;
-  }
-
-  get dadosPessoaisPreenchidos(): boolean {
-    return Boolean(
-      this.formPessoa.valid &&
-      this.form.get('nivelEscolaridade')?.valid
-    );
-  }
-
-  get podePreencherDemaisSecoes(): boolean {
-    if (!this.dadosPessoaisPreenchidos) return false;
-
-    if (this.ehMenorNaoEmancipado) {
-      return Boolean(this.responsavelSelecionado());
-    }
-
-    return true;
-  }
-
   atualizarValidacoesPorIdade(): void {
-    if (!this.podeSerEmancipado) {
+    if (!this.podeSerEmancipado()) {
       this.formPessoa.get('emancipado')?.setValue(false, { emitEvent: false });
     }
 
     const responsavelCtrl = this.form.get('responsavelId');
     const contatosArray = this.contatos;
 
-    if (this.ehMenorNaoEmancipado) {
+    if (this.ehMenorNaoEmancipado()) {
       responsavelCtrl?.setValidators([Validators.required]);
       contatosArray?.clearValidators();
 
@@ -422,11 +405,11 @@ export class CadastroBeneficiarioComponent implements OnInit {
     const pessoaValue = formValue.pessoa;
     const familiaValue = formValue.familia;
 
-    const responsavelId = this.ehMenorNaoEmancipado
+    const responsavelId = this.ehMenorNaoEmancipado()
       ? (formValue.responsavelId || undefined)
       : undefined;
 
-    const podeSairSozinho = this.ehMenorNaoEmancipado
+    const podeSairSozinho = this.ehMenorNaoEmancipado()
       ? Boolean(pessoaValue.podeSairSozinho)
       : undefined;
 
