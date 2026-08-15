@@ -138,6 +138,12 @@
   <div class="secao-familia-endereco">
     <!-- Card 3: Dados da Família -->
     <app-card titulo="Dados da Família" icone="home">
+      @if (beneficiario.familia) {
+      <div acoes-cabecalho>
+        <app-botao variante="icon" icone="edit" cor="primary" (click)="abrirModalEditarDadosFamilia(beneficiario)"
+          aria-label="Editar Dados da Família" />
+      </div>
+      }
       @if (beneficiario.familia; as familia) {
       <div class="grid-detalhes">
         <div class="detalhe-item">

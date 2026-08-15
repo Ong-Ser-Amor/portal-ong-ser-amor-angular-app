@@ -118,8 +118,7 @@ export class ModalEdicaoContatoComponent implements OnInit {
           },
           error: (err) => {
             console.error('Erro ao atualizar canal de contato:', err);
-            const msg = err.error?.message || 'Erro ao atualizar canal de contato.';
-            this.snackBar.open(msg, 'Fechar', { duration: 4000 });
+            this.snackBar.open('Erro ao atualizar o canal de contato. Tente novamente.', 'Fechar', { duration: 4000 });
           },
         });
     } else {
@@ -140,8 +139,7 @@ export class ModalEdicaoContatoComponent implements OnInit {
           },
           error: (err) => {
             console.error('Erro ao cadastrar canal de contato:', err);
-            const msg = err.error?.message || 'Erro ao cadastrar canal de contato.';
-            this.snackBar.open(msg, 'Fechar', { duration: 4000 });
+            this.snackBar.open('Erro ao cadastrar o canal de contato. Tente novamente.', 'Fechar', { duration: 4000 });
           },
         });
     }

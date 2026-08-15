@@ -12,6 +12,21 @@ export type TipoMoradia =
   | 'CEDIDA'
   | 'OCUPACAO_IRREGULAR';
 
+export interface Familia {
+  id: string;
+  faixaRenda: FaixaRenda;
+  tipoMoradia: TipoMoradia;
+  possuiBeneficioSocial: boolean;
+  endereco: Endereco;
+  enderecoId?: string;
+}
+
+export interface CriarFamiliaDto extends Omit<Familia, 'id' | 'endereco' | 'enderecoId'> {
+  endereco: CriarEnderecoDto;
+}
+
+export type AtualizarFamiliaDto = Partial<Omit<CriarFamiliaDto, 'endereco'>>;
+
 export const OPCOES_FAIXA_RENDA: OpcaoSelect<FaixaRenda>[] = [
   { valor: 'ATE_1_SALARIO', rotulo: 'Até 1 Salário Mínimo' },
   { valor: 'DE_1_A_3_SALARIOS', rotulo: 'De 1 a 3 Salários Mínimos' },
@@ -24,19 +39,3 @@ export const OPCOES_TIPO_MORADIA: OpcaoSelect<TipoMoradia>[] = [
   { valor: 'CEDIDA', rotulo: 'Cedida' },
   { valor: 'OCUPACAO_IRREGULAR', rotulo: 'Ocupação Irregular' },
 ];
-
-export interface Familia {
-  id: string;
-  faixaRenda: FaixaRenda;
-  tipoMoradia: TipoMoradia;
-  possuiBeneficioSocial: boolean;
-  enderecoId?: string;
-  endereco: Endereco;
-}
-
-export interface CriarFamiliaDto {
-  faixaRenda: FaixaRenda;
-  tipoMoradia: TipoMoradia;
-  possuiBeneficioSocial: boolean;
-  endereco: CriarEnderecoDto;
-}

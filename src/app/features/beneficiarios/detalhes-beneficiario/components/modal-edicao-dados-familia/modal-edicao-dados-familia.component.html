@@ -1,0 +1,10 @@
+<app-modal
+  titulo="Editar Dados da Família"
+  icone="family_restroom"
+  [confirmarDesabilitado]="form.invalid || salvando()"
+  [carregando]="salvando()"
+  (fechar)="fechar()"
+  (salvar)="salvar()"
+>
+  <app-formulario-dados-familia [formGroup]="form" />
+</app-modal>

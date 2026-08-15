@@ -33,6 +33,7 @@ import { calcularIdade, formatarData } from '../../../shared/utils/data.utils';
 import { ModalEdicaoDadosBeneficiarioComponent } from './components/modal-edicao-dados-beneficiario/modal-edicao-dados-beneficiario.component';
 import { ModalEdicaoContatoComponent } from './components/modal-edicao-contato/modal-edicao-contato.component';
 import { ModalEdicaoEnderecoComponent } from './components/modal-edicao-endereco/modal-edicao-endereco.component';
+import { ModalEdicaoDadosFamiliaComponent } from './components/modal-edicao-dados-familia/modal-edicao-dados-familia.component';
 import { CONFIG_MODAL } from '../../../shared/components/ui/modal/modal.config';
 
 @Component({
@@ -231,6 +232,22 @@ export class DetalhesBeneficiarioComponent implements OnInit {
     const dialogRef = this.dialog.open(ModalEdicaoEnderecoComponent, {
       ...CONFIG_MODAL.lg,
       data: { beneficiario, endereco },
+    });
+
+    dialogRef.afterClosed().subscribe((sucesso) => {
+      if (sucesso) {
+        this.carregarBeneficiario(beneficiario.id);
+      }
+    });
+  }
+
+  abrirModalEditarDadosFamilia(beneficiario: Beneficiario): void {
+    const familia = beneficiario.familia;
+    if (!familia) return;
+
+    const dialogRef = this.dialog.open(ModalEdicaoDadosFamiliaComponent, {
+      ...CONFIG_MODAL.md,
+      data: { beneficiario, familia },
     });
 
     dialogRef.afterClosed().subscribe((sucesso) => {

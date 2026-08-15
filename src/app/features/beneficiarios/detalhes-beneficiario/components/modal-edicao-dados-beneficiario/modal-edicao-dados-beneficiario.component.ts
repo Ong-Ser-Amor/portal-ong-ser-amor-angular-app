@@ -138,8 +138,7 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
         },
         error: (err) => {
           console.error('Erro ao atualizar dados pessoais:', err);
-          const msg = err.error?.message || 'Erro ao atualizar dados pessoais.';
-          this.snackBar.open(msg, 'Fechar', { duration: 4000 });
+          this.snackBar.open('Erro ao atualizar os dados pessoais. Tente novamente.', 'Fechar', { duration: 4000 });
         },
       });
   }

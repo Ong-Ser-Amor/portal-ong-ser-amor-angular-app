@@ -77,8 +77,7 @@ export class ModalEdicaoEnderecoComponent implements OnInit {
         },
         error: (err) => {
           console.error('Erro ao atualizar endereço:', err);
-          const msg = err.error?.message || 'Erro ao atualizar endereço.';
-          this.snackBar.open(msg, 'Fechar', { duration: 4000 });
+          this.snackBar.open('Erro ao atualizar o endereço. Tente novamente.', 'Fechar', { duration: 4000 });
         },
       });
   }
