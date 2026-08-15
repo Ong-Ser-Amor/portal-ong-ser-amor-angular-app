@@ -4,6 +4,7 @@ import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { PaginacaoResposta } from '../models/api-paginacao-resposta.model';
 import { Beneficiario, BeneficiarioResumo, FiltroBuscaBeneficiario, CriarBeneficiarioDto, AtualizarBeneficiarioDto } from '../models/beneficiario.model';
+import { Pessoa } from '../models/pessoa.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,10 @@ import { Beneficiario, BeneficiarioResumo, FiltroBuscaBeneficiario, CriarBenefic
 export class BeneficiarioService {
   private http = inject(HttpClient);
   private readonly API_URL = `${environment.apiUrl}/beneficiarios`;
+
+  verificarCadastroPorCpf(cpf: string): Observable<Pessoa> {
+    return this.http.get<Pessoa>(`${this.API_URL}/verificar-cadastro/cpf/${cpf}`);
+  }
 
   buscarTodos(filtros?: FiltroBuscaBeneficiario): Observable<PaginacaoResposta<BeneficiarioResumo>> {
     let parametros = new HttpParams()

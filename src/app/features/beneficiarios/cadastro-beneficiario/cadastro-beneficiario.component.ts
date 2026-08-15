@@ -271,7 +271,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
 
     const { estaCarregando } = this.pessoaCadastroFacade.iniciarBuscaCpfReativa({
       cpfSubject: this.buscaCpfSubject,
-      buscarApiFn: (cpfLimpo) => this.pessoaService.verificarCadastroBeneficiarioPorCpf(cpfLimpo),
+      buscarApiFn: (cpfLimpo) => this.beneficiarioService.verificarCadastroPorCpf(cpfLimpo),
       getCpfAtualInput: () => this.formPessoa.get('cpf')?.value || '',
       onSucesso: (pessoa) => this.tratarSucessoBuscaPessoa(pessoa),
       onErro: (error) => this.tratarErroBuscaPessoa(error),

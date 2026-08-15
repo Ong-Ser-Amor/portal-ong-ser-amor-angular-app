@@ -20,12 +20,6 @@ export class PessoaService {
     );
   }
 
-  verificarCadastroBeneficiarioPorCpf(cpf: string): Observable<Pessoa> {
-    return this.http.get<Pessoa>(
-      `${this.API_URL}/verificar-cadastro/beneficiario/cpf/${cpf}`,
-    );
-  }
-
   atualizar(
     id: string,
     payload: AtualizarPessoaRequest,
