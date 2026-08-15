@@ -40,13 +40,16 @@ export class PessoaFormService {
       ? (pessoa.dataNascimento.includes('T') ? pessoa.dataNascimento.split('T')[0] : pessoa.dataNascimento)
       : '';
 
-    form.patchValue({
-      nome: pessoa.nome,
-      cpf: pessoa.cpf ? formatarCpf(pessoa.cpf) : '',
-      dataNascimento: dataNascimentoOriginal,
-      emancipado: pessoa.emancipado ?? false,
-      podeSairSozinho: pessoa.podeSairSozinho ?? false,
-    });
+    form.patchValue(
+      {
+        nome: pessoa.nome,
+        cpf: pessoa.cpf ? formatarCpf(pessoa.cpf) : '',
+        dataNascimento: dataNascimentoOriginal,
+        emancipado: pessoa.emancipado ?? false,
+        podeSairSozinho: pessoa.podeSairSozinho ?? false,
+      },
+      { emitEvent: false }
+    );
   }
 
   /**
