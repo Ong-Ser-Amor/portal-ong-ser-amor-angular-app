@@ -32,6 +32,7 @@ import { formatarCep } from '../../../shared/utils/cep.utils';
 import { calcularIdade, formatarData } from '../../../shared/utils/data.utils';
 import { ModalEdicaoDadosBeneficiarioComponent } from './components/modal-edicao-dados-beneficiario/modal-edicao-dados-beneficiario.component';
 import { ModalEdicaoContatoComponent } from './components/modal-edicao-contato/modal-edicao-contato.component';
+import { ModalEdicaoEnderecoComponent } from './components/modal-edicao-endereco/modal-edicao-endereco.component';
 import { CONFIG_MODAL } from '../../../shared/components/ui/modal/modal.config';
 
 @Component({
@@ -214,6 +215,22 @@ export class DetalhesBeneficiarioComponent implements OnInit {
     const dialogRef = this.dialog.open(ModalEdicaoContatoComponent, {
       ...CONFIG_MODAL.sm,
       data: { beneficiario, contato },
+    });
+
+    dialogRef.afterClosed().subscribe((sucesso) => {
+      if (sucesso) {
+        this.carregarBeneficiario(beneficiario.id);
+      }
+    });
+  }
+
+  abrirModalEditarEndereco(beneficiario: Beneficiario): void {
+    const endereco = beneficiario.familia?.endereco;
+    if (!endereco) return;
+
+    const dialogRef = this.dialog.open(ModalEdicaoEnderecoComponent, {
+      ...CONFIG_MODAL.lg,
+      data: { beneficiario, endereco },
     });
 
     dialogRef.afterClosed().subscribe((sucesso) => {

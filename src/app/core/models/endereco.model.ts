@@ -29,6 +29,22 @@ export type UF =
   | 'SE'
   | 'TO';
 
+export interface CriarEnderecoDto {
+  logradouro: string;
+  numero?: string | null;
+  complemento?: string | null;
+  bairro: string;
+  cep: string;
+  cidade: string;
+  uf: UF;
+}
+
+export interface Endereco extends CriarEnderecoDto {
+  id: string;
+}
+
+export type AtualizarEnderecoDto = Partial<CriarEnderecoDto>;
+
 export const OPCOES_UF: OpcaoSelect<UF>[] = [
   { valor: 'AC', rotulo: 'AC' },
   { valor: 'AL', rotulo: 'AL' },
@@ -58,24 +74,3 @@ export const OPCOES_UF: OpcaoSelect<UF>[] = [
   { valor: 'SE', rotulo: 'SE' },
   { valor: 'TO', rotulo: 'TO' },
 ];
-
-export interface Endereco {
-  id: string;
-  logradouro: string;
-  numero: string | null;
-  complemento: string | null;
-  bairro: string;
-  cep: string;
-  cidade: string;
-  uf: UF;
-}
-
-export interface CriarEnderecoDto {
-  logradouro: string;
-  numero?: string;
-  complemento?: string;
-  bairro: string;
-  cep: string;
-  cidade: string;
-  uf: UF;
-}

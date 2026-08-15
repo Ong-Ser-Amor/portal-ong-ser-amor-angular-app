@@ -1,0 +1,10 @@
+<app-modal
+  titulo="Editar Endereço"
+  icone="location_on"
+  [confirmarDesabilitado]="form.invalid || salvando()"
+  [carregando]="salvando()"
+  (fechar)="fechar()"
+  (salvar)="salvar()"
+>
+  <app-formulario-endereco [formGroup]="form" />
+</app-modal>

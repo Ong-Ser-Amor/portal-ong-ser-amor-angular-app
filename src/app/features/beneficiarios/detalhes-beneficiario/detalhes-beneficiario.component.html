@@ -162,6 +162,12 @@
 
     <!-- Card 4: Endereço -->
     <app-card titulo="Endereço" icone="location_on">
+      @if (beneficiario.familia && beneficiario.familia.endereco) {
+      <div acoes-cabecalho>
+        <app-botao variante="icon" icone="edit" cor="primary" (click)="abrirModalEditarEndereco(beneficiario)"
+          aria-label="Editar Endereço" />
+      </div>
+      }
       @if (beneficiario.familia; as familia) {
         @if (familia.endereco; as endereco) {
         <div class="grid-detalhes">
