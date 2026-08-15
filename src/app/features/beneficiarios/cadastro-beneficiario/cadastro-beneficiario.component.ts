@@ -20,6 +20,7 @@ import { Subject, finalize } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { calcularIdade } from '../../../shared/utils/data.utils';
 import { TipoContato, OPCOES_TIPO_CONTATO, CriarContatoBeneficiarioDto } from '../../../core/models/contato.model';
 import {
   OPCOES_NIVEL_ESCOLARIDADE,
@@ -253,7 +254,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
       this.atualizarEstadoControles();
     });
 
-    this.form.get('emancipado')?.valueChanges.subscribe(() => {
+    this.formPessoa.get('emancipado')?.valueChanges.subscribe(() => {
       this.atualizarValidacoesPorIdade();
       this.atualizarEstadoControles();
     });
@@ -299,56 +300,9 @@ export class CadastroBeneficiarioComponent implements OnInit {
     }
   }
 
-  calcularIdade(dataValue: any): number | null {
-    if (!dataValue) return null;
-    let data: Date | null = null;
-
-    const anoAtual = new Date().getFullYear();
-    const anoMinimo = anoAtual - 150;
-    const anoMaximo = anoAtual;
-
-    if (dataValue instanceof Date) {
-      data = dataValue;
-    } else if (typeof dataValue === 'string') {
-      if (dataValue.includes('-')) {
-        const parts = dataValue.split('-');
-        if (parts.length === 3 && parts[0].length === 4) {
-          const ano = Number(parts[0]);
-          const mes = Number(parts[1]);
-          const dia = Number(parts[2]);
-          if (ano >= anoMinimo && ano <= anoMaximo && mes >= 1 && mes <= 12 && dia >= 1 && dia <= 31) {
-            data = new Date(ano, mes - 1, dia);
-          }
-        }
-      } else if (dataValue.includes('/')) {
-        const parts = dataValue.split('/');
-        if (parts.length === 3 && parts[2].length === 4) {
-          const dia = Number(parts[0]);
-          const mes = Number(parts[1]);
-          const ano = Number(parts[2]);
-          if (ano >= anoMinimo && ano <= anoMaximo && mes >= 1 && mes <= 12 && dia >= 1 && dia <= 31) {
-            data = new Date(ano, mes - 1, dia);
-          }
-        }
-      }
-    }
-    if (!data || isNaN(data.getTime())) return null;
-
-    const ano = data.getFullYear();
-    if (ano < anoMinimo || ano > anoMaximo) return null;
-
-    const hoje = new Date();
-    let idade = hoje.getFullYear() - data.getFullYear();
-    const m = hoje.getMonth() - data.getMonth();
-    if (m < 0 || (m === 0 && hoje.getDate() < data.getDate())) {
-      idade--;
-    }
-    return idade;
-  }
-
   get idadeAtual(): number | null {
     const dataNasc = this.formPessoa.get('dataNascimento')?.value;
-    return this.calcularIdade(dataNasc);
+    return calcularIdade(dataNasc);
   }
 
   get podeSerEmancipado(): boolean {

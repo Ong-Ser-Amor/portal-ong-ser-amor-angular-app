@@ -128,7 +128,9 @@
   <!-- Ações Globais do Formulário -->
   <div class="form-acoes">
     <app-botao label="Cancelar" variante="stroked" (click)="voltar()" />
-    <app-botao label="Salvar Beneficiário" cor="primary" tipo="submit" [desabilitado]="!dadosPessoaisPreenchidos"
+    <app-botao label="Salvar Beneficiário" cor="primary" tipo="submit"
+      [carregando]="estaCarregando()"
+      [desabilitado]="!dadosPessoaisPreenchidos || estaCarregando()"
       (click)="salvar()" />
   </div>
 </form>
