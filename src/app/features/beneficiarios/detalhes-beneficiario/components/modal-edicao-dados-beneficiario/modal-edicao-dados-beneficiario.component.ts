@@ -4,9 +4,8 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 
-import { FormularioDadosPessoaComponent } from '../../../../../shared/components/formulario-dados-pessoa/formulario-dados-pessoa.component';
-import { FormularioDadosBeneficiarioComponent } from '../../../../../shared/components/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
-import { ModalComponent } from '../../../../../shared/components/modal/modal.component';
+import { FormularioDadosBeneficiarioComponent } from '../../../../../shared/components/formularios/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
+import { ModalComponent } from '../../../../../shared/components/ui/modal/modal.component';
 import { calcularIdade, converterParaIsoDate } from '../../../../../shared/utils/data.utils';
 
 import { PessoaFormService } from '../../../../../core/services/pessoa-form.service';
@@ -19,6 +18,7 @@ import {
   OPCOES_NIVEL_ESCOLARIDADE,
   OPCOES_VINCULO_EMPREGATICIO,
 } from '../../../../../core/models/beneficiario.model';
+import { FormularioDadosPessoaComponent } from '../../../../../shared/components/formularios/formulario-dados-pessoa/formulario-dados-pessoa.component';
 
 @Component({
   selector: 'app-modal-edicao-dados-beneficiario',

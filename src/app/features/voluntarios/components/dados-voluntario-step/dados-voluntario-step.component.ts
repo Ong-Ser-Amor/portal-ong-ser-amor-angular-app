@@ -10,8 +10,8 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { BotaoComponent } from '../../../../shared/components/botao/botao.component';
-import { InputComponent } from '../../../../shared/components/input/input.component';
+import { BotaoComponent } from '../../../../shared/components/ui/botao/botao.component';
+import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import {
   NivelFormacao,
   TipoVoluntario,

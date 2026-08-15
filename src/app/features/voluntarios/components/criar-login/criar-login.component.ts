@@ -11,7 +11,7 @@ import { UsuarioService } from '../../../../core/services/usuario.service';
 import {
   LoginFormComponent,
   LoginFormSubmit,
-} from '../../../../shared/components/login-form/login-form.component';
+} from '../../../../shared/components/formularios/login-form/login-form.component';
 
 interface CreateLoginDialogData {
   voluntario: Voluntario;

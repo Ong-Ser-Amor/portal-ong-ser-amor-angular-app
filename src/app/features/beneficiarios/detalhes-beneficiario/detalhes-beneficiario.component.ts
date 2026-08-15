@@ -5,9 +5,9 @@ import { finalize } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { CabecalhoPaginaComponent } from '../../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
-import { BotaoComponent } from '../../../shared/components/botao/botao.component';
-import { CardComponent } from '../../../shared/components/card/card.component';
+import { CabecalhoPaginaComponent } from '../../../shared/components/ui/cabecalho-pagina/cabecalho-pagina.component';
+import { BotaoComponent } from '../../../shared/components/ui/botao/botao.component';
+import { CardComponent } from '../../../shared/components/ui/card/card.component';
 import { BeneficiarioService } from '../../../core/services/beneficiario.service';
 import { ContatoService } from '../../../core/services/contato.service';
 import {
@@ -32,7 +32,7 @@ import { formatarCep } from '../../../shared/utils/cep.utils';
 import { calcularIdade, formatarData } from '../../../shared/utils/data.utils';
 import { ModalEdicaoDadosBeneficiarioComponent } from './components/modal-edicao-dados-beneficiario/modal-edicao-dados-beneficiario.component';
 import { ModalManterContatoComponent } from './components/modal-manter-contato/modal-manter-contato.component';
-import { CONFIG_MODAL } from '../../../shared/components/modal/modal.config';
+import { CONFIG_MODAL } from '../../../shared/components/ui/modal/modal.config';
 
 @Component({
   selector: 'app-detalhes-beneficiario',

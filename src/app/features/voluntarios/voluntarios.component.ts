@@ -6,13 +6,13 @@ import { PageEvent } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { VoluntarioFormComponent } from './components/voluntario-form/voluntario-form.component';
-import { BotaoComponent } from '../../shared/components/botao/botao.component';
-import { CabecalhoPaginaComponent } from '../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
+import { BotaoComponent } from '../../shared/components/ui/botao/botao.component';
+import { CabecalhoPaginaComponent } from '../../shared/components/ui/cabecalho-pagina/cabecalho-pagina.component';
 import {
   TabelaComponent,
   ColunaTabela,
-} from '../../shared/components/tabela/tabela.component';
-import { TabelaCelulaDirective } from '../../shared/components/tabela/directives/tabela-celula.directive';
+} from '../../shared/components/ui/tabela/tabela.component';
+import { TabelaCelulaDirective } from '../../shared/components/ui/tabela/directives/tabela-celula.directive';
 import { CriarLoginComponent } from './components/criar-login/criar-login.component';
 
 @Component({

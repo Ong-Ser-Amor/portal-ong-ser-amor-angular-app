@@ -7,8 +7,8 @@ import {
   ValidationErrors,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { InputComponent } from '../input/input.component';
-import { BotaoComponent } from '../botao/botao.component';
+import { BotaoComponent } from '../../ui/botao/botao.component';
+import { InputComponent } from '../../ui/input/input.component';
 
 export interface LoginFormSubmit {
   email: string;

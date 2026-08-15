@@ -4,10 +4,10 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 
-import { InputComponent, InputType } from '../../../../../shared/components/input/input.component';
-import { SelectComponent } from '../../../../../shared/components/select/select.component';
-import { CheckboxComponent } from '../../../../../shared/components/checkbox/checkbox.component';
-import { ModalComponent } from '../../../../../shared/components/modal/modal.component';
+import { InputComponent, InputType } from '../../../../../shared/components/ui/input/input.component';
+import { SelectComponent } from '../../../../../shared/components/ui/select/select.component';
+import { CheckboxComponent } from '../../../../../shared/components/ui/checkbox/checkbox.component';
+import { ModalComponent } from '../../../../../shared/components/ui/modal/modal.component';
 
 import { ContatoService } from '../../../../../core/services/contato.service';
 import { Beneficiario } from '../../../../../core/models/beneficiario.model';

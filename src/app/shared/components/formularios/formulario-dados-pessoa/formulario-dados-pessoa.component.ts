@@ -1,9 +1,9 @@
 import { Component, input, output } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { InputComponent } from '../input/input.component';
-import { DateInputComponent } from '../date-input/date-input.component';
-import { CheckboxComponent } from '../checkbox/checkbox.component';
-import { calcularIdade } from '../../utils/data.utils';
+import { InputComponent } from '../../ui/input/input.component';
+import { DateInputComponent } from '../../ui/date-input/date-input.component';
+import { CheckboxComponent } from '../../ui/checkbox/checkbox.component';
+import { calcularIdade } from '../../../utils/data.utils';
 
 @Component({
   selector: 'app-formulario-dados-pessoa',

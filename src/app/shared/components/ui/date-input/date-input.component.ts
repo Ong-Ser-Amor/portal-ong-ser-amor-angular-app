@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, NativeDateAdapter } from '@angular/material/core';
-import { AppMaskDirective } from '../../directives/app-mask.directive';
+import { AppMaskDirective } from '../../../directives/app-mask.directive';
 
 export const BR_DATE_FORMATS = {
   parse: {
@@ -108,8 +108,8 @@ export class DateInputComponent implements ControlValueAccessor {
   disabled = signal<boolean>(false);
 
   // ControlValueAccessor callbacks
-  private onChange: (value: any) => void = () => {};
-  public onTouched: () => void = () => {};
+  private onChange: (value: any) => void = () => { };
+  public onTouched: () => void = () => { };
 
   constructor() {
     if (this.ngControl) {

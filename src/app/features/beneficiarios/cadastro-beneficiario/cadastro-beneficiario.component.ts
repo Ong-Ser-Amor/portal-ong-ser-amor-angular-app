@@ -3,19 +3,18 @@ import { Router } from '@angular/router';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatRadioModule } from '@angular/material/radio';
-import { CabecalhoPaginaComponent } from '../../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
-import { InputComponent, InputType } from '../../../shared/components/input/input.component';
-import { SelectComponent } from '../../../shared/components/select/select.component';
-import { CheckboxComponent } from '../../../shared/components/checkbox/checkbox.component';
-import { DateInputComponent } from '../../../shared/components/date-input/date-input.component';
-import { BotaoComponent } from '../../../shared/components/botao/botao.component';
-import { FormularioDadosPessoaComponent } from '../../../shared/components/formulario-dados-pessoa/formulario-dados-pessoa.component';
-import { FormularioDadosBeneficiarioComponent } from '../../../shared/components/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
+import { CabecalhoPaginaComponent } from '../../../shared/components/ui/cabecalho-pagina/cabecalho-pagina.component';
+import { InputComponent, InputType } from '../../../shared/components/ui/input/input.component';
+import { SelectComponent } from '../../../shared/components/ui/select/select.component';
+import { CheckboxComponent } from '../../../shared/components/ui/checkbox/checkbox.component';
+import { DateInputComponent } from '../../../shared/components/ui/date-input/date-input.component';
+import { BotaoComponent } from '../../../shared/components/ui/botao/botao.component';
+import { FormularioDadosBeneficiarioComponent } from '../../../shared/components/formularios/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
 import { PessoaFormService } from '../../../core/services/pessoa-form.service';
 import { BeneficiarioFormService } from '../../../core/services/beneficiario-form.service';
 import { PessoaCadastroFacade } from '../../../core/services/pessoa-cadastro-facade.service';
-import { CardSelecaoBeneficiarioComponent } from '../../../shared/components/card-selecao-beneficiario/card-selecao-beneficiario.component';
-import { CardComponent } from '../../../shared/components/card/card.component';
+import { CardSelecaoBeneficiarioComponent } from '../components/card-selecao-beneficiario/card-selecao-beneficiario.component';
+import { CardComponent } from '../../../shared/components/ui/card/card.component';
 import { Subject, finalize } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
@@ -39,6 +38,7 @@ import { UF, OPCOES_UF } from '../../../core/models/endereco.model';
 import { Pessoa } from '../../../core/models/pessoa.model';
 import { BeneficiarioService } from '../../../core/services/beneficiario.service';
 import { PessoaService } from '../../../core/services/pessoa.service';
+import { FormularioDadosPessoaComponent } from '../../../shared/components/formularios/formulario-dados-pessoa/formulario-dados-pessoa.component';
 
 @Component({
   selector: 'app-cadastro-beneficiario',

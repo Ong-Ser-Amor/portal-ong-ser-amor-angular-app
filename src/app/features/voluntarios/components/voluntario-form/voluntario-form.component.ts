@@ -19,7 +19,7 @@ import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { finalize } from 'rxjs';
 import { ValidacaoCpfStepComponent } from '../validacao-cpf-step/validacao-cpf-step.component';
-import { LoginFormComponent } from '../../../../shared/components/login-form/login-form.component';
+import { LoginFormComponent } from '../../../../shared/components/formularios/login-form/login-form.component';
 import { VoluntarioService } from '../../../../core/services/voluntario.service';
 import { PessoaService } from '../../../../core/services/pessoa.service';
 import { UsuarioService } from '../../../../core/services/usuario.service';

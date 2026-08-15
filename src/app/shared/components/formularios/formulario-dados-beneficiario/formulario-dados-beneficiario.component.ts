@@ -1,12 +1,12 @@
 import { Component, input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { InputComponent } from '../input/input.component';
-import { SelectComponent } from '../select/select.component';
+import { SelectComponent } from '../../ui/select/select.component';
 import {
   OPCOES_ESTADO_CIVIL,
   OPCOES_NIVEL_ESCOLARIDADE,
   OPCOES_VINCULO_EMPREGATICIO,
-} from '../../../core/models/beneficiario.model';
+} from '../../../../core/models/beneficiario.model';
+import { InputComponent } from '../../ui/input/input.component';
 
 @Component({
   selector: 'app-formulario-dados-beneficiario',

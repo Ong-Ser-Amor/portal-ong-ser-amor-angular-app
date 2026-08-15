@@ -2,7 +2,7 @@ import { Component, input, output, signal, OnInit, OnDestroy } from '@angular/co
 import { FormsModule } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { InputComponent } from '../ui/input/input.component';
+import { InputComponent } from '../input/input.component';
 
 @Component({
   selector: 'app-card-busca',

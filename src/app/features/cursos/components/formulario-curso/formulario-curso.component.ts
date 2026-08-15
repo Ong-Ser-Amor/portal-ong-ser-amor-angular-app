@@ -1,4 +1,4 @@
-import { BotaoComponent } from '../../../../shared/components/botao/botao.component';
+import { BotaoComponent } from '../../../../shared/components/ui/botao/botao.component';
 import { Component, inject, signal } from '@angular/core';
 import {
   FormBuilder,
@@ -14,7 +14,7 @@ import {
 } from '@angular/material/dialog';
 import { Curso } from '../../../../core/models/curso.model';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { InputComponent } from '../../../../shared/components/input/input.component';
+import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import { CursoService } from '../../../../core/services/curso.service';
 
 @Component({

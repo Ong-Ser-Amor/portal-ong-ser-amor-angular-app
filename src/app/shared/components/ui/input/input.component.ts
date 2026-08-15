@@ -15,10 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import {
-  AppMaskDirective,
-  InputMaskType,
-} from '../../directives/app-mask.directive';
+import { AppMaskDirective, InputMaskType } from '../../../directives/app-mask.directive';
 
 export type InputType =
   | 'text'

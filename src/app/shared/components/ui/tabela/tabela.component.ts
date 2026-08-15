@@ -11,9 +11,9 @@ import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatPaginatorIntl } from '@angular/material/paginator';
-import { CustomPaginatorIntl } from '../../../core/i18n/custom-paginator-intl';
-import { SpinnerComponent } from '../spinner/spinner.component';
 import { TabelaCelulaDirective } from './directives/tabela-celula.directive';
+import { SpinnerComponent } from '../spinner/spinner.component';
+import { CustomPaginatorIntl } from '../../../../core/i18n/custom-paginator-intl';
 
 export interface ColunaTabela<T> {
   chave: string;

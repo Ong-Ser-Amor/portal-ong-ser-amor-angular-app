@@ -2,9 +2,9 @@ import { CommonModule } from '@angular/common';
 import { AfterViewChecked, AfterViewInit, Component, inject, Input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { BotaoComponent } from '../../../../shared/components/botao/botao.component';
-import { InputComponent } from '../../../../shared/components/input/input.component';
-import { DateInputComponent } from '../../../../shared/components/date-input/date-input.component';
+import { BotaoComponent } from '../../../../shared/components/ui/botao/botao.component';
+import { InputComponent } from '../../../../shared/components/ui/input/input.component';
+import { DateInputComponent } from '../../../../shared/components/ui/date-input/date-input.component';
 
 export interface DadosPessoaSubmit {
   nome: string;

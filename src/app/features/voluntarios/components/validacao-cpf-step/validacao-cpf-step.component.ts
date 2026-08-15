@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { BotaoComponent } from '../../../../shared/components/botao/botao.component';
-import { InputComponent } from '../../../../shared/components/input/input.component';
+import { BotaoComponent } from '../../../../shared/components/ui/botao/botao.component';
+import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 
 @Component({
   selector: 'app-validacao-cpf-step',

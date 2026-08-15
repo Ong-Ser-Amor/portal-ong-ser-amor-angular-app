@@ -9,9 +9,9 @@ import {
 import { AutenticacaoService } from '../../../core/services/autenticacao.service';
 import { LoginRequisicao } from '../../../core/models/autenticacao.models';
 import { Router } from '@angular/router';
-import { BotaoComponent } from '../../../shared/components/botao/botao.component';
-import { InputComponent } from '../../../shared/components/input/input.component';
+import { BotaoComponent } from '../../../shared/components/ui/botao/botao.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { InputComponent } from '../../../shared/components/ui/input/input.component';
 
 @Component({
   selector: 'app-login',

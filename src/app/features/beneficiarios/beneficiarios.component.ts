@@ -1,19 +1,19 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { BotaoComponent } from '../../shared/components/botao/botao.component';
-import { CabecalhoPaginaComponent } from '../../shared/components/cabecalho-pagina/cabecalho-pagina.component';
+import { BotaoComponent } from '../../shared/components/ui/botao/botao.component';
+import { CabecalhoPaginaComponent } from '../../shared/components/ui/cabecalho-pagina/cabecalho-pagina.component';
 import {
   TabelaComponent,
   ColunaTabela,
-} from '../../shared/components/tabela/tabela.component';
-import { TabelaCelulaDirective } from '../../shared/components/tabela/directives/tabela-celula.directive';
+} from '../../shared/components/ui/tabela/tabela.component';
+import { TabelaCelulaDirective } from '../../shared/components/ui/tabela/directives/tabela-celula.directive';
 import { BeneficiarioResumo, FiltroBuscaBeneficiario } from '../../core/models/beneficiario.model';
 import { PageEvent } from '@angular/material/paginator';
 import { BeneficiarioService } from '../../core/services/beneficiario.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ofuscarCpf } from '../../shared/utils/cpf.utils';
 
-import { CardBuscaComponent } from '../../shared/components/card-busca/card-busca.component';
+import { CardBuscaComponent } from '../../shared/components/ui/card-busca/card-busca.component';
 
 @Component({
   selector: 'app-beneficiarios',

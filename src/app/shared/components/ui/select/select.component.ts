@@ -6,7 +6,7 @@ import {
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { OpcaoSelect } from '../../../core/models/opcao-select.model';
+import { OpcaoSelect } from '../../../../core/models/opcao-select.model';
 
 @Component({
   selector: 'app-select',
@@ -35,8 +35,8 @@ export class SelectComponent implements ControlValueAccessor {
   disabled = signal<boolean>(false);
 
   // ControlValueAccessor callbacks
-  private onChange: (value: any) => void = () => {};
-  onTouched: () => void = () => {};
+  private onChange: (value: any) => void = () => { };
+  onTouched: () => void = () => { };
 
   constructor() {
     if (this.ngControl) {

@@ -2,13 +2,13 @@ import { Component, inject, input, OnInit, output, signal } from '@angular/core'
 import { Subject, debounceTime, finalize } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { InputComponent } from '../input/input.component';
-import { BotaoComponent } from '../botao/botao.component';
-import { CardComponent } from '../card/card.component';
-import { BeneficiarioResumo, FiltroBuscaBeneficiario } from '../../../core/models/beneficiario.model';
-import { Pessoa } from '../../../core/models/pessoa.model';
-import { BeneficiarioService } from '../../../core/services/beneficiario.service';
-import { ofuscarCpf } from '../../utils/cpf.utils';
+import { BotaoComponent } from '../../../../shared/components/ui/botao/botao.component';
+import { CardComponent } from '../../../../shared/components/ui/card/card.component';
+import { BeneficiarioResumo, FiltroBuscaBeneficiario } from '../../../../core/models/beneficiario.model';
+import { Pessoa } from '../../../../core/models/pessoa.model';
+import { BeneficiarioService } from '../../../../core/services/beneficiario.service';
+import { ofuscarCpf } from '../../../../shared/utils/cpf.utils';
+import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 
 @Component({
   selector: 'app-card-selecao-beneficiario',
