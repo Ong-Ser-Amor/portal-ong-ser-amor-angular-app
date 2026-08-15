@@ -9,7 +9,7 @@ import { SelectComponent } from '../../../shared/components/select/select.compon
 import { CheckboxComponent } from '../../../shared/components/checkbox/checkbox.component';
 import { DateInputComponent } from '../../../shared/components/date-input/date-input.component';
 import { BotaoComponent } from '../../../shared/components/botao/botao.component';
-import { FormularioDadosPessoaisComponent } from '../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.component';
+import { FormularioDadosPessoaComponent } from '../../../shared/components/formulario-dados-pessoa/formulario-dados-pessoa.component';
 import { FormularioDadosBeneficiarioComponent } from '../../../shared/components/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
 import { PessoaFormService } from '../../../core/services/pessoa-form.service';
 import { BeneficiarioFormService } from '../../../core/services/beneficiario-form.service';
@@ -56,7 +56,7 @@ import { PessoaService } from '../../../core/services/pessoa.service';
     CheckboxComponent,
     DateInputComponent,
     BotaoComponent,
-    FormularioDadosPessoaisComponent,
+    FormularioDadosPessoaComponent,
     FormularioDadosBeneficiarioComponent,
     CardSelecaoBeneficiarioComponent,
     CardComponent,

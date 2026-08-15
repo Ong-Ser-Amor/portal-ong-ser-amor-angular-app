@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 
-import { FormularioDadosPessoaisComponent } from '../../../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.component';
+import { FormularioDadosPessoaComponent } from '../../../../../shared/components/formulario-dados-pessoa/formulario-dados-pessoa.component';
 import { FormularioDadosBeneficiarioComponent } from '../../../../../shared/components/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
 import { ModalComponent } from '../../../../../shared/components/modal/modal.component';
 import { calcularIdade, converterParaIsoDate } from '../../../../../shared/utils/data.utils';
@@ -27,7 +27,7 @@ import {
     ReactiveFormsModule,
     MatDialogModule,
     MatSnackBarModule,
-    FormularioDadosPessoaisComponent,
+    FormularioDadosPessoaComponent,
     FormularioDadosBeneficiarioComponent,
     ModalComponent,
   ],

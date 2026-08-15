@@ -6,7 +6,7 @@ import { CheckboxComponent } from '../checkbox/checkbox.component';
 import { calcularIdade } from '../../utils/data.utils';
 
 @Component({
-  selector: 'app-formulario-dados-pessoais',
+  selector: 'app-formulario-dados-pessoa',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -14,10 +14,10 @@ import { calcularIdade } from '../../utils/data.utils';
     DateInputComponent,
     CheckboxComponent,
   ],
-  templateUrl: './formulario-dados-pessoais.component.html',
-  styleUrl: './formulario-dados-pessoais.component.scss',
+  templateUrl: './formulario-dados-pessoa.component.html',
+  styleUrl: './formulario-dados-pessoa.component.scss',
 })
-export class FormularioDadosPessoaisComponent {
+export class FormularioDadosPessoaComponent {
   /** FormGroup contendo os controles de pessoa (nome, cpf, dataNascimento) e opcionalmente emancipado, podeSairSozinho */
   formGroup = input.required<FormGroup>();
 
