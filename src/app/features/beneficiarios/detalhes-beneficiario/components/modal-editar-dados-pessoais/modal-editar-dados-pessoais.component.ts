@@ -7,14 +7,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 
 import { BotaoComponent } from '../../../../../shared/components/botao/botao.component';
-import { InputComponent } from '../../../../../shared/components/input/input.component';
-import { SelectComponent } from '../../../../../shared/components/select/select.component';
-import { CheckboxComponent } from '../../../../../shared/components/checkbox/checkbox.component';
 import { FormularioDadosPessoaisComponent } from '../../../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.component';
+import { FormularioDadosBeneficiarioComponent } from '../../../../../shared/components/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
 import { ModalComponent } from '../../../../../shared/components/modal/modal.component';
-import { formatarCpf } from '../../../../../shared/utils/cpf.utils';
 import { calcularIdade, converterParaIsoDate } from '../../../../../shared/utils/data.utils';
 
+import { PessoaFormService } from '../../../../../core/services/pessoa-form.service';
 import { BeneficiarioService } from '../../../../../core/services/beneficiario.service';
 import {
   AtualizarBeneficiarioDto,
@@ -34,10 +32,8 @@ import {
     ReactiveFormsModule,
     MatDialogModule,
     MatSnackBarModule,
-    InputComponent,
-    SelectComponent,
-    CheckboxComponent,
     FormularioDadosPessoaisComponent,
+    FormularioDadosBeneficiarioComponent,
     ModalComponent,
   ],
   templateUrl: './modal-editar-dados-pessoais.component.html',
@@ -48,6 +44,7 @@ export class ModalEditarDadosPessoaisComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ModalEditarDadosPessoaisComponent>);
   private readonly snackBar = inject(MatSnackBar);
   private readonly beneficiarioService = inject(BeneficiarioService);
+  private readonly pessoaFormService = inject(PessoaFormService);
 
   readonly data = inject<{ beneficiario: Beneficiario }>(MAT_DIALOG_DATA);
 
@@ -60,26 +57,21 @@ export class ModalEditarDadosPessoaisComponent implements OnInit {
   form!: FormGroup;
 
   ngOnInit(): void {
-    const b = this.data.beneficiario;
-    const dataNascimentoOriginal = b.pessoa.dataNascimento
-      ? (b.pessoa.dataNascimento.includes('T') ? b.pessoa.dataNascimento.split('T')[0] : b.pessoa.dataNascimento)
-      : '';
+    const beneficiario = this.data.beneficiario;
 
     this.form = this.fb.group({
-      pessoa: this.fb.group({
-        nome: [b.pessoa.nome, [Validators.required]],
-        cpf: [formatarCpf(b.pessoa.cpf), [Validators.required]],
-        dataNascimento: [dataNascimentoOriginal, [Validators.required]],
-      }),
-      nivelEscolaridade: [b.nivelEscolaridade as NivelEscolaridade, [Validators.required]],
-      estadoCivil: [b.estadoCivil as EstadoCivil || ''],
-      vinculoEmpregaticio: [b.vinculoEmpregaticio as VinculoEmpregaticio || ''],
-      quantidadeFilhos: [b.quantidadeFilhos ?? null],
-      emancipado: [b.pessoa.emancipado ?? false],
-      podeSairSozinho: [b.pessoa.podeSairSozinho ?? false],
+      pessoa: this.pessoaFormService.criarForm(beneficiario.pessoa),
+      nivelEscolaridade: [beneficiario.nivelEscolaridade as NivelEscolaridade, [Validators.required]],
+      estadoCivil: [beneficiario.estadoCivil as EstadoCivil || ''],
+      vinculoEmpregaticio: [beneficiario.vinculoEmpregaticio as VinculoEmpregaticio || ''],
+      quantidadeFilhos: [beneficiario.quantidadeFilhos ?? null, [Validators.min(0), Validators.max(30), Validators.pattern(/^[0-9]+$/)]],
     });
 
     this.formPessoa.get('dataNascimento')?.valueChanges.subscribe(() => {
+      this.atualizarValidacoesPorIdade();
+    });
+
+    this.formPessoa.get('emancipado')?.valueChanges.subscribe(() => {
       this.atualizarValidacoesPorIdade();
     });
 
@@ -102,13 +94,13 @@ export class ModalEditarDadosPessoaisComponent implements OnInit {
 
   get ehMenorNaoEmancipado(): boolean {
     const idade = this.idadeAtual;
-    const emancipado = !!this.form.get('emancipado')?.value;
+    const emancipado = !!this.formPessoa.get('emancipado')?.value;
     return idade !== null && idade < 18 && !emancipado;
   }
 
   atualizarValidacoesPorIdade(): void {
     if (!this.podeSerEmancipado) {
-      this.form.get('emancipado')?.setValue(false, { emitEvent: false });
+      this.formPessoa.get('emancipado')?.setValue(false, { emitEvent: false });
     }
   }
 
@@ -123,17 +115,21 @@ export class ModalEditarDadosPessoaisComponent implements OnInit {
     }
 
     const dadosFormulario = this.form.value;
+    const pessoaValue = dadosFormulario.pessoa;
 
     const dto: AtualizarBeneficiarioDto = {
-      nome: dadosFormulario.pessoa.nome,
-      cpf: (dadosFormulario.pessoa.cpf || '').replace(/\D/g, ''),
-      dataNascimento: converterParaIsoDate(dadosFormulario.pessoa.dataNascimento),
+      nome: pessoaValue.nome,
+      cpf: (pessoaValue.cpf || '').replace(/\D/g, ''),
+      dataNascimento: converterParaIsoDate(pessoaValue.dataNascimento),
       nivelEscolaridade: dadosFormulario.nivelEscolaridade,
       estadoCivil: dadosFormulario.estadoCivil || undefined,
       vinculoEmpregaticio: dadosFormulario.vinculoEmpregaticio || undefined,
-      quantidadeFilhos: dadosFormulario.quantidadeFilhos !== null && dadosFormulario.quantidadeFilhos !== '' ? Number(dadosFormulario.quantidadeFilhos) : undefined,
-      emancipado: dadosFormulario.emancipado ?? undefined,
-      podeSairSozinho: this.ehMenorNaoEmancipado ? Boolean(dadosFormulario.podeSairSozinho) : undefined,
+      quantidadeFilhos:
+        dadosFormulario.quantidadeFilhos !== null && dadosFormulario.quantidadeFilhos !== ''
+          ? Number(dadosFormulario.quantidadeFilhos)
+          : undefined,
+      emancipado: pessoaValue.emancipado ?? undefined,
+      podeSairSozinho: this.ehMenorNaoEmancipado ? Boolean(pessoaValue.podeSairSozinho) : undefined,
     };
 
     this.salvando.set(true);
