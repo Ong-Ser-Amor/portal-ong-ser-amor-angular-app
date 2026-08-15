@@ -1,0 +1,41 @@
+<app-card titulo="Canais de Contato" [subtitulo]="'Cadastre até ' + limiteContatos() + ' canais de contato'"
+  icone="contacts">
+  <div acoes-cabecalho>
+    <app-botao label="Adicionar" icone="add" cor="primary" variante="stroked"
+      [desabilitado]="contatos().length >= limiteContatos() || desabilitadoAdicionar()"
+      (click)="adicionarContato()" />
+  </div>
+
+  @if (contatos().length === 0) {
+  <div class="lista-vazia">
+    <p>Nenhum canal de contato adicionado ainda. Clique em <strong>"Adicionar"</strong> acima para incluir.</p>
+  </div>
+  } @else {
+  <div class="lista-contatos">
+    @for (contato of contatos().controls; track $index) {
+    <div [formGroup]="$any(contato)" class="contato-item">
+      <app-select formControlName="tipoContato" label="Tipo" [opcoes]="tiposContato"
+        [required]="ehObrigatorio()" class="tipo-field" />
+
+      <app-input formControlName="valor" label="Contato"
+        [type]="obterTipoInputContato(contato.get('tipoContato')?.value)"
+        [placeholder]="obterPlaceholderContato(contato.get('tipoContato')?.value)"
+        [maxLength]="obterMaxLengthContato(contato.get('tipoContato')?.value)"
+        [mask]="contato.get('tipoContato')?.value" [required]="ehObrigatorio()" class="valor-field" />
+
+      <div class="principal-field">
+        <mat-radio-button [checked]="contato.get('ehPrincipal')?.value" (change)="marcarPrincipal($index)"
+          color="primary">
+          Principal
+        </mat-radio-button>
+      </div>
+
+      <div class="acoes-field">
+        <app-botao icone="delete" cor="warn" variante="icon" (click)="removerContato($index)"
+          aria-label="Remover contato" />
+      </div>
+    </div>
+    }
+  </div>
+  }
+</app-card>

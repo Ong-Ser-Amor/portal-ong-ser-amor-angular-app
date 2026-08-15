@@ -4,7 +4,7 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } fr
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatRadioModule } from '@angular/material/radio';
 import { CabecalhoPaginaComponent } from '../../../shared/components/ui/cabecalho-pagina/cabecalho-pagina.component';
-import { InputComponent, InputType } from '../../../shared/components/ui/input/input.component';
+import { InputComponent } from '../../../shared/components/ui/input/input.component';
 import { SelectComponent } from '../../../shared/components/ui/select/select.component';
 import { CheckboxComponent } from '../../../shared/components/ui/checkbox/checkbox.component';
 import { DateInputComponent } from '../../../shared/components/ui/date-input/date-input.component';
@@ -12,9 +12,11 @@ import { BotaoComponent } from '../../../shared/components/ui/botao/botao.compon
 import { FormularioDadosBeneficiarioComponent } from '../../../shared/components/formularios/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
 import { FormularioDadosPessoaComponent } from '../../../shared/components/formularios/formulario-dados-pessoa/formulario-dados-pessoa.component';
 import { FormularioEnderecoComponent } from '../../../shared/components/formularios/formulario-endereco/formulario-endereco.component';
+import { FormularioContatosComponent } from '../../../shared/components/formularios/formulario-contatos/formulario-contatos.component';
 import { PessoaFormService } from '../../../core/services/pessoa-form.service';
 import { BeneficiarioFormService } from '../../../core/services/beneficiario-form.service';
 import { EnderecoFormService } from '../../../core/services/endereco-form.service';
+import { ContatoFormService } from '../../../core/services/contato-form.service';
 import { PessoaCadastroFacade } from '../../../core/services/pessoa-cadastro-facade.service';
 import { CardSelecaoBeneficiarioComponent } from '../components/card-selecao-beneficiario/card-selecao-beneficiario.component';
 import { CardComponent } from '../../../shared/components/ui/card/card.component';
@@ -23,7 +25,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { calcularIdade } from '../../../shared/utils/data.utils';
-import { TipoContato, OPCOES_TIPO_CONTATO, CriarContatoBeneficiarioDto } from '../../../core/models/contato.model';
+import { CriarContatoBeneficiarioDto } from '../../../core/models/contato.model';
 import {
   OPCOES_NIVEL_ESCOLARIDADE,
   OPCOES_ESTADO_CIVIL,
@@ -39,7 +41,6 @@ import {
 } from '../../../core/models/familia.model';
 import { Pessoa } from '../../../core/models/pessoa.model';
 import { BeneficiarioService } from '../../../core/services/beneficiario.service';
-import { PessoaService } from '../../../core/services/pessoa.service';
 
 @Component({
   selector: 'app-cadastro-beneficiario',
@@ -60,6 +61,7 @@ import { PessoaService } from '../../../core/services/pessoa.service';
     FormularioDadosPessoaComponent,
     FormularioDadosBeneficiarioComponent,
     FormularioEnderecoComponent,
+    FormularioContatosComponent,
     CardSelecaoBeneficiarioComponent,
     CardComponent,
   ],
@@ -70,10 +72,10 @@ export class CadastroBeneficiarioComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly beneficiarioService = inject(BeneficiarioService);
-  private readonly pessoaService = inject(PessoaService);
   private readonly pessoaFormService = inject(PessoaFormService);
   private readonly beneficiarioFormService = inject(BeneficiarioFormService);
   private readonly enderecoFormService = inject(EnderecoFormService);
+  private readonly contatoFormService = inject(ContatoFormService);
   private readonly pessoaCadastroFacade = inject(PessoaCadastroFacade);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly snackBar = inject(MatSnackBar);
@@ -177,7 +179,6 @@ export class CadastroBeneficiarioComponent implements OnInit {
 
   limiteContatos = 3;
 
-  tiposContato = OPCOES_TIPO_CONTATO;
   niveisEscolaridade = OPCOES_NIVEL_ESCOLARIDADE;
   estadosCivis = OPCOES_ESTADO_CIVIL;
   vinculosEmpregaticios = OPCOES_VINCULO_EMPREGATICIO;
@@ -202,8 +203,8 @@ export class CadastroBeneficiarioComponent implements OnInit {
     // Endereço (compartilhado via EnderecoFormService)
     endereco: this.enderecoFormService.criarForm(undefined, true),
 
-    // Canais de Contato
-    contatos: this.fb.array([], [Validators.required, Validators.minLength(1)]),
+    // Canais de Contato (compartilhado via ContatoFormService)
+    contatos: this.contatoFormService.criarArrayContatos(),
   });
 
   get formPessoa(): FormGroup {
@@ -219,9 +220,6 @@ export class CadastroBeneficiarioComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Adiciona 1 contato inicial por padrão
-    this.adicionarContato();
-
     // Escuta alterações específicas no sub-grupo pessoa e demais controles sem criar loop infinito
     this.formPessoa.get('dataNascimento')?.valueChanges.subscribe(() => {
       this.atualizarValidacoesPorIdade();
@@ -535,100 +533,6 @@ export class CadastroBeneficiarioComponent implements OnInit {
 
   get contatos(): FormArray {
     return this.form.get('contatos') as FormArray;
-  }
-
-  adicionarContato(): void {
-    if (this.contatos.length < this.limiteContatos) {
-      const ehPrimeiro = this.contatos.length === 0;
-      const ehObrigatorio = !this.ehMenorNaoEmancipado;
-
-      const grupoContato = this.fb.group({
-        tipoContato: ['' as TipoContato, ehObrigatorio ? [Validators.required] : []],
-        valor: ['', ehObrigatorio ? [Validators.required, Validators.maxLength(150)] : [Validators.maxLength(150)]],
-        ehPrincipal: [ehPrimeiro],
-      });
-
-      grupoContato.get('tipoContato')?.valueChanges.subscribe((tipo) => {
-        this.atualizarValidadoresValorContato(grupoContato, tipo || '');
-      });
-
-      this.contatos.push(grupoContato);
-    }
-  }
-
-  private atualizarValidadoresValorContato(grupoContato: FormGroup, tipo: TipoContato | string): void {
-    const valorControl = grupoContato.get('valor');
-    if (!valorControl) return;
-
-    valorControl.setValue('', { emitEvent: false });
-
-    if (!tipo) {
-      if (this.ehMenorNaoEmancipado) {
-        valorControl.setValidators([Validators.maxLength(150)]);
-      } else {
-        valorControl.setValidators([Validators.required, Validators.maxLength(150)]);
-      }
-    } else if (tipo === 'CELULAR') {
-      valorControl.setValidators([
-        Validators.required,
-        Validators.pattern(/^(\d{11}|\(\d{2}\)\s?\d{5}-\d{4})$/),
-        Validators.maxLength(15),
-      ]);
-    } else if (tipo === 'TELEFONE_FIXO') {
-      valorControl.setValidators([
-        Validators.required,
-        Validators.pattern(/^(\d{10}|\(\d{2}\)\s?\d{4}-\d{4})$/),
-        Validators.maxLength(14),
-      ]);
-    } else {
-      valorControl.setValidators([
-        Validators.required,
-        Validators.email,
-        Validators.maxLength(150),
-      ]);
-    }
-
-    valorControl.updateValueAndValidity();
-  }
-
-  removerContato(index: number): void {
-    const eraPrincipal = this.contatos.at(index).get('ehPrincipal')?.value;
-    this.contatos.removeAt(index);
-    if (eraPrincipal && this.contatos.length > 0) {
-      this.contatos.at(0).get('ehPrincipal')?.setValue(true);
-    }
-  }
-
-  marcarPrincipal(indexSelecionado: number): void {
-    this.contatos.controls.forEach((control, idx) => {
-      control.get('ehPrincipal')?.setValue(idx === indexSelecionado);
-    });
-  }
-
-  obterTipoInputContato(tipo: TipoContato | string): InputType {
-    return tipo === 'EMAIL' ? 'email' : 'tel';
-  }
-
-  obterPlaceholderContato(tipo: TipoContato | string): string {
-    switch (tipo) {
-      case 'CELULAR':
-        return 'Ex: (11) 99999-9999';
-      case 'TELEFONE_FIXO':
-        return 'Ex: (11) 3333-4444';
-      default:
-        return 'exemplo@email.com';
-    }
-  }
-
-  obterMaxLengthContato(tipo: TipoContato | string): number {
-    switch (tipo) {
-      case 'CELULAR':
-        return 15;
-      case 'TELEFONE_FIXO':
-        return 14;
-      default:
-        return 150;
-    }
   }
 
   voltar(): void {

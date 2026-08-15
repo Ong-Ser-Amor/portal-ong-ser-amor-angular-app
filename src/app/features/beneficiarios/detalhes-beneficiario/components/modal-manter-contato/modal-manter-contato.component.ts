@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
@@ -10,6 +10,7 @@ import { CheckboxComponent } from '../../../../../shared/components/ui/checkbox/
 import { ModalComponent } from '../../../../../shared/components/ui/modal/modal.component';
 
 import { ContatoService } from '../../../../../core/services/contato.service';
+import { ContatoFormService } from '../../../../../core/services/contato-form.service';
 import { Beneficiario } from '../../../../../core/models/beneficiario.model';
 import { AtualizarContatoDto, ContatoResposta, CriarContatoDto, OPCOES_TIPO_CONTATO, TipoContato } from '../../../../../core/models/contato.model';
 
@@ -34,10 +35,10 @@ export interface ModalManterContatoData {
   styleUrl: './modal-manter-contato.component.scss',
 })
 export class ModalManterContatoComponent implements OnInit {
-  private readonly fb = inject(FormBuilder);
   private readonly dialogRef = inject(MatDialogRef<ModalManterContatoComponent>);
   private readonly snackBar = inject(MatSnackBar);
   private readonly contatoService = inject(ContatoService);
+  private readonly contatoFormService = inject(ContatoFormService);
 
   readonly data = inject<ModalManterContatoData>(MAT_DIALOG_DATA);
 
@@ -57,16 +58,17 @@ export class ModalManterContatoComponent implements OnInit {
   ngOnInit(): void {
     const contato = this.data.contato;
 
-    this.form = this.fb.group({
-      tipoContato: [contato?.tipoContato || '', [Validators.required]],
-      valor: [contato?.valor || '', [Validators.required]],
-      ehPrincipal: [contato?.ehPrincipal || false],
-    });
-
-    this.atualizarValidadoresValor(this.form.get('tipoContato')?.value);
+    this.form = this.contatoFormService.criarForm(
+      contato,
+      contato?.ehPrincipal || false,
+      true
+    );
 
     this.form.get('tipoContato')?.valueChanges.subscribe((novoTipo) => {
-      this.atualizarValidadoresValor(novoTipo);
+      const valorCtrl = this.form.get('valor');
+      if (valorCtrl) {
+        this.contatoFormService.atualizarValidadoresValor(valorCtrl, novoTipo);
+      }
       if (novoTipo === 'EMAIL') {
         this.form.get('ehPrincipal')?.setValue(false, { emitEvent: false });
       }
@@ -75,31 +77,12 @@ export class ModalManterContatoComponent implements OnInit {
 
   obterMascaraContato(): string {
     const tipo: TipoContato | '' = this.form?.get('tipoContato')?.value;
-    if (tipo === 'CELULAR') return 'celular';
-    if (tipo === 'TELEFONE_FIXO') return 'telefone_fixo';
-    return '';
+    return this.contatoFormService.obterMascara(tipo) || '';
   }
 
   obterTipoInput(): InputType {
     const tipo: TipoContato = this.form?.get('tipoContato')?.value;
-    return tipo === 'EMAIL' ? 'email' : 'text';
-  }
-
-  private atualizarValidadoresValor(tipo: TipoContato): void {
-    const valorCtrl = this.form.get('valor');
-    if (!valorCtrl) return;
-
-    if (tipo === 'EMAIL') {
-      valorCtrl.setValidators([Validators.required, Validators.email]);
-    } else if (tipo === 'CELULAR') {
-      valorCtrl.setValidators([Validators.required, Validators.pattern(/^\(\d{2}\)\s\d{5}-\d{4}$|^\d{11}$/)]);
-    } else if (tipo === 'TELEFONE_FIXO') {
-      valorCtrl.setValidators([Validators.required, Validators.pattern(/^\(\d{2}\)\s\d{4}-\d{4}$|^\d{10}$/)]);
-    } else {
-      valorCtrl.setValidators([Validators.required]);
-    }
-
-    valorCtrl.updateValueAndValidity({ emitEvent: false });
+    return this.contatoFormService.obterTipoInput(tipo);
   }
 
   fechar(): void {
@@ -114,9 +97,7 @@ export class ModalManterContatoComponent implements OnInit {
 
     const dadosFormulario = this.form.value;
     const tipo: TipoContato = dadosFormulario.tipoContato;
-    const valorSanitizado = tipo === 'EMAIL'
-      ? dadosFormulario.valor.trim()
-      : (dadosFormulario.valor || '').replace(/\D/g, '');
+    const valorSanitizado = this.contatoFormService.sanitizarValor(tipo, dadosFormulario.valor);
 
     this.salvando.set(true);
 
