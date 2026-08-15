@@ -21,7 +21,7 @@ import { ContatoFormService } from '../../../core/services/contato-form.service'
 import { PessoaCadastroFacade } from '../../../core/services/pessoa-cadastro-facade.service';
 import { CardSelecaoBeneficiarioComponent } from '../components/card-selecao-beneficiario/card-selecao-beneficiario.component';
 import { CardComponent } from '../../../shared/components/ui/card/card.component';
-import { Subject, finalize } from 'rxjs';
+import { Subject, finalize, merge } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -142,6 +142,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
             if (familia.endereco) {
               this.enderecoFormService.preencherForm(this.formEndereco, familia.endereco);
             }
+            this.atualizarEstadoControles();
           }
         },
         error: (erro) => {
@@ -222,26 +223,32 @@ export class CadastroBeneficiarioComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Escuta alterações específicas no sub-grupo pessoa e demais controles sem criar loop infinito
+    // 1. Escuta alterações na Data de Nascimento e Emancipação para atualizar validações condicionais
     this.formPessoa.get('dataNascimento')?.valueChanges.subscribe(() => {
       this.atualizarValidacoesPorIdade();
-      this.atualizarEstadoControles();
     });
 
     this.formPessoa.get('emancipado')?.valueChanges.subscribe(() => {
       this.atualizarValidacoesPorIdade();
-      this.atualizarEstadoControles();
     });
 
+    // 2. Escuta CPF para busca reativa
     this.formPessoa.get('cpf')?.valueChanges.subscribe((val) => {
       this.pessoaExistenteId.set(null);
       this.atualizarEstadoCamposPessoa();
-      this.atualizarEstadoControles();
 
       const cpfLimpo = (val || '').replace(/\D/g, '');
       if (cpfLimpo.length === 11) {
         this.buscarDadosPessoa();
       }
+    });
+
+    // 3. Escuta alterações em qualquer campo dos Dados Pessoais (Pessoa + Escolaridade) para desbloquear os demais cards
+    merge(
+      this.formPessoa.valueChanges,
+      this.form.get('nivelEscolaridade')!.valueChanges
+    ).subscribe(() => {
+      this.atualizarEstadoControles();
     });
 
     const { estaCarregando } = this.pessoaCadastroFacade.iniciarBuscaCpfReativa({
@@ -258,14 +265,20 @@ export class CadastroBeneficiarioComponent implements OnInit {
   }
 
   atualizarEstadoControles(): void {
-    const habilitar = this.dadosPessoaisPreenchidos;
+    const habilitar = this.podePreencherDemaisSecoes;
     const familiaGroup = this.formFamilia;
     const enderecoGroup = this.formEndereco;
     const contatosArray = this.contatos;
 
     if (habilitar) {
-      if (familiaGroup.disabled) familiaGroup.enable({ emitEvent: false });
-      if (enderecoGroup.disabled) enderecoGroup.enable({ emitEvent: false });
+      if (this.familiaIdSelecionada()) {
+        // Se uma família existente foi vinculada, os dados de família e endereço são herdados (readonly)
+        if (familiaGroup.enabled) familiaGroup.disable({ emitEvent: false });
+        if (enderecoGroup.enabled) enderecoGroup.disable({ emitEvent: false });
+      } else {
+        if (familiaGroup.disabled) familiaGroup.enable({ emitEvent: false });
+        if (enderecoGroup.disabled) enderecoGroup.enable({ emitEvent: false });
+      }
       if (contatosArray?.disabled) contatosArray.enable({ emitEvent: false });
     } else {
       if (familiaGroup.enabled) familiaGroup.disable({ emitEvent: false });

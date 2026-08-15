@@ -34,34 +34,37 @@
   <!-- Etapa 2: Libera Família, Endereço e Contatos (Requer Responsável se for Menor) -->
   <fieldset [disabled]="!podePreencherDemaisSecoes" class="secoes-dependentes"
     [class.bloqueado]="!podePreencherDemaisSecoes">
-    <!-- Card 2: Dados da Família -->
-    <app-card titulo="Dados da Família" icone="family_restroom" formGroupName="familia">
-      @if (familiaIdSelecionada()) {
-      <div class="aviso-familia-herdada">
-        <mat-icon>home</mat-icon>
-        <span>Dados de Família e Endereço vinculados automaticamente ao Responsável Legal.</span>
-      </div>
-      }
-
-      <div class="form-grid">
-        <app-select formControlName="faixaRenda" label="Faixa de Renda" [opcoes]="faixasRenda" [required]="true"
-          class="col-span-1" />
-
-        <app-select formControlName="tipoMoradia" label="Tipo de Moradia" [opcoes]="tiposMoradia" [required]="true"
-          class="col-span-1" />
-
-        <div class="campo-checkbox col-span-1">
-          <app-checkbox formControlName="possuiBeneficioSocial" label="Recebe benefício social" />
+    <!-- Bloco de Família e Endereço (Desabilitado quando vinculado a uma Família Existente) -->
+    <fieldset [disabled]="!!familiaIdSelecionada()" class="secao-familia-herdada">
+      <!-- Card 2: Dados da Família -->
+      <app-card titulo="Dados da Família" icone="family_restroom" formGroupName="familia">
+        @if (familiaIdSelecionada()) {
+        <div class="aviso-familia-herdada">
+          <mat-icon>lock</mat-icon>
+          <span>Dados de Família e Endereço vinculados automaticamente à família existente (somente leitura). Para cadastrar uma nova família ou endereço diferente, desvincule o familiar acima.</span>
         </div>
-      </div>
-    </app-card>
+        }
 
-    <!-- Card 3: Endereço -->
-    <app-card titulo="Endereço" icone="location_on">
-      <div class="form-grid">
-        <app-formulario-endereco [formGroup]="formEndereco" />
-      </div>
-    </app-card>
+        <div class="form-grid">
+          <app-select formControlName="faixaRenda" label="Faixa de Renda" [opcoes]="faixasRenda" [required]="true"
+            class="col-span-1" />
+
+          <app-select formControlName="tipoMoradia" label="Tipo de Moradia" [opcoes]="tiposMoradia" [required]="true"
+            class="col-span-1" />
+
+          <div class="campo-checkbox col-span-1">
+            <app-checkbox formControlName="possuiBeneficioSocial" label="Recebe benefício social" />
+          </div>
+        </div>
+      </app-card>
+
+      <!-- Card 3: Endereço -->
+      <app-card titulo="Endereço" icone="location_on">
+        <div class="form-grid">
+          <app-formulario-endereco [formGroup]="formEndereco" />
+        </div>
+      </app-card>
+    </fieldset>
 
     <!-- Card 4: Canais de Contato -->
     <app-formulario-contatos
