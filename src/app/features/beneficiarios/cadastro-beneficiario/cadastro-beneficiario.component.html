@@ -41,7 +41,8 @@
         @if (familiaIdSelecionada()) {
         <div class="aviso-familia-herdada">
           <mat-icon>lock</mat-icon>
-          <span>Dados de Família e Endereço vinculados automaticamente à família existente (somente leitura). Para cadastrar uma nova família ou endereço diferente, desvincule o familiar acima.</span>
+          <span>Dados de Família e Endereço vinculados automaticamente à família existente (somente leitura). Para
+            cadastrar uma nova família ou endereço diferente, desvincule o familiar acima.</span>
         </div>
         }
 
@@ -67,12 +68,8 @@
     </fieldset>
 
     <!-- Card 4: Canais de Contato -->
-    <app-formulario-contatos
-      [contatos]="contatos"
-      [limiteContatos]="limiteContatos"
-      [ehObrigatorio]="!ehMenorNaoEmancipado"
-      [desabilitadoAdicionar]="!dadosPessoaisPreenchidos"
-    />
+    <app-formulario-contatos [contatos]="contatos" [limiteContatos]="limiteContatos"
+      [ehObrigatorio]="!ehMenorNaoEmancipado" [desabilitadoAdicionar]="!dadosPessoaisPreenchidos" />
   </fieldset>
 
   <!-- Ações Globais do Formulário -->

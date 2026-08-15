@@ -223,7 +223,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // 1. Escuta alterações na Data de Nascimento e Emancipação para atualizar validações condicionais
+    // Escuta alterações na Data de Nascimento e Emancipação para atualizar validações condicionais
     this.formPessoa.get('dataNascimento')?.valueChanges.subscribe(() => {
       this.atualizarValidacoesPorIdade();
     });
@@ -232,7 +232,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
       this.atualizarValidacoesPorIdade();
     });
 
-    // 2. Escuta CPF para busca reativa
+    // Escuta CPF para busca reativa
     this.formPessoa.get('cpf')?.valueChanges.subscribe((val) => {
       this.pessoaExistenteId.set(null);
       this.atualizarEstadoCamposPessoa();
@@ -243,7 +243,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
       }
     });
 
-    // 3. Escuta alterações em qualquer campo dos Dados Pessoais (Pessoa + Escolaridade) para desbloquear os demais cards
+    // Escuta alterações em qualquer campo dos Dados Pessoais (Pessoa + Escolaridade) para desbloquear os demais cards
     merge(
       this.formPessoa.valueChanges,
       this.form.get('nivelEscolaridade')!.valueChanges
