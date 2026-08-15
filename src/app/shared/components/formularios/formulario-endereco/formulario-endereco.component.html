@@ -1,0 +1,23 @@
+<div [formGroup]="formGroup()" class="container">
+  <!-- Linha 1 -->
+  <app-input formControlName="cep" label="CEP" placeholder="00000-000" mask="cep" [required]="true"
+    [maxLength]="9" class="col-span-1" />
+
+  <app-input formControlName="logradouro" label="Logradouro / Rua" placeholder="Ex: Av. Paulista"
+    [required]="true" class="col-span-2" />
+
+  <!-- Linha 2 -->
+  <app-input formControlName="numero" label="Número" placeholder="Ex: 123 ou S/N" class="col-span-1" />
+
+  <app-input formControlName="complemento" label="Complemento" placeholder="Ex: Apt 42, Bloco B"
+    class="col-span-1" />
+
+  <app-input formControlName="bairro" label="Bairro" placeholder="Ex: Bela Vista" [required]="true"
+    class="col-span-1" />
+
+  <!-- Linha 3 -->
+  <app-input formControlName="cidade" label="Cidade" placeholder="Ex: São Paulo" [required]="true"
+    class="col-span-2" />
+
+  <app-select formControlName="uf" label="UF" [opcoes]="ufs" [required]="true" class="col-span-1" />
+</div>

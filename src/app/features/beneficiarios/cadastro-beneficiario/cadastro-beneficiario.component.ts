@@ -10,8 +10,11 @@ import { CheckboxComponent } from '../../../shared/components/ui/checkbox/checkb
 import { DateInputComponent } from '../../../shared/components/ui/date-input/date-input.component';
 import { BotaoComponent } from '../../../shared/components/ui/botao/botao.component';
 import { FormularioDadosBeneficiarioComponent } from '../../../shared/components/formularios/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
+import { FormularioDadosPessoaComponent } from '../../../shared/components/formularios/formulario-dados-pessoa/formulario-dados-pessoa.component';
+import { FormularioEnderecoComponent } from '../../../shared/components/formularios/formulario-endereco/formulario-endereco.component';
 import { PessoaFormService } from '../../../core/services/pessoa-form.service';
 import { BeneficiarioFormService } from '../../../core/services/beneficiario-form.service';
+import { EnderecoFormService } from '../../../core/services/endereco-form.service';
 import { PessoaCadastroFacade } from '../../../core/services/pessoa-cadastro-facade.service';
 import { CardSelecaoBeneficiarioComponent } from '../components/card-selecao-beneficiario/card-selecao-beneficiario.component';
 import { CardComponent } from '../../../shared/components/ui/card/card.component';
@@ -34,11 +37,9 @@ import {
   OPCOES_FAIXA_RENDA,
   OPCOES_TIPO_MORADIA,
 } from '../../../core/models/familia.model';
-import { UF, OPCOES_UF } from '../../../core/models/endereco.model';
 import { Pessoa } from '../../../core/models/pessoa.model';
 import { BeneficiarioService } from '../../../core/services/beneficiario.service';
 import { PessoaService } from '../../../core/services/pessoa.service';
-import { FormularioDadosPessoaComponent } from '../../../shared/components/formularios/formulario-dados-pessoa/formulario-dados-pessoa.component';
 
 @Component({
   selector: 'app-cadastro-beneficiario',
@@ -58,6 +59,7 @@ import { FormularioDadosPessoaComponent } from '../../../shared/components/formu
     BotaoComponent,
     FormularioDadosPessoaComponent,
     FormularioDadosBeneficiarioComponent,
+    FormularioEnderecoComponent,
     CardSelecaoBeneficiarioComponent,
     CardComponent,
   ],
@@ -71,6 +73,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
   private readonly pessoaService = inject(PessoaService);
   private readonly pessoaFormService = inject(PessoaFormService);
   private readonly beneficiarioFormService = inject(BeneficiarioFormService);
+  private readonly enderecoFormService = inject(EnderecoFormService);
   private readonly pessoaCadastroFacade = inject(PessoaCadastroFacade);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly snackBar = inject(MatSnackBar);
@@ -133,15 +136,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
               possuiBeneficioSocial: familia.possuiBeneficioSocial,
             });
             if (familia.endereco) {
-              this.formEndereco.patchValue({
-                cep: familia.endereco.cep || '',
-                logradouro: familia.endereco.logradouro || '',
-                numero: familia.endereco.numero || '',
-                complemento: familia.endereco.complemento || '',
-                bairro: familia.endereco.bairro || '',
-                cidade: familia.endereco.cidade || '',
-                uf: familia.endereco.uf || null,
-              });
+              this.enderecoFormService.preencherForm(this.formEndereco, familia.endereco);
             }
           }
         },
@@ -166,10 +161,8 @@ export class CadastroBeneficiarioComponent implements OnInit {
 
   private resetarCamposFamilia(): void {
     const familiaGroup = this.formFamilia;
-    const enderecoGroup = this.formEndereco;
 
     const familiaDisabled = familiaGroup.disabled;
-    const enderecoDisabled = enderecoGroup.disabled;
 
     if (familiaDisabled) familiaGroup.enable({ emitEvent: false });
     familiaGroup.reset({
@@ -179,17 +172,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
     });
     if (familiaDisabled) familiaGroup.disable({ emitEvent: false });
 
-    if (enderecoDisabled) enderecoGroup.enable({ emitEvent: false });
-    enderecoGroup.reset({
-      cep: '',
-      logradouro: '',
-      numero: '',
-      complemento: '',
-      bairro: '',
-      cidade: '',
-      uf: null,
-    });
-    if (enderecoDisabled) enderecoGroup.disable({ emitEvent: false });
+    this.enderecoFormService.resetarForm(this.formEndereco);
   }
 
   limiteContatos = 3;
@@ -200,7 +183,6 @@ export class CadastroBeneficiarioComponent implements OnInit {
   vinculosEmpregaticios = OPCOES_VINCULO_EMPREGATICIO;
   faixasRenda = OPCOES_FAIXA_RENDA;
   tiposMoradia = OPCOES_TIPO_MORADIA;
-  ufs = OPCOES_UF;
 
   form: FormGroup = this.fb.group({
     // Sub-grupo de Pessoa (compartilhado via PessoaFormService)
@@ -217,16 +199,8 @@ export class CadastroBeneficiarioComponent implements OnInit {
       possuiBeneficioSocial: [{ value: false, disabled: true }],
     }),
 
-    // Endereço
-    endereco: this.fb.group({
-      cep: [{ value: '', disabled: true }, [Validators.required, Validators.pattern(/^(\d{8}|\d{5}-\d{3})$/)]],
-      logradouro: [{ value: '', disabled: true }, [Validators.required]],
-      numero: [{ value: '', disabled: true }],
-      complemento: [{ value: '', disabled: true }],
-      bairro: [{ value: '', disabled: true }, [Validators.required]],
-      cidade: [{ value: '', disabled: true }, [Validators.required]],
-      uf: [{ value: null as UF | null, disabled: true }, [Validators.required]],
-    }),
+    // Endereço (compartilhado via EnderecoFormService)
+    endereco: this.enderecoFormService.criarForm(undefined, true),
 
     // Canais de Contato
     contatos: this.fb.array([], [Validators.required, Validators.minLength(1)]),

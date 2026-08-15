@@ -56,34 +56,15 @@
     </app-card>
 
     <!-- Card 3: Endereço -->
-    <app-card titulo="Endereço" icone="location_on" formGroupName="endereco">
+    <app-card titulo="Endereço" icone="location_on">
       <div class="form-grid">
-        <!-- Linha 1 -->
-        <app-input formControlName="cep" label="CEP" placeholder="00000-000" mask="cep" [required]="true"
-          [maxLength]="9" class="col-span-1" />
-
-        <app-input formControlName="logradouro" label="Logradouro / Rua" placeholder="Ex: Av. Paulista"
-          [required]="true" class="col-span-2" />
-
-        <!-- Linha 2 -->
-        <app-input formControlName="numero" label="Número" placeholder="Ex: 123 ou S/N" class="col-span-1" />
-
-        <app-input formControlName="complemento" label="Complemento" placeholder="Ex: Apt 42, Bloco B"
-          class="col-span-1" />
-
-        <app-input formControlName="bairro" label="Bairro" placeholder="Ex: Bela Vista" [required]="true"
-          class="col-span-1" />
-
-        <!-- Linha 3 -->
-        <app-input formControlName="cidade" label="Cidade" placeholder="Ex: São Paulo" [required]="true"
-          class="col-span-2" />
-
-        <app-select formControlName="uf" label="UF" [opcoes]="ufs" [required]="true" class="col-span-1" />
+        <app-formulario-endereco [formGroup]="formEndereco" />
       </div>
     </app-card>
 
     <!-- Card 4: Canais de Contato -->
-    <app-card titulo="Canais de Contato" [subtitulo]="'Cadastre até ' + limiteContatos + ' canais de contato'" icone="contacts">
+    <app-card titulo="Canais de Contato" [subtitulo]="'Cadastre até ' + limiteContatos + ' canais de contato'"
+      icone="contacts">
       <div acoes-cabecalho>
         <app-botao label="Adicionar" icone="add" cor="primary" variante="stroked"
           [desabilitado]="contatos.length >= limiteContatos || !dadosPessoaisPreenchidos"
@@ -98,8 +79,8 @@
       <div formArrayName="contatos" class="lista-contatos">
         @for (contato of contatos.controls; track $index) {
         <div [formGroupName]="$index" class="contato-item">
-          <app-select formControlName="tipoContato" label="Tipo" [opcoes]="tiposContato" [required]="!ehMenorNaoEmancipado"
-            class="tipo-field" />
+          <app-select formControlName="tipoContato" label="Tipo" [opcoes]="tiposContato"
+            [required]="!ehMenorNaoEmancipado" class="tipo-field" />
 
           <app-input formControlName="valor" label="Contato"
             [type]="obterTipoInputContato(contato.get('tipoContato')?.value)"
@@ -128,9 +109,7 @@
   <!-- Ações Globais do Formulário -->
   <div class="form-acoes">
     <app-botao label="Cancelar" variante="stroked" (click)="voltar()" />
-    <app-botao label="Salvar Beneficiário" cor="primary" tipo="submit"
-      [carregando]="estaCarregando()"
-      [desabilitado]="!dadosPessoaisPreenchidos || estaCarregando()"
-      (click)="salvar()" />
+    <app-botao label="Salvar Beneficiário" cor="primary" tipo="submit" [carregando]="estaCarregando()"
+      [desabilitado]="!dadosPessoaisPreenchidos || estaCarregando()" (click)="salvar()" />
   </div>
 </form>
