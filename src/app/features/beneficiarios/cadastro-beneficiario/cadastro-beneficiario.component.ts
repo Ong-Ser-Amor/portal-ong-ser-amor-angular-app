@@ -12,6 +12,7 @@ import { BotaoComponent } from '../../../shared/components/botao/botao.component
 import { FormularioDadosPessoaisComponent } from '../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.component';
 import { FormularioDadosBeneficiarioComponent } from '../../../shared/components/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
 import { PessoaFormService } from '../../../core/services/pessoa-form.service';
+import { BeneficiarioFormService } from '../../../core/services/beneficiario-form.service';
 import { PessoaCadastroFacade } from '../../../core/services/pessoa-cadastro-facade.service';
 import { CardSelecaoBeneficiarioComponent } from '../../../shared/components/card-selecao-beneficiario/card-selecao-beneficiario.component';
 import { CardComponent } from '../../../shared/components/card/card.component';
@@ -68,6 +69,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
   private readonly beneficiarioService = inject(BeneficiarioService);
   private readonly pessoaService = inject(PessoaService);
   private readonly pessoaFormService = inject(PessoaFormService);
+  private readonly beneficiarioFormService = inject(BeneficiarioFormService);
   private readonly pessoaCadastroFacade = inject(PessoaCadastroFacade);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly snackBar = inject(MatSnackBar);
@@ -203,11 +205,8 @@ export class CadastroBeneficiarioComponent implements OnInit {
     // Sub-grupo de Pessoa (compartilhado via PessoaFormService)
     pessoa: this.pessoaFormService.criarForm(),
 
-    // Dados específicos de Beneficiário
-    nivelEscolaridade: ['', [Validators.required]],
-    estadoCivil: [''],
-    vinculoEmpregaticio: [''],
-    quantidadeFilhos: [null, [Validators.min(0), Validators.max(30), Validators.pattern(/^[0-9]+$/)]],
+    // Dados específicos de Beneficiário (compartilhado via BeneficiarioFormService)
+    ...this.beneficiarioFormService.criarControles(),
     responsavelId: [''],
 
     // Sub-grupo de Família

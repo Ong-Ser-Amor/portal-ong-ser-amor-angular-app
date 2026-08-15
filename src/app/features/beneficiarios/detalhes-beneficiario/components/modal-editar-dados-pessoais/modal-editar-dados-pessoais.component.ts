@@ -13,6 +13,7 @@ import { ModalComponent } from '../../../../../shared/components/modal/modal.com
 import { calcularIdade, converterParaIsoDate } from '../../../../../shared/utils/data.utils';
 
 import { PessoaFormService } from '../../../../../core/services/pessoa-form.service';
+import { BeneficiarioFormService } from '../../../../../core/services/beneficiario-form.service';
 import { BeneficiarioService } from '../../../../../core/services/beneficiario.service';
 import {
   AtualizarBeneficiarioDto,
@@ -45,6 +46,7 @@ export class ModalEditarDadosPessoaisComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly beneficiarioService = inject(BeneficiarioService);
   private readonly pessoaFormService = inject(PessoaFormService);
+  private readonly beneficiarioFormService = inject(BeneficiarioFormService);
 
   readonly data = inject<{ beneficiario: Beneficiario }>(MAT_DIALOG_DATA);
 
@@ -61,10 +63,7 @@ export class ModalEditarDadosPessoaisComponent implements OnInit {
 
     this.form = this.fb.group({
       pessoa: this.pessoaFormService.criarForm(beneficiario.pessoa),
-      nivelEscolaridade: [beneficiario.nivelEscolaridade as NivelEscolaridade, [Validators.required]],
-      estadoCivil: [beneficiario.estadoCivil as EstadoCivil || ''],
-      vinculoEmpregaticio: [beneficiario.vinculoEmpregaticio as VinculoEmpregaticio || ''],
-      quantidadeFilhos: [beneficiario.quantidadeFilhos ?? null, [Validators.min(0), Validators.max(30), Validators.pattern(/^[0-9]+$/)]],
+      ...this.beneficiarioFormService.criarControles(beneficiario),
     });
 
     this.formPessoa.get('dataNascimento')?.valueChanges.subscribe(() => {
