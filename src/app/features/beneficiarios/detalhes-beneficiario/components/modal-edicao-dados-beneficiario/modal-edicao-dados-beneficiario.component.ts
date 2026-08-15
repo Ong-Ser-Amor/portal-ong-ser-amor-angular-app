@@ -1,12 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 
-import { BotaoComponent } from '../../../../../shared/components/botao/botao.component';
 import { FormularioDadosPessoaisComponent } from '../../../../../shared/components/formulario-dados-pessoais/formulario-dados-pessoais.component';
 import { FormularioDadosBeneficiarioComponent } from '../../../../../shared/components/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
 import { ModalComponent } from '../../../../../shared/components/modal/modal.component';
@@ -18,16 +15,13 @@ import { BeneficiarioService } from '../../../../../core/services/beneficiario.s
 import {
   AtualizarBeneficiarioDto,
   Beneficiario,
-  EstadoCivil,
-  NivelEscolaridade,
   OPCOES_ESTADO_CIVIL,
   OPCOES_NIVEL_ESCOLARIDADE,
   OPCOES_VINCULO_EMPREGATICIO,
-  VinculoEmpregaticio,
 } from '../../../../../core/models/beneficiario.model';
 
 @Component({
-  selector: 'app-modal-editar-dados-pessoais',
+  selector: 'app-modal-edicao-dados-beneficiario',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -37,12 +31,12 @@ import {
     FormularioDadosBeneficiarioComponent,
     ModalComponent,
   ],
-  templateUrl: './modal-editar-dados-pessoais.component.html',
-  styleUrl: './modal-editar-dados-pessoais.component.scss',
+  templateUrl: './modal-edicao-dados-beneficiario.component.html',
+  styleUrl: './modal-edicao-dados-beneficiario.component.scss',
 })
-export class ModalEditarDadosPessoaisComponent implements OnInit {
+export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject(MatDialogRef<ModalEditarDadosPessoaisComponent>);
+  private readonly dialogRef = inject(MatDialogRef<ModalEdicaoDadosBeneficiarioComponent>);
   private readonly snackBar = inject(MatSnackBar);
   private readonly beneficiarioService = inject(BeneficiarioService);
   private readonly pessoaFormService = inject(PessoaFormService);

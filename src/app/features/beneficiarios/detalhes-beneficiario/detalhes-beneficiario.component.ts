@@ -30,7 +30,7 @@ import { ContatoResposta, OPCOES_TIPO_CONTATO, TipoContato } from '../../../core
 import { formatarCpf, ofuscarCpf } from '../../../shared/utils/cpf.utils';
 import { formatarCep } from '../../../shared/utils/cep.utils';
 import { calcularIdade, formatarData } from '../../../shared/utils/data.utils';
-import { ModalEditarDadosPessoaisComponent } from './components/modal-editar-dados-pessoais/modal-editar-dados-pessoais.component';
+import { ModalEdicaoDadosBeneficiarioComponent } from './components/modal-edicao-dados-beneficiario/modal-edicao-dados-beneficiario.component';
 import { ModalManterContatoComponent } from './components/modal-manter-contato/modal-manter-contato.component';
 import { CONFIG_MODAL } from '../../../shared/components/modal/modal.config';
 
@@ -185,7 +185,7 @@ export class DetalhesBeneficiarioComponent implements OnInit {
   }
 
   abrirModalEditarDadosPessoais(beneficiario: Beneficiario): void {
-    const dialogRef = this.dialog.open(ModalEditarDadosPessoaisComponent, {
+    const dialogRef = this.dialog.open(ModalEdicaoDadosBeneficiarioComponent, {
       ...CONFIG_MODAL.md,
       data: { beneficiario },
     });
