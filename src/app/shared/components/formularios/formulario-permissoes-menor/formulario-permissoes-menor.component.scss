@@ -1,0 +1,12 @@
+:host {
+  display: contents;
+}
+
+.grupo-checkboxes-menor {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding-top: 8px;
+}

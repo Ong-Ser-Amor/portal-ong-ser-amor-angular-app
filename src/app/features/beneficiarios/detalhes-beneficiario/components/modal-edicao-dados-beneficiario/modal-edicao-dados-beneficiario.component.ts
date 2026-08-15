@@ -19,6 +19,7 @@ import {
   OPCOES_VINCULO_EMPREGATICIO,
 } from '../../../../../core/models/beneficiario.model';
 import { FormularioDadosPessoaComponent } from '../../../../../shared/components/formularios/formulario-dados-pessoa/formulario-dados-pessoa.component';
+import { FormularioPermissoesMenorComponent } from '../../../../../shared/components/formularios/formulario-permissoes-menor/formulario-permissoes-menor.component';
 
 @Component({
   selector: 'app-modal-edicao-dados-beneficiario',
@@ -29,6 +30,7 @@ import { FormularioDadosPessoaComponent } from '../../../../../shared/components
     MatSnackBarModule,
     FormularioDadosPessoaComponent,
     FormularioDadosBeneficiarioComponent,
+    FormularioPermissoesMenorComponent,
     ModalComponent,
   ],
   templateUrl: './modal-edicao-dados-beneficiario.component.html',

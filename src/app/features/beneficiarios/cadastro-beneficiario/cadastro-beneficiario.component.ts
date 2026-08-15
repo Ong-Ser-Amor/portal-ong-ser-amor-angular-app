@@ -13,6 +13,7 @@ import { FormularioDadosBeneficiarioComponent } from '../../../shared/components
 import { FormularioDadosPessoaComponent } from '../../../shared/components/formularios/formulario-dados-pessoa/formulario-dados-pessoa.component';
 import { FormularioEnderecoComponent } from '../../../shared/components/formularios/formulario-endereco/formulario-endereco.component';
 import { FormularioContatosComponent } from '../../../shared/components/formularios/formulario-contatos/formulario-contatos.component';
+import { FormularioPermissoesMenorComponent } from '../../../shared/components/formularios/formulario-permissoes-menor/formulario-permissoes-menor.component';
 import { PessoaFormService } from '../../../core/services/pessoa-form.service';
 import { BeneficiarioFormService } from '../../../core/services/beneficiario-form.service';
 import { EnderecoFormService } from '../../../core/services/endereco-form.service';
@@ -62,6 +63,7 @@ import { BeneficiarioService } from '../../../core/services/beneficiario.service
     FormularioDadosBeneficiarioComponent,
     FormularioEnderecoComponent,
     FormularioContatosComponent,
+    FormularioPermissoesMenorComponent,
     CardSelecaoBeneficiarioComponent,
     CardComponent,
   ],

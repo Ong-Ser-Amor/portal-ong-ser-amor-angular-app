@@ -1,0 +1,11 @@
+@if ((podeSerEmancipado && formControlEmancipado) || (ehMenorNaoEmancipado && formControlPodeSairSozinho)) {
+  <div class="grupo-checkboxes-menor">
+    @if (podeSerEmancipado && formControlEmancipado) {
+      <app-checkbox [formControl]="$any(formControlEmancipado)" label="Emancipado(a)" />
+    }
+
+    @if (ehMenorNaoEmancipado && formControlPodeSairSozinho) {
+      <app-checkbox [formControl]="$any(formControlPodeSairSozinho)" label="Pode sair sozinho(a)" />
+    }
+  </div>
+}
