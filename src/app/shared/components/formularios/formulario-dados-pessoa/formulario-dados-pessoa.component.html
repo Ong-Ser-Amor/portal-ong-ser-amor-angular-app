@@ -9,15 +9,15 @@
   <app-date-input formControlName="dataNascimento" label="Data de Nascimento" [bloquearFuturo]="true"
     [maxAnosAtras]="150" [required]="true" class="col-span-1" />
 
-  @if (podeSerEmancipado && formControlEmancipado) {
-    <div class="grupo-checkbox col-span-2">
-      <app-checkbox [formControl]="$any(formControlEmancipado)" label="Emancipado(a)" />
-    </div>
-  }
+  @if ((podeSerEmancipado && formControlEmancipado) || (ehMenorNaoEmancipado && formControlPodeSairSozinho)) {
+    <div class="grupo-checkboxes-menor">
+      @if (podeSerEmancipado && formControlEmancipado) {
+        <app-checkbox [formControl]="$any(formControlEmancipado)" label="Emancipado(a)" />
+      }
 
-  @if (ehMenorNaoEmancipado && formControlPodeSairSozinho) {
-    <div class="grupo-checkbox col-span-2">
-      <app-checkbox [formControl]="$any(formControlPodeSairSozinho)" label="Pode sair sozinho(a)" />
+      @if (ehMenorNaoEmancipado && formControlPodeSairSozinho) {
+        <app-checkbox [formControl]="$any(formControlPodeSairSozinho)" label="Pode sair sozinho(a)" />
+      }
     </div>
   }
 </div>
