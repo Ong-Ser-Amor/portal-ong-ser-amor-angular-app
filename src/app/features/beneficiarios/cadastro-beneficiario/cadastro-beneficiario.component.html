@@ -1,10 +1,17 @@
-<app-cabecalho-pagina titulo="Cadastro de Beneficiário" [exibirBotaoVoltar]="true" (voltar)="voltar()" />
+<app-cabecalho-pagina titulo="Cadastro de Beneficiário" [exibirBotaoVoltar]="true" [rotaVoltar]="'/beneficiarios'" />
 
 <form [formGroup]="form" (submit)="$event.preventDefault()">
   <!-- Card 1: Dados Pessoais -->
   <app-card titulo="Dados Pessoais" icone="person">
     @if (estaCarregando()) {
     <mat-progress-bar mode="indeterminate" class="mb-4"></mat-progress-bar>
+    }
+
+    @if (pessoaExistenteId()) {
+    <div class="aviso-pessoa-existente">
+      <mat-icon>verified</mat-icon>
+      <span>Pessoa já cadastrada no sistema. Os dados pessoais foram preenchidos e protegidos contra alteração.</span>
+    </div>
     }
 
     <div class="form-grid">
@@ -66,7 +73,7 @@
 
   <!-- Ações Globais do Formulário -->
   <div class="form-acoes">
-    <app-botao label="Cancelar" variante="stroked" (click)="voltar()" />
+    <app-botao label="Cancelar" variante="stroked" [routerLink]="'/beneficiarios'" />
     <app-botao label="Salvar Beneficiário" cor="primary" tipo="submit" [carregando]="estaCarregando()"
       [desabilitado]="!dadosPessoaisPreenchidos() || estaCarregando()" (click)="salvar()" />
   </div>

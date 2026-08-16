@@ -1,0 +1,20 @@
+<div [formGroup]="formGroup()" class="container">
+  <app-select
+    formControlName="tipoVoluntario"
+    label="Tipo de Voluntário"
+    [opcoes]="tiposVoluntario"
+    [required]="true"
+    class="col-span-1" />
+
+  <app-input
+    formControlName="formacaoAcademica"
+    label="Formação Acadêmica"
+    placeholder="Ex: Pedagogia, Psicologia, etc."
+    class="col-span-1" />
+
+  <app-select
+    formControlName="statusFormacao"
+    label="Status da Formação"
+    [opcoes]="niveisFormacao"
+    class="col-span-1" />
+</div>

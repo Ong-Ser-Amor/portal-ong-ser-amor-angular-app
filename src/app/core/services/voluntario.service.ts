@@ -8,6 +8,7 @@ import {
   AtualizarVoluntarioDto,
   FiltroBuscaVoluntario,
 } from '../models/voluntario.model';
+import { Pessoa } from '../models/pessoa.model';
 import { PaginacaoResposta } from '../models/api-paginacao-resposta.model';
 import { Observable } from 'rxjs';
 
@@ -17,6 +18,11 @@ import { Observable } from 'rxjs';
 export class VoluntarioService {
   private http = inject(HttpClient);
   private readonly API_URL = `${environment.apiUrl}/voluntarios`;
+
+  verificarCadastroPorCpf(cpf: string): Observable<Pessoa> {
+    const cpfLimpo = cpf.replace(/\D/g, '');
+    return this.http.get<Pessoa>(`${this.API_URL}/verificar-cadastro/cpf/${cpfLimpo}`);
+  }
 
   buscarTodos(filtro: FiltroBuscaVoluntario = {}): Observable<PaginacaoResposta<VoluntarioResumo>> {
     let params = new HttpParams();

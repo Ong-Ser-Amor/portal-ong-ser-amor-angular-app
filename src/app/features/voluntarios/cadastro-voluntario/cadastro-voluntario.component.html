@@ -1,0 +1,35 @@
+<app-cabecalho-pagina titulo="Cadastro de Voluntário" [exibirBotaoVoltar]="true" [rotaVoltar]="'/voluntarios'" />
+
+<form [formGroup]="form" (submit)="$event.preventDefault()">
+  <!-- Card 1: Dados Pessoais -->
+  <app-card titulo="Dados Pessoais" icone="person">
+    @if (buscandoCpf() || estaSalvando()) {
+      <mat-progress-bar mode="indeterminate" class="mb-4"></mat-progress-bar>
+    }
+
+    @if (pessoaExistente()) {
+      <div class="aviso-pessoa-existente">
+        <mat-icon>verified</mat-icon>
+        <span>Pessoa já cadastrada no sistema. Os dados pessoais foram preenchidos e protegidos contra alteração.</span>
+      </div>
+    }
+
+    <div class="form-grid">
+      <app-formulario-dados-pessoa [formGroup]="formPessoa" (cpfAlterado)="buscarDadosPessoa()" />
+      <app-formulario-dados-voluntario [formGroup]="formVoluntario" />
+    </div>
+  </app-card>
+
+  <!-- Ações Globais do Formulário -->
+  <div class="form-acoes">
+    <app-botao label="Cancelar" variante="stroked" [routerLink]="'/voluntarios'" />
+    <app-botao
+      label="Salvar Voluntário"
+      cor="primary"
+      tipo="submit"
+      [carregando]="estaSalvando()"
+      [desabilitado]="!formularioValido() || estaSalvando() || buscandoCpf()"
+      (click)="salvar()"
+    />
+  </div>
+</form>

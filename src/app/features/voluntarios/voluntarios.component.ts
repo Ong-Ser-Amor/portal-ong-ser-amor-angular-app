@@ -1,11 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { VoluntarioService } from '../../core/services/voluntario.service';
 import { VoluntarioResumo } from '../../core/models/voluntario.model';
 import { CommonModule } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { VoluntarioFormComponent } from './components/voluntario-form/voluntario-form.component';
 import { BotaoComponent } from '../../shared/components/ui/botao/botao.component';
 import { CabecalhoPaginaComponent } from '../../shared/components/ui/cabecalho-pagina/cabecalho-pagina.component';
 import {
@@ -20,6 +20,7 @@ import { CriarLoginComponent } from './components/criar-login/criar-login.compon
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     MatDialogModule,
     MatSnackBarModule,
     BotaoComponent,
@@ -83,34 +84,12 @@ export class VoluntariosComponent implements OnInit {
     this.carregarVoluntarios();
   }
 
-  abrirModalCadastroVoluntario() {
-    const dialogRef = this.dialog.open(VoluntarioFormComponent, {
-      width: '760px',
-      maxWidth: '95vw',
-      data: null,
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result === true) {
-        this.paginaAtual.set(1);
-        this.carregarVoluntarios();
-      }
-    });
-  }
-
   abrirModalEdicaoVoluntario(voluntario: VoluntarioResumo) {
-    const dialogRef = this.dialog.open(VoluntarioFormComponent, {
-      width: '760px',
-      maxWidth: '95vw',
-      data: voluntario,
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result === true) {
-        this.carregarVoluntarios();
-      }
+    this.snackBar.open('Funcionalidade ainda não implementada', 'Fechar', {
+      duration: 2000,
     });
   }
+
 
   excluirVoluntario(voluntario: VoluntarioResumo) {
     if (confirm(`Tem certeza que deseja excluir ${voluntario.pessoa.nome}?`)) {
