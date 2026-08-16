@@ -1,10 +1,11 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
-import { finalize } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { finalize, map, merge, startWith } from 'rxjs';
 
 import { ModalComponent } from '../../../../../shared/components/ui/modal/modal.component';
 import { CardSelecaoBeneficiarioComponent } from '../../../components/card-selecao-beneficiario/card-selecao-beneficiario.component';
@@ -40,7 +41,7 @@ export type TipoTransferencia = 'EXISTENTE' | 'NOVA';
   templateUrl: './modal-transferir-familia.component.html',
   styleUrl: './modal-transferir-familia.component.scss',
 })
-export class ModalTransferirFamiliaComponent implements OnInit {
+export class ModalTransferirFamiliaComponent {
   private readonly dialogRef = inject(MatDialogRef<ModalTransferirFamiliaComponent>);
   private readonly snackBar = inject(MatSnackBar);
   private readonly beneficiarioService = inject(BeneficiarioService);
@@ -53,22 +54,33 @@ export class ModalTransferirFamiliaComponent implements OnInit {
   tipoTransferencia = signal<TipoTransferencia>('EXISTENTE');
   familiarDestinoSelecionado = signal<BeneficiarioResumo | null>(null);
 
-  formFamilia!: FormGroup;
-  formEndereco!: FormGroup;
+  readonly formFamilia: FormGroup = this.familiaFormService.criarForm();
+  readonly formEndereco: FormGroup = this.enderecoFormService.criarForm();
+
+  readonly formFamiliaValida = toSignal(
+    merge(this.formFamilia.statusChanges, this.formFamilia.valueChanges).pipe(
+      map(() => this.formFamilia.valid),
+      startWith(this.formFamilia.valid)
+    ),
+    { initialValue: false }
+  );
+
+  readonly formEnderecoValido = toSignal(
+    merge(this.formEndereco.statusChanges, this.formEndereco.valueChanges).pipe(
+      map(() => this.formEndereco.valid),
+      startWith(this.formEndereco.valid)
+    ),
+    { initialValue: false }
+  );
 
   formularioValido = computed(() => {
     if (this.tipoTransferencia() === 'EXISTENTE') {
       const familiar = this.familiarDestinoSelecionado();
       return Boolean(familiar && familiar.familiaId);
     } else {
-      return (this.formFamilia?.valid ?? false) && (this.formEndereco?.valid ?? false);
+      return this.formFamiliaValida() && this.formEnderecoValido();
     }
   });
-
-  ngOnInit(): void {
-    this.formFamilia = this.familiaFormService.criarForm();
-    this.formEndereco = this.enderecoFormService.criarForm();
-  }
 
   selecionarTipo(tipo: TipoTransferencia): void {
     this.tipoTransferencia.set(tipo);
