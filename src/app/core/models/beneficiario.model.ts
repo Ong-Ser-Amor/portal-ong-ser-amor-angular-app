@@ -139,3 +139,9 @@ export interface FiltroBuscaBeneficiario {
   ignorarId?: string;
 }
 
+export type TransferirFamiliaDto =
+  | { familiaId: string }
+  | { novaFamilia: CriarFamiliaDto };
+
+
+

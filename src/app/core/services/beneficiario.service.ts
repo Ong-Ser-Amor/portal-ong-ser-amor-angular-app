@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { PaginacaoResposta } from '../models/api-paginacao-resposta.model';
-import { Beneficiario, BeneficiarioResumo, FiltroBuscaBeneficiario, CriarBeneficiarioDto, AtualizarBeneficiarioDto } from '../models/beneficiario.model';
+import { Beneficiario, BeneficiarioResumo, FiltroBuscaBeneficiario, CriarBeneficiarioDto, AtualizarBeneficiarioDto, TransferirFamiliaDto } from '../models/beneficiario.model';
 import { Pessoa } from '../models/pessoa.model';
 
 @Injectable({
@@ -50,5 +50,9 @@ export class BeneficiarioService {
 
   atualizar(id: string, dto: AtualizarBeneficiarioDto): Observable<Beneficiario> {
     return this.http.patch<Beneficiario>(`${this.API_URL}/${id}`, dto);
+  }
+
+  transferirFamilia(id: string, dto: TransferirFamiliaDto): Observable<Beneficiario> {
+    return this.http.patch<Beneficiario>(`${this.API_URL}/${id}/transferir-familia`, dto);
   }
 }

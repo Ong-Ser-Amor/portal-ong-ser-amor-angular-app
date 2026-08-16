@@ -104,6 +104,17 @@
 
   <!-- Card 3: Núcleo Familiar -->
   <app-card titulo="Núcleo Familiar" icone="family_restroom">
+    <div acoes-cabecalho>
+      <app-botao
+        variante="stroked"
+        cor="primary"
+        tamanho="sm"
+        icone="swap_horiz"
+        label="Transferir Família"
+        (click)="abrirModalTransferirFamilia(beneficiario)"
+        aria-label="Transferir Família"
+      />
+    </div>
     @if (carregandoFamiliares()) {
       <mat-progress-bar mode="indeterminate" class="mb-3"></mat-progress-bar>
     }

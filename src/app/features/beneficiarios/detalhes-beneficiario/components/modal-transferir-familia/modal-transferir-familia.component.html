@@ -1,0 +1,71 @@
+<app-modal
+  titulo="Transferir Beneficiário de Família"
+  icone="swap_horiz"
+  [confirmarDesabilitado]="!formularioValido() || salvando()"
+  [carregando]="salvando()"
+  (fechar)="fechar()"
+  (salvar)="salvar()"
+>
+  <div class="container-transferencia">
+    <!-- Seletor do Tipo de Transferência -->
+    <div class="seletor-tipo">
+      <button
+        type="button"
+        class="opcao-tipo"
+        [class.ativo]="tipoTransferencia() === 'EXISTENTE'"
+        (click)="selecionarTipo('EXISTENTE')"
+      >
+        <mat-icon class="icone-opcao">group_add</mat-icon>
+        <div class="info-opcao">
+          <span class="titulo-opcao">Vincular a Família Existente</span>
+          <span class="descricao-opcao">Adicionar o beneficiário ao núcleo familiar de outra pessoa</span>
+        </div>
+      </button>
+
+      <button
+        type="button"
+        class="opcao-tipo"
+        [class.ativo]="tipoTransferencia() === 'NOVA'"
+        (click)="selecionarTipo('NOVA')"
+      >
+        <mat-icon class="icone-opcao">home_work</mat-icon>
+        <div class="info-opcao">
+          <span class="titulo-opcao">Criar Nova Família</span>
+          <span class="descricao-opcao">Desvincular e cadastrar uma nova família e endereço</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Conteúdo: Vincular a Família Existente -->
+    @if (tipoTransferencia() === 'EXISTENTE') {
+      <div class="secao-conteudo">
+        <app-card-selecao-beneficiario
+          titulo="Buscar Familiar de Destino"
+          subtitulo="Pesquise pelo nome ou CPF de um membro da família para onde este beneficiário será transferido."
+          icone="person_search"
+          [ignorarId]="data.beneficiario.id"
+          [selecionado]="familiarDestinoSelecionado()?.pessoa || null"
+          (selecionar)="aoSelecionarFamiliarDestino($event)"
+          (desvincular)="aoDesvincularFamiliarDestino()"
+        />
+      </div>
+    }
+
+    <!-- Conteúdo: Criar Nova Família -->
+    @if (tipoTransferencia() === 'NOVA') {
+      <div class="secao-conteudo">
+        <h4 class="subtitulo-secao">
+          <mat-icon>family_restroom</mat-icon>
+          Dados da Nova Família
+        </h4>
+        <app-formulario-dados-familia [formGroup]="formFamilia" />
+
+        <h4 class="subtitulo-secao espacamento-topo">
+          <mat-icon>location_on</mat-icon>
+          Endereço da Nova Família
+        </h4>
+        <app-formulario-endereco [formGroup]="formEndereco" />
+      </div>
+    }
+  </div>
+</app-modal>

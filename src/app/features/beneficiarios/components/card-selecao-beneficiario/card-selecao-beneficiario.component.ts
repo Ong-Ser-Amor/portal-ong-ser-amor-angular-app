@@ -34,6 +34,7 @@ export class CardSelecaoBeneficiarioComponent implements OnInit {
   subtitulo = input<string>('');
   icone = input<string>('family_restroom');
   selecionado = input<Pessoa | null>(null);
+  ignorarId = input<string | undefined>(undefined);
 
   // Outputs
   selecionar = output<BeneficiarioResumo>();
@@ -74,6 +75,7 @@ export class CardSelecaoBeneficiarioComponent implements OnInit {
     const filtro: FiltroBuscaBeneficiario = {
       pagina: 1,
       itensPorPagina: 10,
+      ignorarId: this.ignorarId(),
     };
 
     if (ehNumerico) {
