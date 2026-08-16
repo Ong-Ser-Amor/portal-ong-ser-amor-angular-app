@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import {
@@ -6,6 +6,7 @@ import {
   VoluntarioResumo,
   CriarVoluntarioDto,
   AtualizarVoluntarioDto,
+  FiltroBuscaVoluntario,
 } from '../models/voluntario.model';
 import { PaginacaoResposta } from '../models/api-paginacao-resposta.model';
 import { Observable } from 'rxjs';
@@ -17,16 +18,17 @@ export class VoluntarioService {
   private http = inject(HttpClient);
   private readonly API_URL = `${environment.apiUrl}/voluntarios`;
 
-  getAll(
-    itensPorPagina: number = 10,
-    pagina: number = 1,
-  ): Observable<PaginacaoResposta<VoluntarioResumo>> {
-    return this.http.get<PaginacaoResposta<VoluntarioResumo>>(this.API_URL, {
-      params: {
-        itensPorPagina: itensPorPagina.toString(),
-        pagina: pagina.toString(),
-      },
-    });
+  buscarTodos(filtro: FiltroBuscaVoluntario = {}): Observable<PaginacaoResposta<VoluntarioResumo>> {
+    let params = new HttpParams();
+
+    if (filtro.pagina) {
+      params = params.set('pagina', filtro.pagina.toString());
+    }
+    if (filtro.itensPorPagina) {
+      params = params.set('itensPorPagina', filtro.itensPorPagina.toString());
+    }
+
+    return this.http.get<PaginacaoResposta<VoluntarioResumo>>(this.API_URL, { params });
   }
 
   getById(id: string): Observable<Voluntario> {

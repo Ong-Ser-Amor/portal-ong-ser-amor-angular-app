@@ -58,7 +58,10 @@ export class VoluntariosComponent implements OnInit {
     this.estaCarregando.set(true);
 
     this.voluntarioService
-      .getAll(this.itensPorPagina(), this.paginaAtual())
+      .buscarTodos({
+        pagina: this.paginaAtual(),
+        itensPorPagina: this.itensPorPagina(),
+      })
       .subscribe({
         next: (response) => {
           this.voluntarios.set(response.dados);

@@ -52,3 +52,8 @@ export type AtualizarVoluntarioDto = Partial<
   | CriarVoluntarioComPessoaExistenteDto
   | CriarVoluntarioComNovaPessoaDto
 >;
+
+export interface FiltroBuscaVoluntario {
+  pagina?: number;
+  itensPorPagina?: number;
+}
