@@ -255,7 +255,10 @@ export class DetalhesBeneficiarioComponent implements OnInit {
   abrirModalTransferirFamilia(beneficiario: Beneficiario): void {
     const dialogRef = this.dialog.open(ModalTransferirFamiliaComponent, {
       ...CONFIG_MODAL.lg,
-      data: { beneficiario },
+      data: {
+        beneficiario,
+        ehUnicoMembro: this.familiares().length === 0,
+      },
     });
 
     dialogRef.afterClosed().subscribe((sucesso) => {

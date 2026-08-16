@@ -35,9 +35,30 @@
   transition: all 0.2s ease;
   font-family: inherit;
 
-  &:hover {
+  &:hover:not(:disabled) {
     border-color: #93c5fd;
     background-color: #f8fafc;
+  }
+
+  &:disabled,
+  &.desabilitado {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+
+    .icone-opcao {
+      background-color: #f1f5f9;
+      color: #94a3b8;
+    }
+
+    .titulo-opcao {
+      color: #64748b;
+    }
+
+    .descricao-opcao {
+      color: #94a3b8;
+    }
   }
 
   &.ativo {

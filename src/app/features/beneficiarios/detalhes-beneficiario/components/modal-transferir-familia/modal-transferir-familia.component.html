@@ -26,12 +26,20 @@
         type="button"
         class="opcao-tipo"
         [class.ativo]="tipoTransferencia() === 'NOVA'"
+        [class.desabilitado]="ehUnicoMembro()"
+        [disabled]="ehUnicoMembro()"
         (click)="selecionarTipo('NOVA')"
       >
         <mat-icon class="icone-opcao">home_work</mat-icon>
         <div class="info-opcao">
           <span class="titulo-opcao">Criar Nova Família</span>
-          <span class="descricao-opcao">Desvincular e cadastrar uma nova família e endereço</span>
+          <span class="descricao-opcao">
+            @if (ehUnicoMembro()) {
+              Indisponível: beneficiário já é o único membro desta família
+            } @else {
+              Desvincular e cadastrar uma nova família e endereço
+            }
+          </span>
         </div>
       </button>
     </div>

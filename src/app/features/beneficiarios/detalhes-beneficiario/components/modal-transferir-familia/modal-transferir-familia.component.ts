@@ -19,6 +19,7 @@ import { BotaoComponent } from '../../../../../shared/components/ui/botao/botao.
 
 export interface ModalTransferirFamiliaData {
   beneficiario: Beneficiario;
+  ehUnicoMembro?: boolean;
 }
 
 export type TipoTransferencia = 'EXISTENTE' | 'NOVA';
@@ -54,6 +55,8 @@ export class ModalTransferirFamiliaComponent {
   tipoTransferencia = signal<TipoTransferencia>('EXISTENTE');
   familiarDestinoSelecionado = signal<BeneficiarioResumo | null>(null);
 
+  readonly ehUnicoMembro = computed(() => Boolean(this.data.ehUnicoMembro));
+
   readonly formFamilia: FormGroup = this.familiaFormService.criarForm();
   readonly formEndereco: FormGroup = this.enderecoFormService.criarForm();
 
@@ -78,11 +81,14 @@ export class ModalTransferirFamiliaComponent {
       const familiar = this.familiarDestinoSelecionado();
       return Boolean(familiar && familiar.familiaId);
     } else {
-      return this.formFamiliaValida() && this.formEnderecoValido();
+      return !this.ehUnicoMembro() && this.formFamiliaValida() && this.formEnderecoValido();
     }
   });
 
   selecionarTipo(tipo: TipoTransferencia): void {
+    if (tipo === 'NOVA' && this.ehUnicoMembro()) {
+      return;
+    }
     this.tipoTransferencia.set(tipo);
   }
 
