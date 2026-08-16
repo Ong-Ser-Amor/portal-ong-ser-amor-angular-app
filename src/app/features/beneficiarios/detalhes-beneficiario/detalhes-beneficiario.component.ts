@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -52,7 +51,6 @@ import { CONFIG_MODAL } from '../../../shared/components/ui/modal/modal.config';
   styleUrl: './detalhes-beneficiario.component.scss',
 })
 export class DetalhesBeneficiarioComponent implements OnInit {
-  private readonly location = inject(Location);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly beneficiarioService = inject(BeneficiarioService);
@@ -181,10 +179,6 @@ export class DetalhesBeneficiarioComponent implements OnInit {
     }
 
     return valor;
-  }
-
-  voltar(): void {
-    this.location.back();
   }
 
   abrirModalEditarDadosPessoais(beneficiario: Beneficiario): void {
