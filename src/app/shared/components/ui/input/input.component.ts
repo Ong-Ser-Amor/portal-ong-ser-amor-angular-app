@@ -26,6 +26,10 @@ export type InputType =
   | 'url'
   | 'search';
 
+export type InputErrorMessage = string | ((error: any) => string);
+
+export type InputErrorMessages = Record<string, InputErrorMessage>;
+
 @Component({
   selector: 'app-input',
   standalone: true,
@@ -67,6 +71,9 @@ export class InputComponent implements ControlValueAccessor {
   /** Tipo de máscara a ser aplicada ('cpf' | 'cep' | 'celular' | 'telefone_fixo') */
   mask = input<InputMaskType>();
 
+  /** Mensagens de erro personalizadas para sobrescrever ou estender as mensagens padrão */
+  errorMessages = input<InputErrorMessages>({});
+
   value = input<string>('');
 
   blur = output<FocusEvent>();
@@ -76,6 +83,16 @@ export class InputComponent implements ControlValueAccessor {
   valorInterno = signal<string>('');
   disabled = signal<boolean>(false);
   showPassword = signal<boolean>(false);
+
+  private readonly defaultErrorMessages: InputErrorMessages = {
+    required: () => `${this.label()} é obrigatório`,
+    email: 'Digite um email válido',
+    minlength: (error) => `Mínimo de ${error?.requiredLength ?? ''} caracteres`,
+    maxlength: (error) => `Máximo de ${error?.requiredLength ?? ''} caracteres`,
+    min: (error) => `Valor mínimo: ${error?.min ?? ''}`,
+    max: (error) => `Valor máximo: ${error?.max ?? ''}`,
+    pattern: 'Formato inválido',
+  };
 
   // ControlValueAccessor callbacks
   private onChange: (value: any) => void = () => { };
@@ -118,52 +135,30 @@ export class InputComponent implements ControlValueAccessor {
   }
 
   get hasError(): boolean {
-    if (!this.control) return false;
-    return !!(
-      this.control.invalid &&
-      (this.control.touched || this.control.dirty)
-    );
+    return !!(this.control?.invalid && this.control.touched);
   }
 
   get errorMessage(): string {
-    if (!this.control?.errors) return '';
+    const errors = this.control?.errors;
 
-    const errors = this.control.errors;
-
-    if (errors['required']) {
-      return `${this.label()} é obrigatório`;
-    }
-    if (errors['email']) {
-      return 'Digite um email válido';
-    }
-    if (errors['senhasNaoIguais']) {
-      return 'As senhas não coincidem';
-    }
-    if (errors['minlength']) {
-      const minLength = errors['minlength'].requiredLength;
-      return `Mínimo de ${minLength} caracteres`;
-    }
-    if (errors['maxlength']) {
-      const maxLength = errors['maxlength'].requiredLength;
-      return `Máximo de ${maxLength} caracteres`;
-    }
-    if (errors['min']) {
-      return `Valor mínimo: ${errors['min'].min}`;
-    }
-    if (errors['max']) {
-      return `Valor máximo: ${errors['max'].max}`;
-    }
-    if (errors['pattern'] || errors['cpfInvalido']) {
-      if (this.mask() === 'cpf') {
-        return 'CPF deve conter 11 dígitos';
-      }
-      if (this.mask() === 'cep') {
-        return 'CEP deve conter 8 dígitos';
-      }
-      return 'Formato inválido';
+    if (!errors) {
+      return '';
     }
 
-    return 'Campo inválido';
+    const messages: InputErrorMessages = {
+      ...this.defaultErrorMessages,
+      ...this.errorMessages(),
+    };
+
+    const errorKey = Object.keys(errors).find((key) => messages[key]);
+
+    if (!errorKey) {
+      return 'Campo inválido';
+    }
+
+    const message = messages[errorKey];
+
+    return typeof message === 'function' ? message(errors[errorKey]) : message;
   }
 
   writeValue(value: any): void {

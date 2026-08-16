@@ -10,6 +10,7 @@ import { SelectComponent } from '../../../shared/components/ui/select/select.com
 import { CheckboxComponent } from '../../../shared/components/ui/checkbox/checkbox.component';
 import { DateInputComponent } from '../../../shared/components/ui/date-input/date-input.component';
 import { BotaoComponent } from '../../../shared/components/ui/botao/botao.component';
+import { AlertaComponent } from '../../../shared/components/ui/alerta/alerta.component';
 import { FormularioDadosBeneficiarioComponent } from '../../../shared/components/formularios/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
 import { FormularioDadosPessoaComponent } from '../../../shared/components/formularios/formulario-dados-pessoa/formulario-dados-pessoa.component';
 import { FormularioDadosFamiliaComponent } from '../../../shared/components/formularios/formulario-dados-familia/formulario-dados-familia.component';
@@ -54,6 +55,7 @@ import { BeneficiarioService } from '../../../core/services/beneficiario.service
     CheckboxComponent,
     DateInputComponent,
     BotaoComponent,
+    AlertaComponent,
     FormularioDadosPessoaComponent,
     FormularioDadosBeneficiarioComponent,
     FormularioDadosFamiliaComponent,
@@ -86,6 +88,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
   responsavelSelecionado = signal<Pessoa | null>(null);
   familiaIdSelecionada = signal<string | null>(null);
   pessoaExistenteId = signal<string | null>(null);
+  conflitoCpf = signal(false);
 
   limiteContatos = 3;
 
@@ -251,7 +254,9 @@ export class CadastroBeneficiarioComponent implements OnInit {
 
     // Escuta CPF para busca reativa
     this.formPessoa.get('cpf')?.valueChanges.subscribe((val) => {
+      this.conflitoCpf.set(false);
       this.pessoaExistenteId.set(null);
+      this.limparErrosConflitoCpf();
       this.atualizarEstadoCamposPessoa();
 
       const cpfLimpo = (val || '').replace(/\D/g, '');
@@ -359,12 +364,39 @@ export class CadastroBeneficiarioComponent implements OnInit {
     }
   }
 
+  private adicionarErroCpf(chave: string): void {
+    const cpfControl = this.formPessoa.get('cpf');
+    cpfControl?.setErrors({
+      ...cpfControl.errors,
+      [chave]: true,
+    });
+  }
+
+  private limparErrosConflitoCpf(): void {
+    const cpfControl = this.formPessoa.get('cpf');
+    if (!cpfControl?.errors) return;
+
+    const errors = { ...cpfControl.errors };
+    delete errors['beneficiarioAtivo'];
+    delete errors['voluntarioAtivo'];
+    delete errors['cpfEmUso'];
+
+    cpfControl.setErrors(Object.keys(errors).length > 0 ? errors : null);
+  }
+
   private tratarSucessoBuscaPessoa(pessoa: Pessoa): void {
+    this.conflitoCpf.set(false);
+    this.limparErrosConflitoCpf();
     this.pessoaExistenteId.set(pessoa.id);
     this.pessoaFormService.preencherForm(this.formPessoa, pessoa);
     this.atualizarEstadoCamposPessoa();
     this.atualizarValidacoesPorIdade();
     this.atualizarEstadoControles();
+    this.snackBar.open(
+      'Pessoa identificada no sistema! Dados pessoais preenchidos automaticamente.',
+      'Fechar',
+      { duration: 4000 }
+    );
   }
 
   private tratarErroBuscaPessoa(error: unknown): void {
@@ -372,9 +404,11 @@ export class CadastroBeneficiarioComponent implements OnInit {
     this.atualizarEstadoCamposPessoa();
     const err = error as any;
     if (err?.status === 409) {
-      const mensagem = err.error?.message || 'Esta pessoa já possui um cadastro de beneficiário ativo no sistema.';
-      this.snackBar.open(mensagem, 'Fechar', { duration: 5000 });
+      this.conflitoCpf.set(true);
+      this.adicionarErroCpf('beneficiarioAtivo');
     } else {
+      this.conflitoCpf.set(false);
+      this.limparErrosConflitoCpf();
       console.error('Erro ao buscar dados da pessoa:', error);
     }
   }
@@ -384,8 +418,10 @@ export class CadastroBeneficiarioComponent implements OnInit {
     const cpfRaw = cpfControl?.value || '';
     const cpfLimpo = cpfRaw.replace(/\D/g, '');
 
-    if (cpfLimpo.length !== 11 || cpfControl?.invalid) {
+    if (cpfLimpo.length !== 11) {
+      this.conflitoCpf.set(false);
       this.pessoaExistenteId.set(null);
+      this.limparErrosConflitoCpf();
       this.atualizarEstadoCamposPessoa();
       return;
     }

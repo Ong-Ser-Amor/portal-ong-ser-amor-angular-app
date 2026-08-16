@@ -2,15 +2,20 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { finalize } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { Subject, finalize } from 'rxjs';
 
 import { FormularioDadosBeneficiarioComponent } from '../../../../../shared/components/formularios/formulario-dados-beneficiario/formulario-dados-beneficiario.component';
 import { ModalComponent } from '../../../../../shared/components/ui/modal/modal.component';
+import { AlertaComponent } from '../../../../../shared/components/ui/alerta/alerta.component';
 import { calcularIdade, converterParaIsoDate } from '../../../../../shared/utils/data.utils';
+import { formatarCpf } from '../../../../../shared/utils/cpf.utils';
 
 import { PessoaFormService } from '../../../../../core/services/pessoa-form.service';
 import { BeneficiarioFormService } from '../../../../../core/services/beneficiario-form.service';
 import { BeneficiarioService } from '../../../../../core/services/beneficiario.service';
+import { PessoaCadastroFacade } from '../../../../../core/services/pessoa-cadastro-facade.service';
 import {
   AtualizarBeneficiarioDto,
   Beneficiario,
@@ -18,8 +23,15 @@ import {
   OPCOES_NIVEL_ESCOLARIDADE,
   OPCOES_VINCULO_EMPREGATICIO,
 } from '../../../../../core/models/beneficiario.model';
+import { Pessoa } from '../../../../../core/models/pessoa.model';
 import { FormularioDadosPessoaComponent } from '../../../../../shared/components/formularios/formulario-dados-pessoa/formulario-dados-pessoa.component';
 import { FormularioPermissoesMenorComponent } from '../../../../../shared/components/formularios/formulario-permissoes-menor/formulario-permissoes-menor.component';
+
+export type TipoConflitoCpfBeneficiario = 'OUTRA_PESSOA' | 'OUTRO_BENEFICIARIO_EDICAO';
+
+export interface ConflitoCpfBeneficiarioInfo {
+  tipo: TipoConflitoCpfBeneficiario;
+}
 
 @Component({
   selector: 'app-modal-edicao-dados-beneficiario',
@@ -28,6 +40,9 @@ import { FormularioPermissoesMenorComponent } from '../../../../../shared/compon
     ReactiveFormsModule,
     MatDialogModule,
     MatSnackBarModule,
+    MatIconModule,
+    MatProgressBarModule,
+    AlertaComponent,
     FormularioDadosPessoaComponent,
     FormularioDadosBeneficiarioComponent,
     FormularioPermissoesMenorComponent,
@@ -43,6 +58,7 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
   private readonly beneficiarioService = inject(BeneficiarioService);
   private readonly pessoaFormService = inject(PessoaFormService);
   private readonly beneficiarioFormService = inject(BeneficiarioFormService);
+  private readonly pessoaCadastroFacade = inject(PessoaCadastroFacade);
 
   readonly data = inject<{ beneficiario: Beneficiario }>(MAT_DIALOG_DATA);
 
@@ -50,7 +66,12 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
   readonly estadosCivis = OPCOES_ESTADO_CIVIL;
   readonly vinculosEmpregaticios = OPCOES_VINCULO_EMPREGATICIO;
 
+  private readonly buscaCpfSubject = new Subject<string>();
+
   salvando = signal<boolean>(false);
+  buscandoCpf = signal<boolean>(false);
+  cpfOriginal = signal<string>((this.data.beneficiario.pessoa.cpf || '').replace(/\D/g, ''));
+  conflitoCpf = signal<ConflitoCpfBeneficiarioInfo | null>(null);
 
   form!: FormGroup;
 
@@ -62,6 +83,8 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
       ...this.beneficiarioFormService.criarControles(beneficiario),
     });
 
+    this.configurarBuscaCpfReativa();
+
     this.formPessoa.get('dataNascimento')?.valueChanges.subscribe(() => {
       this.atualizarValidacoesPorIdade();
     });
@@ -71,6 +94,101 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
     });
 
     this.atualizarValidacoesPorIdade();
+  }
+
+  private configurarBuscaCpfReativa(): void {
+    this.formPessoa.get('cpf')?.valueChanges.subscribe((val) => {
+      const cpfLimpo = (val || '').replace(/\D/g, '');
+
+      if (cpfLimpo === this.cpfOriginal()) {
+        this.conflitoCpf.set(null);
+        this.limparErrosConflitoCpf();
+        return;
+      }
+
+      if (cpfLimpo.length !== 11) {
+        this.conflitoCpf.set(null);
+        this.limparErrosConflitoCpf();
+        return;
+      }
+
+      this.buscarDadosPessoa();
+    });
+
+    const { estaCarregando } = this.pessoaCadastroFacade.iniciarBuscaCpfReativa({
+      cpfSubject: this.buscaCpfSubject,
+      buscarApiFn: (cpfLimpo) => this.beneficiarioService.verificarCadastroPorCpf(cpfLimpo),
+      getCpfAtualInput: () => this.formPessoa.get('cpf')?.value || '',
+      onSucesso: (pessoa) => this.tratarSucessoBuscaPessoa(pessoa),
+      onErro: (error) => this.tratarErroBuscaPessoa(error),
+    });
+    this.buscandoCpf = estaCarregando;
+  }
+
+  private adicionarErroCpf(chave: string): void {
+    const cpfControl = this.formPessoa.get('cpf');
+    cpfControl?.setErrors({
+      ...cpfControl.errors,
+      [chave]: true,
+    });
+  }
+
+  private limparErrosConflitoCpf(): void {
+    const cpfControl = this.formPessoa.get('cpf');
+    if (!cpfControl?.errors) return;
+
+    const errors = { ...cpfControl.errors };
+    delete errors['cpfEmUso'];
+    delete errors['beneficiarioAtivo'];
+    delete errors['voluntarioAtivo'];
+
+    cpfControl.setErrors(Object.keys(errors).length > 0 ? errors : null);
+  }
+
+  private tratarSucessoBuscaPessoa(pessoa: Pessoa): void {
+    // Na edição, se encontrou outra pessoa com esse CPF, bloqueia a alteração
+    this.conflitoCpf.set({ tipo: 'OUTRA_PESSOA' });
+    this.adicionarErroCpf('cpfEmUso');
+  }
+
+  private tratarErroBuscaPessoa(error: unknown): void {
+    const err = error as any;
+    if (err?.status === 409) {
+      this.conflitoCpf.set({ tipo: 'OUTRO_BENEFICIARIO_EDICAO' });
+      this.adicionarErroCpf('cpfEmUso');
+    } else {
+      // 404: CPF livre para alteração
+      this.conflitoCpf.set(null);
+      this.limparErrosConflitoCpf();
+    }
+  }
+
+  buscarDadosPessoa(): void {
+    const cpfControl = this.formPessoa.get('cpf');
+    const cpfRaw = cpfControl?.value || '';
+    const cpfLimpo = cpfRaw.replace(/\D/g, '');
+
+    if (cpfLimpo.length !== 11) {
+      this.conflitoCpf.set(null);
+      this.limparErrosConflitoCpf();
+      return;
+    }
+
+    if (cpfLimpo === this.cpfOriginal()) {
+      this.conflitoCpf.set(null);
+      this.limparErrosConflitoCpf();
+      return;
+    }
+
+    this.buscaCpfSubject.next(cpfLimpo);
+  }
+
+  restaurarCpfOriginal(): void {
+    if (this.cpfOriginal()) {
+      this.formPessoa.get('cpf')?.setValue(formatarCpf(this.cpfOriginal()));
+      this.conflitoCpf.set(null);
+      this.limparErrosConflitoCpf();
+    }
   }
 
   get formPessoa(): FormGroup {

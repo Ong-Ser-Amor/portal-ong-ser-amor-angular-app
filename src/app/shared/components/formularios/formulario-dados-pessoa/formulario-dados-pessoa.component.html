@@ -1,10 +1,18 @@
 <div [formGroup]="formGroup()" class="container">
 
   <app-input formControlName="nome" label="Nome completo" placeholder="Ex: Maria da Silva" [required]="true"
-    [minLength]="3" [maxLength]="150" class="col-span-2" />
+    [minLength]="3" [maxLength]="150" class="col-span-1" />
 
-  <app-input formControlName="cpf" label="CPF" placeholder="000.000.000-00" mask="cpf" [required]="true"
-    (blur)="cpfAlterado.emit($event)" class="col-span-1" />
+  <app-input
+    formControlName="cpf"
+    label="CPF"
+    placeholder="000.000.000-00"
+    mask="cpf"
+    [required]="true"
+    [errorMessages]="mensagensCpf"
+    (blur)="cpfAlterado.emit($event)"
+    class="col-span-1"
+  />
 
   <app-date-input formControlName="dataNascimento" label="Data de Nascimento" [bloquearFuturo]="true"
     [maxAnosAtras]="150" [required]="true" class="col-span-1" />

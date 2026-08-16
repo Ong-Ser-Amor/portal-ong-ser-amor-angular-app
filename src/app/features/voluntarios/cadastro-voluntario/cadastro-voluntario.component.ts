@@ -10,6 +10,7 @@ import { Subject, finalize, map, merge, startWith } from 'rxjs';
 import { CabecalhoPaginaComponent } from '../../../shared/components/ui/cabecalho-pagina/cabecalho-pagina.component';
 import { CardComponent } from '../../../shared/components/ui/card/card.component';
 import { BotaoComponent } from '../../../shared/components/ui/botao/botao.component';
+import { AlertaComponent } from '../../../shared/components/ui/alerta/alerta.component';
 import { FormularioDadosPessoaComponent } from '../../../shared/components/formularios/formulario-dados-pessoa/formulario-dados-pessoa.component';
 import { FormularioDadosVoluntarioComponent } from '../../../shared/components/formularios/formulario-dados-voluntario/formulario-dados-voluntario.component';
 import { PessoaFormService } from '../../../core/services/pessoa-form.service';
@@ -18,6 +19,17 @@ import { VoluntarioService } from '../../../core/services/voluntario.service';
 import { PessoaCadastroFacade } from '../../../core/services/pessoa-cadastro-facade.service';
 import { AtualizarVoluntarioDto, CriarVoluntarioDto } from '../../../core/models/voluntario.model';
 import { Pessoa } from '../../../core/models/pessoa.model';
+import { formatarCpf } from '../../../shared/utils/cpf.utils';
+
+export type TipoConflitoCpf =
+  | 'OUTRA_PESSOA'
+  | 'VOLUNTARIO_ATIVO_CRIACAO'
+  | 'OUTRO_VOLUNTARIO_EDICAO';
+
+export interface ConflitoCpfInfo {
+  tipo: TipoConflitoCpf;
+  nomePessoa?: string;
+}
 
 @Component({
   selector: 'app-cadastro-voluntario',
@@ -31,6 +43,7 @@ import { Pessoa } from '../../../core/models/pessoa.model';
     CabecalhoPaginaComponent,
     CardComponent,
     BotaoComponent,
+    AlertaComponent,
     FormularioDadosPessoaComponent,
     FormularioDadosVoluntarioComponent,
   ],
@@ -51,6 +64,7 @@ export class CadastroVoluntarioComponent implements OnInit {
 
   voluntarioId = signal<string | null>(null);
   cpfOriginal = signal<string | null>(null);
+  conflitoCpf = signal<ConflitoCpfInfo | null>(null);
   modoEdicao = computed(() => !!this.voluntarioId());
   estaCarregando = signal<boolean>(false);
   buscandoCpf = signal<boolean>(false);
@@ -101,13 +115,10 @@ export class CadastroVoluntarioComponent implements OnInit {
       const cpfLimpo = (val || '').replace(/\D/g, '');
 
       if (this.modoEdicao()) {
-        const cpfControl = this.formPessoa.get('cpf');
-
         // Se voltou a ser o CPF original do próprio voluntário
         if (cpfLimpo === this.cpfOriginal()) {
-          if (cpfControl?.hasError('cpfEmUso') || cpfControl?.hasError('voluntarioAtivo')) {
-            cpfControl.setErrors(null);
-          }
+          this.conflitoCpf.set(null);
+          this.limparErrosConflitoCpf();
           return;
         }
 
@@ -117,10 +128,11 @@ export class CadastroVoluntarioComponent implements OnInit {
 
         this.buscarDadosPessoa();
       } else {
+        this.conflitoCpf.set(null);
         this.pessoaExistente.set(null);
+        this.limparErrosConflitoCpf();
         this.atualizarEstadoCamposPessoa();
 
-        const cpfLimpo = (val || '').replace(/\D/g, '');
         if (cpfLimpo.length === 11) {
           this.buscarDadosPessoa();
         }
@@ -168,21 +180,36 @@ export class CadastroVoluntarioComponent implements OnInit {
     }
   }
 
+  private adicionarErroCpf(chave: 'cpfEmUso' | 'voluntarioAtivo'): void {
+    const cpfControl = this.formPessoa.get('cpf');
+    cpfControl?.setErrors({
+      ...cpfControl.errors,
+      [chave]: true,
+    });
+  }
+
+  private limparErrosConflitoCpf(): void {
+    const cpfControl = this.formPessoa.get('cpf');
+    if (!cpfControl?.errors) return;
+
+    const errors = { ...cpfControl.errors };
+    delete errors['cpfEmUso'];
+    delete errors['voluntarioAtivo'];
+
+    cpfControl.setErrors(Object.keys(errors).length > 0 ? errors : null);
+  }
+
   private tratarSucessoBuscaPessoa(pessoa: Pessoa): void {
     if (this.modoEdicao()) {
       // Na edição, se encontrou outra pessoa no banco com esse CPF, NÃO permite a alteração
-      this.formPessoa.get('cpf')?.setErrors({
-        cpfEmUso: true,
-        mensagem: 'Este CPF já está associado a outro cadastro ativo.',
+      this.conflitoCpf.set({
+        tipo: 'OUTRA_PESSOA',
       });
-      this.snackBar.open(
-        'Este CPF já está associado a outro cadastro ativo.',
-        'Fechar',
-        { duration: 5000 }
-      );
+      this.adicionarErroCpf('cpfEmUso');
       return;
     }
 
+    this.conflitoCpf.set(null);
     this.pessoaExistente.set(pessoa);
     this.pessoaFormService.preencherForm(this.formPessoa, pessoa);
     this.atualizarEstadoCamposPessoa();
@@ -198,17 +225,12 @@ export class CadastroVoluntarioComponent implements OnInit {
 
     if (this.modoEdicao()) {
       if (err?.status === 409) {
-        // Conflito (já possui vínculo como beneficiário, voluntário ativo, etc.)
-        const mensagem =
-          err.error?.message || 'Este CPF já está associado a outro cadastro ativo.';
-        this.snackBar.open(mensagem, 'Fechar', { duration: 5000 });
-        this.formPessoa.get('cpf')?.setErrors({ cpfEmUso: true, mensagem });
+        this.conflitoCpf.set({ tipo: 'OUTRO_VOLUNTARIO_EDICAO' });
+        this.adicionarErroCpf('cpfEmUso');
       } else {
         // 404 Not Found: nenhuma pessoa encontrada -> CPF livre para alteração!
-        const cpfControl = this.formPessoa.get('cpf');
-        if (cpfControl?.hasError('cpfEmUso') || cpfControl?.hasError('voluntarioAtivo')) {
-          cpfControl.setErrors(null);
-        }
+        this.conflitoCpf.set(null);
+        this.limparErrosConflitoCpf();
       }
       return;
     }
@@ -216,11 +238,12 @@ export class CadastroVoluntarioComponent implements OnInit {
     this.pessoaExistente.set(null);
     this.atualizarEstadoCamposPessoa();
     if (err?.status === 409) {
-      const mensagem = err.error?.message || 'Este CPF já está associado a outro cadastro ativo.';
-      this.snackBar.open(mensagem, 'Fechar', { duration: 5000 });
-      this.formPessoa.get('cpf')?.setErrors({ voluntarioAtivo: true, mensagem });
+      this.conflitoCpf.set({ tipo: 'VOLUNTARIO_ATIVO_CRIACAO' });
+      this.adicionarErroCpf('voluntarioAtivo');
     } else {
-      // 404 / não encontrada: nova pessoa
+      // 404 / não encontrada: nova pessoa livre para cadastro
+      this.conflitoCpf.set(null);
+      this.limparErrosConflitoCpf();
       console.error('Erro ao buscar dados da pessoa:', error);
     }
   }
@@ -232,17 +255,29 @@ export class CadastroVoluntarioComponent implements OnInit {
 
     if (cpfLimpo.length !== 11) {
       if (!this.modoEdicao()) {
+        this.conflitoCpf.set(null);
         this.pessoaExistente.set(null);
+        this.limparErrosConflitoCpf();
         this.atualizarEstadoCamposPessoa();
       }
       return;
     }
 
     if (this.modoEdicao() && cpfLimpo === this.cpfOriginal()) {
+      this.conflitoCpf.set(null);
+      this.limparErrosConflitoCpf();
       return;
     }
 
     this.buscaCpfSubject.next(cpfLimpo);
+  }
+
+  restaurarCpfOriginal(): void {
+    if (this.cpfOriginal()) {
+      this.formPessoa.get('cpf')?.setValue(formatarCpf(this.cpfOriginal()!));
+      this.conflitoCpf.set(null);
+      this.limparErrosConflitoCpf();
+    }
   }
 
   salvar(): void {

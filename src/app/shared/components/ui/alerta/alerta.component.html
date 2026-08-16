@@ -1,0 +1,11 @@
+<div class="alerta" [class]="'alerta-' + tipo()">
+  <mat-icon class="alerta-icone">{{ iconeEfetivo() }}</mat-icon>
+  <div class="alerta-conteudo">
+    @if (titulo()) {
+      <strong class="alerta-titulo">{{ titulo() }}</strong>
+    }
+    <div class="alerta-corpo">
+      <ng-content />
+    </div>
+  </div>
+</div>

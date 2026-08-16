@@ -6,9 +6,53 @@
   (fechar)="fechar()"
   (salvar)="salvar()"
 >
-  <form [formGroup]="form" class="form-grid">
-    <app-formulario-dados-pessoa [formGroup]="formPessoa" />
-    <app-formulario-dados-beneficiario [formGroup]="form" />
-    <app-formulario-permissoes-menor [formGroup]="formPessoa" />
+  <form [formGroup]="form">
+    @if (buscandoCpf() || salvando()) {
+      <mat-progress-bar mode="indeterminate" class="mb-4"></mat-progress-bar>
+    }
+
+    <!-- Banner 1: Conflito na Edição - CPF pertence a outra pessoa/voluntário -->
+    @if (conflitoCpf()?.tipo === 'OUTRA_PESSOA') {
+      <app-alerta tipo="warning" titulo="Não é possível alterar para este CPF">
+        <p>Este documento já pertence a outro titular cadastrado no sistema.</p>
+        <ul>
+          <li>
+            <strong>Digitou o CPF errado?</strong> Corrija os números ou
+            <button type="button" class="btn-link" (click)="restaurarCpfOriginal()">restaure o CPF original do beneficiário</button>.
+          </li>
+          <li>
+            <strong>Procurou na listagem de beneficiários e não encontrou?</strong> Esta pessoa pode estar registrada no módulo de Voluntários.
+          </li>
+          <li>
+            <strong>São cadastros duplicados da mesma pessoa?</strong> Não é permitido sobrepor CPFs de registros diferentes na edição. Se houver duplicidade, um dos cadastros deverá ser excluído.
+          </li>
+        </ul>
+      </app-alerta>
+    }
+
+    <!-- Banner 2: Conflito na Edição - CPF pertence a outro beneficiário ativo -->
+    @if (conflitoCpf()?.tipo === 'OUTRO_BENEFICIARIO_EDICAO') {
+      <app-alerta tipo="warning" titulo="CPF já cadastrado para outro beneficiário ativo">
+        <p>Já existe outro beneficiário ativo registrado com este CPF.</p>
+        <ul>
+          <li>
+            <strong>Digitou o CPF errado?</strong> Corrija o número ou
+            <button type="button" class="btn-link" (click)="restaurarCpfOriginal()">restaure o CPF original do beneficiário</button>.
+          </li>
+          <li>
+            <strong>Deseja editar o outro beneficiário?</strong> Feche o modal e acesse o cadastro dele na listagem.
+          </li>
+          <li>
+            <strong>São cadastros duplicados da mesma pessoa?</strong> Não é permitido unificar cadastros pela alteração de CPF. Exclua o cadastro duplicado excedente na listagem de beneficiários.
+          </li>
+        </ul>
+      </app-alerta>
+    }
+
+    <div class="form-grid">
+      <app-formulario-dados-pessoa [formGroup]="formPessoa" (cpfAlterado)="buscarDadosPessoa()" />
+      <app-formulario-dados-beneficiario [formGroup]="form" />
+      <app-formulario-permissoes-menor [formGroup]="formPessoa" />
+    </div>
   </form>
 </app-modal>

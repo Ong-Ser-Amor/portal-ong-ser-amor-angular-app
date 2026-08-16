@@ -34,6 +34,9 @@
       placeholder="Repita a senha"
       [required]="true"
       [showPasswordToggle]="false"
+      [errorMessages]="{
+        senhasNaoIguais: 'As senhas não coincidem'
+      }"
     />
 
     <div

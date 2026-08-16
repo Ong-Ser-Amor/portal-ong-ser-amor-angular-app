@@ -1,7 +1,18 @@
 <div [formGroup]="formGroup()" class="container">
   <!-- Linha 1 -->
-  <app-input formControlName="cep" label="CEP" placeholder="00000-000" mask="cep" [required]="true"
-    [maxLength]="9" class="col-span-1" />
+  <app-input
+    formControlName="cep"
+    label="CEP"
+    placeholder="00000-000"
+    mask="cep"
+    [required]="true"
+    [maxLength]="9"
+    [errorMessages]="{
+      pattern: 'CEP deve conter 8 dígitos',
+      cepInvalido: 'CEP não encontrado'
+    }"
+    class="col-span-1"
+  />
 
   <app-input formControlName="logradouro" label="Logradouro / Rua" placeholder="Ex: Av. Paulista"
     [required]="true" class="col-span-2" />

@@ -8,11 +8,61 @@
     <mat-progress-bar mode="indeterminate" class="mb-4"></mat-progress-bar>
     }
 
+    <!-- Banner 1: Pessoa já existente identificada (Cadastro Novo) -->
     @if (pessoaExistente() && !modoEdicao()) {
-    <div class="aviso-pessoa-existente">
-      <mat-icon>verified</mat-icon>
-      <span>Pessoa já cadastrada no sistema. Os dados pessoais foram preenchidos e protegidos contra alteração.</span>
-    </div>
+      <app-alerta tipo="success" titulo="Pessoa identificada no sistema">
+        Os dados pessoais foram preenchidos e protegidos contra alteração para manter a consistência do cadastro.
+      </app-alerta>
+    }
+
+    <!-- Banner 2: Conflito no Cadastro Novo (Já é voluntário ativo) -->
+    @if (conflitoCpf()?.tipo === 'VOLUNTARIO_ATIVO_CRIACAO' && !modoEdicao()) {
+      <app-alerta tipo="warning" titulo="Voluntário já cadastrado no sistema">
+        <p>Já existe um cadastro ativo de voluntário para este CPF.</p>
+        <ul>
+          <li><strong>Digitou o CPF errado?</strong> Corrija os números no campo de CPF acima.</li>
+          <li><strong>Deseja alterar os dados dele?</strong> Acesse a <a routerLink="/voluntarios">listagem de voluntários</a> para localizá-lo e editá-lo.</li>
+        </ul>
+      </app-alerta>
+    }
+
+    <!-- Banner 3: Conflito na Edição - CPF pertence a outra pessoa/beneficiário -->
+    @if (conflitoCpf()?.tipo === 'OUTRA_PESSOA' && modoEdicao()) {
+      <app-alerta tipo="warning" titulo="Não é possível alterar para este CPF">
+        <p>Este documento já pertence a outro titular cadastrado no sistema.</p>
+        <ul>
+          <li>
+            <strong>Digitou o CPF errado?</strong> Corrija os números ou
+            <button type="button" class="btn-link" (click)="restaurarCpfOriginal()">restaure o CPF original do voluntário</button>.
+          </li>
+          <li>
+            <strong>Procurou na listagem de voluntários e não encontrou?</strong>
+            Esta pessoa pode estar registrada no módulo de Beneficiários.
+          </li>
+          <li>
+            <strong>São cadastros duplicados da mesma pessoa?</strong> Não é permitido sobrepor CPFs de registros diferentes na edição. Se houver duplicidade, um dos cadastros deverá ser excluído.
+          </li>
+        </ul>
+      </app-alerta>
+    }
+
+    <!-- Banner 4: Conflito na Edição - CPF pertence a outro voluntário ativo -->
+    @if (conflitoCpf()?.tipo === 'OUTRO_VOLUNTARIO_EDICAO' && modoEdicao()) {
+      <app-alerta tipo="warning" titulo="CPF já cadastrado para outro voluntário ativo">
+        <p>Já existe outro voluntário ativo registrado com este CPF.</p>
+        <ul>
+          <li>
+            <strong>Digitou o CPF errado?</strong> Corrija o número ou
+            <button type="button" class="btn-link" (click)="restaurarCpfOriginal()">restaure o CPF original do voluntário</button>.
+          </li>
+          <li>
+            <strong>Deseja editar o outro voluntário?</strong> Acesse a <a routerLink="/voluntarios">listagem de voluntários</a> para localizá-lo.
+          </li>
+          <li>
+            <strong>São cadastros duplicados da mesma pessoa?</strong> Não é permitido unificar cadastros pela alteração de CPF. Exclua o cadastro duplicado excedente na <a routerLink="/voluntarios">listagem de voluntários</a>.
+          </li>
+        </ul>
+      </app-alerta>
     }
 
     <div class="form-grid">

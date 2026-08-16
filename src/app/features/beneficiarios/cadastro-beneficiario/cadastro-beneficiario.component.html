@@ -7,11 +7,22 @@
     <mat-progress-bar mode="indeterminate" class="mb-4"></mat-progress-bar>
     }
 
+    <!-- Banner 1: Pessoa já existente identificada -->
     @if (pessoaExistenteId()) {
-    <div class="aviso-pessoa-existente">
-      <mat-icon>verified</mat-icon>
-      <span>Pessoa já cadastrada no sistema. Os dados pessoais foram preenchidos e protegidos contra alteração.</span>
-    </div>
+      <app-alerta tipo="success" titulo="Pessoa identificada no sistema">
+        Os dados pessoais foram preenchidos e protegidos contra alteração para manter a consistência do cadastro.
+      </app-alerta>
+    }
+
+    <!-- Banner 2: Conflito no Cadastro (Já é beneficiário ativo) -->
+    @if (conflitoCpf()) {
+      <app-alerta tipo="warning" titulo="Beneficiário já cadastrado no sistema">
+        <p>Já existe um cadastro ativo de beneficiário para este CPF.</p>
+        <ul>
+          <li><strong>Digitou o CPF errado?</strong> Corrija os números no campo de CPF acima.</li>
+          <li><strong>Deseja alterar os dados dele?</strong> Acesse a <a routerLink="/beneficiarios">listagem de beneficiários</a> para localizá-lo.</li>
+        </ul>
+      </app-alerta>
     }
 
     <div class="form-grid">

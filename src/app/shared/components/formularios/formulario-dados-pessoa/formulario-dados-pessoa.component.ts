@@ -1,6 +1,6 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { InputComponent } from '../../ui/input/input.component';
+import { InputComponent, InputErrorMessages } from '../../ui/input/input.component';
 import { DateInputComponent } from '../../ui/date-input/date-input.component';
 
 @Component({
@@ -20,4 +20,14 @@ export class FormularioDadosPessoaComponent {
 
   /** Evento emitido quando o campo de CPF perde o foco ou é alterado */
   cpfAlterado = output<FocusEvent>();
+
+  readonly mensagensCpf: InputErrorMessages = {
+    pattern: 'CPF deve conter 11 dígitos',
+    cpfInvalido: 'CPF inválido',
+    cpfEmUso: 'Este CPF já está associado a outro cadastro.',
+    voluntarioAtivo: 'Este CPF já está associado a outro voluntário ativo.',
+    beneficiarioAtivo: 'Este CPF já está associado a outro beneficiário ativo.',
+  };
 }
+
+

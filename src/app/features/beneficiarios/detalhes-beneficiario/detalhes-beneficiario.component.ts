@@ -183,7 +183,7 @@ export class DetalhesBeneficiarioComponent implements OnInit {
 
   abrirModalEditarDadosPessoais(beneficiario: Beneficiario): void {
     const dialogRef = this.dialog.open(ModalEdicaoDadosBeneficiarioComponent, {
-      ...CONFIG_MODAL.md,
+      ...CONFIG_MODAL.lg,
       data: { beneficiario },
     });
 
