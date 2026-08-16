@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   NivelFormacao,
   TipoVoluntario,
@@ -36,4 +36,22 @@ export class VoluntarioFormService {
   criarForm(dados?: Partial<Voluntario | VoluntarioResumo>) {
     return this.fb.group(this.criarControles(dados));
   }
+
+  /**
+   * Preenche um FormGroup de Voluntário com os dados de um voluntário existente.
+   */
+  preencherForm(
+    form: FormGroup,
+    dados: Partial<Voluntario | VoluntarioResumo>
+  ): void {
+    form.patchValue(
+      {
+        tipoVoluntario: dados.tipoVoluntario || '',
+        formacaoAcademica: dados.formacaoAcademica ?? '',
+        statusFormacao: dados.statusFormacao || '',
+      },
+      { emitEvent: false }
+    );
+  }
 }
+

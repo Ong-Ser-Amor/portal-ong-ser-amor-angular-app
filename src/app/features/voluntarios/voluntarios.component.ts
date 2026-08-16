@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { VoluntarioService } from '../../core/services/voluntario.service';
 import { VoluntarioResumo } from '../../core/models/voluntario.model';
 import { CommonModule } from '@angular/common';
@@ -32,6 +32,7 @@ import { CriarLoginComponent } from './components/criar-login/criar-login.compon
   styleUrl: './voluntarios.component.scss',
 })
 export class VoluntariosComponent implements OnInit {
+  private router = inject(Router);
   private voluntarioService = inject(VoluntarioService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
@@ -84,10 +85,8 @@ export class VoluntariosComponent implements OnInit {
     this.carregarVoluntarios();
   }
 
-  abrirModalEdicaoVoluntario(voluntario: VoluntarioResumo) {
-    this.snackBar.open('Funcionalidade ainda não implementada', 'Fechar', {
-      duration: 2000,
-    });
+  editarVoluntario(voluntario: VoluntarioResumo) {
+    this.router.navigate(['/voluntarios', 'editar', voluntario.id]);
   }
 
 

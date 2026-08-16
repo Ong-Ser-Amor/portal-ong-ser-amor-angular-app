@@ -11,4 +11,8 @@ export const VoluntariosRoutes: Routes = [
     path: 'novo',
     component: CadastroVoluntarioComponent,
   },
+  {
+    path: 'editar/:id',
+    component: CadastroVoluntarioComponent,
+  },
 ];

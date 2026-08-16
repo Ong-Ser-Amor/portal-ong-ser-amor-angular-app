@@ -1,6 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,7 +16,7 @@ import { PessoaFormService } from '../../../core/services/pessoa-form.service';
 import { VoluntarioFormService } from '../../../core/services/voluntario-form.service';
 import { VoluntarioService } from '../../../core/services/voluntario.service';
 import { PessoaCadastroFacade } from '../../../core/services/pessoa-cadastro-facade.service';
-import { CriarVoluntarioDto } from '../../../core/models/voluntario.model';
+import { AtualizarVoluntarioDto, CriarVoluntarioDto } from '../../../core/models/voluntario.model';
 import { Pessoa } from '../../../core/models/pessoa.model';
 
 @Component({
@@ -38,6 +38,7 @@ import { Pessoa } from '../../../core/models/pessoa.model';
   styleUrl: './cadastro-voluntario.component.scss',
 })
 export class CadastroVoluntarioComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly voluntarioService = inject(VoluntarioService);
@@ -48,6 +49,10 @@ export class CadastroVoluntarioComponent implements OnInit {
 
   private readonly buscaCpfSubject = new Subject<string>();
 
+  voluntarioId = signal<string | null>(null);
+  cpfOriginal = signal<string | null>(null);
+  modoEdicao = computed(() => !!this.voluntarioId());
+  estaCarregando = signal<boolean>(false);
   buscandoCpf = signal<boolean>(false);
   estaSalvando = signal<boolean>(false);
   pessoaExistente = signal<Pessoa | null>(null);
@@ -81,14 +86,44 @@ export class CadastroVoluntarioComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.configurarBuscaCpfReativa();
+
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.voluntarioId.set(id);
+      this.carregarVoluntario(id);
+    }
+  }
+
+  private configurarBuscaCpfReativa(): void {
     // Escuta CPF para busca reativa e desbloqueio imediato ao apagar/alterar
     this.formPessoa.get('cpf')?.valueChanges.subscribe((val) => {
-      this.pessoaExistente.set(null);
-      this.atualizarEstadoCamposPessoa();
-
       const cpfLimpo = (val || '').replace(/\D/g, '');
-      if (cpfLimpo.length === 11) {
+
+      if (this.modoEdicao()) {
+        const cpfControl = this.formPessoa.get('cpf');
+
+        // Se voltou a ser o CPF original do próprio voluntário
+        if (cpfLimpo === this.cpfOriginal()) {
+          if (cpfControl?.hasError('cpfEmUso') || cpfControl?.hasError('voluntarioAtivo')) {
+            cpfControl.setErrors(null);
+          }
+          return;
+        }
+
+        if (cpfLimpo.length !== 11) {
+          return;
+        }
+
         this.buscarDadosPessoa();
+      } else {
+        this.pessoaExistente.set(null);
+        this.atualizarEstadoCamposPessoa();
+
+        const cpfLimpo = (val || '').replace(/\D/g, '');
+        if (cpfLimpo.length === 11) {
+          this.buscarDadosPessoa();
+        }
       }
     });
 
@@ -102,6 +137,29 @@ export class CadastroVoluntarioComponent implements OnInit {
     this.buscandoCpf = estaCarregando;
   }
 
+  private carregarVoluntario(id: string): void {
+    this.estaCarregando.set(true);
+    this.voluntarioService
+      .getById(id)
+      .pipe(finalize(() => this.estaCarregando.set(false)))
+      .subscribe({
+        next: (voluntario) => {
+          const cpfLimpo = (voluntario.pessoa.cpf || '').replace(/\D/g, '');
+          this.cpfOriginal.set(cpfLimpo);
+          this.pessoaExistente.set(voluntario.pessoa);
+          this.pessoaFormService.preencherForm(this.formPessoa, voluntario.pessoa);
+          this.voluntarioFormService.preencherForm(this.formVoluntario, voluntario);
+        },
+        error: (err) => {
+          console.error('Erro ao carregar dados do voluntário:', err);
+          this.snackBar.open('Erro ao carregar voluntário para edição.', 'Fechar', {
+            duration: 4000,
+          });
+          this.router.navigate(['/voluntarios']);
+        },
+      });
+  }
+
   private atualizarEstadoCamposPessoa(): void {
     if (this.pessoaExistente()) {
       this.pessoaFormService.bloquearCamposEdicao(this.formPessoa);
@@ -111,6 +169,20 @@ export class CadastroVoluntarioComponent implements OnInit {
   }
 
   private tratarSucessoBuscaPessoa(pessoa: Pessoa): void {
+    if (this.modoEdicao()) {
+      // Na edição, se encontrou outra pessoa no banco com esse CPF, NÃO permite a alteração
+      this.formPessoa.get('cpf')?.setErrors({
+        cpfEmUso: true,
+        mensagem: 'Este CPF já está associado a outro cadastro ativo.',
+      });
+      this.snackBar.open(
+        'Este CPF já está associado a outro cadastro ativo.',
+        'Fechar',
+        { duration: 5000 }
+      );
+      return;
+    }
+
     this.pessoaExistente.set(pessoa);
     this.pessoaFormService.preencherForm(this.formPessoa, pessoa);
     this.atualizarEstadoCamposPessoa();
@@ -122,13 +194,31 @@ export class CadastroVoluntarioComponent implements OnInit {
   }
 
   private tratarErroBuscaPessoa(error: unknown): void {
+    const err = error as any;
+
+    if (this.modoEdicao()) {
+      if (err?.status === 409) {
+        // Conflito (já possui vínculo como beneficiário, voluntário ativo, etc.)
+        const mensagem =
+          err.error?.message || 'Este CPF já está associado a outro cadastro ativo.';
+        this.snackBar.open(mensagem, 'Fechar', { duration: 5000 });
+        this.formPessoa.get('cpf')?.setErrors({ cpfEmUso: true, mensagem });
+      } else {
+        // 404 Not Found: nenhuma pessoa encontrada -> CPF livre para alteração!
+        const cpfControl = this.formPessoa.get('cpf');
+        if (cpfControl?.hasError('cpfEmUso') || cpfControl?.hasError('voluntarioAtivo')) {
+          cpfControl.setErrors(null);
+        }
+      }
+      return;
+    }
+
     this.pessoaExistente.set(null);
     this.atualizarEstadoCamposPessoa();
-    const err = error as any;
     if (err?.status === 409) {
-      const mensagem = err.error?.message || 'Esta pessoa já possui um cadastro de voluntário ativo no sistema.';
+      const mensagem = err.error?.message || 'Este CPF já está associado a outro cadastro ativo.';
       this.snackBar.open(mensagem, 'Fechar', { duration: 5000 });
-      this.formPessoa.get('cpf')?.setErrors({ voluntarioAtivo: true });
+      this.formPessoa.get('cpf')?.setErrors({ voluntarioAtivo: true, mensagem });
     } else {
       // 404 / não encontrada: nova pessoa
       console.error('Erro ao buscar dados da pessoa:', error);
@@ -140,9 +230,15 @@ export class CadastroVoluntarioComponent implements OnInit {
     const cpfRaw = cpfControl?.value || '';
     const cpfLimpo = cpfRaw.replace(/\D/g, '');
 
-    if (cpfLimpo.length !== 11 || cpfControl?.invalid) {
-      this.pessoaExistente.set(null);
-      this.atualizarEstadoCamposPessoa();
+    if (cpfLimpo.length !== 11) {
+      if (!this.modoEdicao()) {
+        this.pessoaExistente.set(null);
+        this.atualizarEstadoCamposPessoa();
+      }
+      return;
+    }
+
+    if (this.modoEdicao() && cpfLimpo === this.cpfOriginal()) {
       return;
     }
 
@@ -156,6 +252,39 @@ export class CadastroVoluntarioComponent implements OnInit {
       this.snackBar.open('Por favor, preencha corretamente os campos obrigatórios em destaque.', 'Fechar', {
         duration: 4000,
       });
+      return;
+    }
+
+    this.estaSalvando.set(true);
+
+    if (this.modoEdicao()) {
+      const formVoluntarioVal = this.formVoluntario.value;
+      const formPessoaVal = this.formPessoa.getRawValue();
+
+      const payload: AtualizarVoluntarioDto = {
+        nome: formPessoaVal.nome,
+        cpf: (formPessoaVal.cpf || '').replace(/\D/g, ''),
+        dataNascimento: formPessoaVal.dataNascimento,
+        tipoVoluntario: formVoluntarioVal.tipoVoluntario,
+        formacaoAcademica: formVoluntarioVal.formacaoAcademica || undefined,
+        statusFormacao: formVoluntarioVal.statusFormacao || undefined,
+      };
+
+      this.voluntarioService
+        .update(this.voluntarioId()!, payload)
+        .pipe(finalize(() => this.estaSalvando.set(false)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Voluntário atualizado com sucesso!', 'Fechar', { duration: 3000 });
+            this.router.navigate(['/voluntarios']);
+          },
+          error: (err) => {
+            console.error('Erro ao atualizar voluntário:', err);
+            const mensagem =
+              err.error?.message || 'Erro ao atualizar voluntário. Verifique os dados e tente novamente.';
+            this.snackBar.open(mensagem, 'Fechar', { duration: 5000 });
+          },
+        });
       return;
     }
 
@@ -181,8 +310,6 @@ export class CadastroVoluntarioComponent implements OnInit {
       };
     }
 
-    this.estaSalvando.set(true);
-
     this.voluntarioService
       .create(payload)
       .pipe(finalize(() => this.estaSalvando.set(false)))
@@ -203,3 +330,4 @@ export class CadastroVoluntarioComponent implements OnInit {
       });
   }
 }
+
