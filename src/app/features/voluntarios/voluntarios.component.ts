@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { VoluntarioService } from '../../core/services/voluntario.service';
-import { Voluntario } from '../../core/models/voluntario.model';
+import { VoluntarioResumo } from '../../core/models/voluntario.model';
 import { CommonModule } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -35,7 +35,7 @@ export class VoluntariosComponent implements OnInit {
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
-  voluntarios = signal<Voluntario[]>([]);
+  voluntarios = signal<VoluntarioResumo[]>([]);
   estaCarregando = signal(false);
 
   // ESTADOS DE PAGINAÇÃO
@@ -43,7 +43,7 @@ export class VoluntariosComponent implements OnInit {
   paginaAtual = signal(1);
   itensPorPagina = signal(10);
 
-  colunas: ColunaTabela<Voluntario>[] = [
+  colunas: ColunaTabela<VoluntarioResumo>[] = [
     { chave: 'nome', titulo: 'Nome', celula: (v) => v.pessoa.nome },
     { chave: 'tipoVoluntario', titulo: 'Tipo' },
     { chave: 'formacaoAcademica', titulo: 'Formação', celula: (v) => v.formacaoAcademica || '—' },
@@ -75,7 +75,7 @@ export class VoluntariosComponent implements OnInit {
   }
 
   mudarPagina(event: PageEvent) {
-    this.paginaAtual.set(event.pageIndex);
+    this.paginaAtual.set(event.pageIndex + 1);
     this.itensPorPagina.set(event.pageSize);
     this.carregarVoluntarios();
   }
@@ -89,13 +89,13 @@ export class VoluntariosComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        this.paginaAtual.set(0);
+        this.paginaAtual.set(1);
         this.carregarVoluntarios();
       }
     });
   }
 
-  abrirModalEdicaoVoluntario(voluntario: Voluntario) {
+  abrirModalEdicaoVoluntario(voluntario: VoluntarioResumo) {
     const dialogRef = this.dialog.open(VoluntarioFormComponent, {
       width: '760px',
       maxWidth: '95vw',
@@ -109,7 +109,7 @@ export class VoluntariosComponent implements OnInit {
     });
   }
 
-  excluirVoluntario(voluntario: Voluntario) {
+  excluirVoluntario(voluntario: VoluntarioResumo) {
     if (confirm(`Tem certeza que deseja excluir ${voluntario.pessoa.nome}?`)) {
       this.estaCarregando.set(true);
 
@@ -129,7 +129,7 @@ export class VoluntariosComponent implements OnInit {
     }
   }
 
-  abrirModalCriacaoLogin(voluntario: Voluntario) {
+  abrirModalCriacaoLogin(voluntario: VoluntarioResumo) {
     const dialogRef = this.dialog.open(CriarLoginComponent, {
       width: '500px',
       data: { voluntario },

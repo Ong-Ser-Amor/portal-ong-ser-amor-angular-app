@@ -31,6 +31,7 @@ import {
   NivelFormacao,
   TipoVoluntario,
   Voluntario,
+  VoluntarioResumo,
 } from '../../../../core/models/voluntario.model';
 import { Pessoa } from '../../../../core/models/pessoa.model';
 import { CreateUsuarioRequest } from '../../../../core/models/usuario.model';
@@ -63,7 +64,7 @@ export class VoluntarioFormComponent implements OnInit, AfterViewInit {
   private dialogRef = inject(MatDialogRef<VoluntarioFormComponent>);
   private snackBar = inject(MatSnackBar);
 
-  dados = inject<Voluntario | null>(MAT_DIALOG_DATA);
+  dados = inject<Voluntario | VoluntarioResumo | null>(MAT_DIALOG_DATA);
 
   modoEdicao = false;
   estaProcessando = signal(false);

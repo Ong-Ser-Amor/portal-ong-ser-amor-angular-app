@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import {
   Voluntario,
+  VoluntarioResumo,
   CriarVoluntarioDto,
   AtualizarVoluntarioDto,
 } from '../models/voluntario.model';
@@ -17,12 +18,12 @@ export class VoluntarioService {
   private readonly API_URL = `${environment.apiUrl}/voluntarios`;
 
   getAll(
-    limite: number = 10,
-    pagina: number = 0,
-  ): Observable<PaginacaoResposta<Voluntario>> {
-    return this.http.get<PaginacaoResposta<Voluntario>>(this.API_URL, {
+    itensPorPagina: number = 10,
+    pagina: number = 1,
+  ): Observable<PaginacaoResposta<VoluntarioResumo>> {
+    return this.http.get<PaginacaoResposta<VoluntarioResumo>>(this.API_URL, {
       params: {
-        limite: limite.toString(),
+        itensPorPagina: itensPorPagina.toString(),
         pagina: pagina.toString(),
       },
     });

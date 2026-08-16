@@ -6,7 +6,7 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Voluntario } from '../../../../core/models/voluntario.model';
+import { Voluntario, VoluntarioResumo } from '../../../../core/models/voluntario.model';
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import {
   LoginFormComponent,
@@ -14,7 +14,7 @@ import {
 } from '../../../../shared/components/formularios/login-form/login-form.component';
 
 interface CreateLoginDialogData {
-  voluntario: Voluntario;
+  voluntario: Voluntario | VoluntarioResumo;
 }
 
 @Component({
