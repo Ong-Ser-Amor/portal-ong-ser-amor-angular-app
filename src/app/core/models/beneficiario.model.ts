@@ -1,5 +1,5 @@
 import { CriarFamiliaDto, Familia } from './familia.model';
-import { Pessoa, PessoaResumo } from './pessoa.model';
+import { CriarPessoaDto, Pessoa, PessoaResumo } from './pessoa.model';
 import { CriarContatoBeneficiarioDto } from './contato.model';
 import { OpcaoSelect } from './opcao-select.model';
 
@@ -87,13 +87,7 @@ export interface CriarBeneficiarioComPessoaExistenteEFamiliaNovaDto {
   contatos?: CriarContatoBeneficiarioDto[];
 }
 
-export interface CriarBeneficiarioComPessoaEFamiliaNovasDto {
-  nome: string;
-  cpf: string;
-  dataNascimento: string;
-  emancipado?: boolean;
-  podeSairSozinho?: boolean;
-  responsavelId?: string;
+export interface CriarBeneficiarioComPessoaEFamiliaNovasDto extends CriarPessoaDto {
   quantidadeFilhos?: number;
   nivelEscolaridade: NivelEscolaridade;
   estadoCivil?: EstadoCivil;
@@ -102,13 +96,7 @@ export interface CriarBeneficiarioComPessoaEFamiliaNovasDto {
   contatos?: CriarContatoBeneficiarioDto[];
 }
 
-export interface CriarBeneficiarioComPessoaNovaEFamiliaExistenteDto {
-  nome: string;
-  cpf: string;
-  dataNascimento: string;
-  emancipado?: boolean;
-  podeSairSozinho?: boolean;
-  responsavelId?: string;
+export interface CriarBeneficiarioComPessoaNovaEFamiliaExistenteDto extends CriarPessoaDto {
   quantidadeFilhos?: number;
   nivelEscolaridade: NivelEscolaridade;
   estadoCivil?: EstadoCivil;
