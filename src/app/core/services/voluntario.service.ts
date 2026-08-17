@@ -33,6 +33,9 @@ export class VoluntarioService {
     if (filtro.itensPorPagina) {
       params = params.set('itensPorPagina', filtro.itensPorPagina.toString());
     }
+    if (filtro.nome) {
+      params = params.set('nome', filtro.nome);
+    }
 
     return this.http.get<PaginacaoResposta<VoluntarioResumo>>(this.API_URL, { params });
   }

@@ -1,7 +1,7 @@
 <app-modal
   titulo="Editar Dados da Família"
   icone="family_restroom"
-  [confirmarDesabilitado]="form.invalid || salvando()"
+  [confirmarDesabilitado]="salvando()"
   [carregando]="salvando()"
   (fechar)="fechar()"
   (salvar)="salvar()"

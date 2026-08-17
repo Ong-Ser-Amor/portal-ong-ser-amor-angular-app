@@ -1,7 +1,7 @@
 <app-modal
   titulo="Transferir Beneficiário de Família"
   icone="swap_horiz"
-  [confirmarDesabilitado]="!formularioValido() || salvando()"
+  [confirmarDesabilitado]="salvando()"
   [carregando]="salvando()"
   (fechar)="fechar()"
   (salvar)="salvar()"

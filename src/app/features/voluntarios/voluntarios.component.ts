@@ -8,6 +8,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BotaoComponent } from '../../shared/components/ui/botao/botao.component';
 import { CabecalhoPaginaComponent } from '../../shared/components/ui/cabecalho-pagina/cabecalho-pagina.component';
+import { CardBuscaComponent } from '../../shared/components/ui/card-busca/card-busca.component';
 import {
   TabelaComponent,
   ColunaTabela,
@@ -16,6 +17,7 @@ import { TabelaCelulaDirective } from '../../shared/components/ui/tabela/directi
 import { CriarLoginComponent } from './components/criar-login/criar-login.component';
 import { ModalConfirmacaoComponent } from '../../shared/components/ui/modal-confirmacao/modal-confirmacao.component';
 import { CONFIG_MODAL } from '../../shared/components/ui/modal/modal.config';
+import { FiltroBuscaVoluntario } from '../../core/models/voluntario.model';
 
 @Component({
   selector: 'app-voluntarios',
@@ -27,6 +29,7 @@ import { CONFIG_MODAL } from '../../shared/components/ui/modal/modal.config';
     MatSnackBarModule,
     BotaoComponent,
     CabecalhoPaginaComponent,
+    CardBuscaComponent,
     TabelaComponent,
     TabelaCelulaDirective,
   ],
@@ -41,6 +44,7 @@ export class VoluntariosComponent implements OnInit {
 
   voluntarios = signal<VoluntarioResumo[]>([]);
   estaCarregando = signal(false);
+  termoBusca = signal('');
 
   // ESTADOS DE PAGINAÇÃO
   totalItens = signal(0);
@@ -61,16 +65,28 @@ export class VoluntariosComponent implements OnInit {
   carregarVoluntarios() {
     this.estaCarregando.set(true);
 
+    const termo = this.termoBusca().trim();
+    const filtro: FiltroBuscaVoluntario = {
+      pagina: this.paginaAtual(),
+      itensPorPagina: this.itensPorPagina(),
+    };
+
+    if (termo.length > 0) {
+      if (termo.length >= 3) {
+        filtro.nome = termo;
+      } else {
+        this.estaCarregando.set(false);
+        return;
+      }
+    }
+
     this.voluntarioService
-      .buscarTodos({
-        pagina: this.paginaAtual(),
-        itensPorPagina: this.itensPorPagina(),
-      })
+      .buscarTodos(filtro)
       .subscribe({
         next: (response) => {
-          this.voluntarios.set(response.dados);
-          this.totalItens.set(response.meta.totalItens);
-          this.itensPorPagina.set(response.meta.itensPorPagina);
+          this.voluntarios.set(response.dados || []);
+          this.totalItens.set(response.meta?.totalItens ?? (response.dados?.length || 0));
+          this.itensPorPagina.set(response.meta?.itensPorPagina ?? 10);
           this.estaCarregando.set(false);
         },
         error: (err) => {
@@ -79,6 +95,12 @@ export class VoluntariosComponent implements OnInit {
           this.estaCarregando.set(false);
         },
       });
+  }
+
+  buscar(termo: string) {
+    this.termoBusca.set(termo);
+    this.paginaAtual.set(1);
+    this.carregarVoluntarios();
   }
 
   mudarPagina(event: PageEvent) {

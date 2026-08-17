@@ -2,7 +2,7 @@
   titulo="Editar Dados Pessoais"
   icone="person"
   [carregando]="salvando()"
-  [confirmarDesabilitado]="form.invalid"
+  [confirmarDesabilitado]="salvando() || buscandoCpf()"
   (fechar)="fechar()"
   (salvar)="salvar()"
 >
@@ -50,7 +50,7 @@
     }
 
     <div class="form-grid">
-      <app-formulario-dados-pessoa [formGroup]="formPessoa" (cpfAlterado)="buscarDadosPessoa()" />
+      <app-formulario-dados-pessoa [formGroup]="formPessoa" />
       <app-formulario-dados-beneficiario [formGroup]="form" />
       <app-formulario-permissoes-menor [formGroup]="formPessoa" />
     </div>

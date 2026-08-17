@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { InputComponent, InputErrorMessages } from '../../ui/input/input.component';
 import { DateInputComponent } from '../../ui/date-input/date-input.component';
@@ -18,9 +18,6 @@ export class FormularioDadosPessoaComponent {
   /** FormGroup contendo os controles de pessoa (nome, cpf, dataNascimento) */
   formGroup = input.required<FormGroup>();
 
-  /** Evento emitido quando o campo de CPF perde o foco ou é alterado */
-  cpfAlterado = output<FocusEvent>();
-
   readonly mensagensCpf: InputErrorMessages = {
     pattern: 'CPF deve conter 11 dígitos',
     cpfInvalido: 'CPF inválido',
@@ -29,5 +26,3 @@ export class FormularioDadosPessoaComponent {
     beneficiarioAtivo: 'Este CPF já está associado a outro beneficiário ativo.',
   };
 }
-
-

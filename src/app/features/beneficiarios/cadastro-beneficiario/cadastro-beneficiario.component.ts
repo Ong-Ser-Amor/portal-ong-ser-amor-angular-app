@@ -432,9 +432,6 @@ export class CadastroBeneficiarioComponent implements OnInit {
   salvar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.snackBar.open('Por favor, preencha corretamente os campos obrigatórios em destaque.', 'Fechar', {
-        duration: 4000,
-      });
       return;
     }
 

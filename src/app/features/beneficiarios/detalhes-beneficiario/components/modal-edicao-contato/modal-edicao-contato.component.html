@@ -1,7 +1,7 @@
 <app-modal
   [titulo]="titulo"
   icone="contacts"
-  [confirmarDesabilitado]="form.invalid || salvando()"
+  [confirmarDesabilitado]="salvando()"
   [carregando]="salvando()"
   (fechar)="fechar()"
   (salvar)="salvar()">

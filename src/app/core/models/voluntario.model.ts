@@ -56,4 +56,5 @@ export type AtualizarVoluntarioDto = Partial<
 export interface FiltroBuscaVoluntario {
   pagina?: number;
   itensPorPagina?: number;
+  nome?: string;
 }
