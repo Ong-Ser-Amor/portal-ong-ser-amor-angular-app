@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { finalize } from 'rxjs';
@@ -38,6 +39,7 @@ export class ModalEdicaoContatoComponent implements OnInit {
   private readonly notificacao = inject(NotificacaoService);
   private readonly contatoService = inject(ContatoService);
   private readonly contatoFormService = inject(ContatoFormService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly data = inject<ModalEdicaoContatoData>(MAT_DIALOG_DATA);
 
@@ -63,15 +65,18 @@ export class ModalEdicaoContatoComponent implements OnInit {
       true
     );
 
-    this.form.get('tipoContato')?.valueChanges.subscribe((novoTipo) => {
-      const valorCtrl = this.form.get('valor');
-      if (valorCtrl) {
-        this.contatoFormService.atualizarValidadoresValor(valorCtrl, novoTipo);
-      }
-      if (novoTipo === 'EMAIL') {
-        this.form.get('ehPrincipal')?.setValue(false, { emitEvent: false });
-      }
-    });
+    this.form
+      .get('tipoContato')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((novoTipo) => {
+        const valorCtrl = this.form.get('valor');
+        if (valorCtrl) {
+          this.contatoFormService.atualizarValidadoresValor(valorCtrl, novoTipo);
+        }
+        if (novoTipo === 'EMAIL') {
+          this.form.get('ehPrincipal')?.setValue(false, { emitEvent: false });
+        }
+      });
   }
 
   obterMascaraContato(): string {

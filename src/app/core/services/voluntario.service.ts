@@ -11,6 +11,7 @@ import {
 import { Pessoa } from '../models/pessoa.model';
 import { PaginacaoResposta } from '../models/api-paginacao-resposta.model';
 import { Observable } from 'rxjs';
+import { limparCpf } from '../../shared/utils/cpf.utils';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +21,7 @@ export class VoluntarioService {
   private readonly API_URL = `${environment.apiUrl}/voluntarios`;
 
   verificarCadastroPorCpf(cpf: string): Observable<Pessoa> {
-    const cpfLimpo = cpf.replace(/\D/g, '');
+    const cpfLimpo = limparCpf(cpf);
     return this.http.get<Pessoa>(`${this.API_URL}/verificar-cadastro/cpf/${cpfLimpo}`);
   }
 

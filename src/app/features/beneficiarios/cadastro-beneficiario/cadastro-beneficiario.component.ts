@@ -1,5 +1,5 @@
-import { Component, ChangeDetectorRef, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, ChangeDetectorRef, DestroyRef, computed, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,6 +30,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { NotificacaoService } from '../../../core/services/notificacao.service';
 import { calcularIdade, converterParaIsoDate } from '../../../shared/utils/data.utils';
+import { limparCpf } from '../../../shared/utils/cpf.utils';
 import { CriarContatoBeneficiarioDto } from '../../../core/models/contato.model';
 import {
   CriarBeneficiarioDto,
@@ -79,9 +80,10 @@ export class CadastroBeneficiarioComponent implements OnInit {
   private readonly pessoaCadastroFacade = inject(PessoaCadastroFacade);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly notificacao = inject(NotificacaoService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly buscaResponsavelSubject = new Subject<string>();
-  private readonly buscaCpfSubject = new Subject<string>();
+  private readonly buscaCpfSubject = new Subject<string | null>();
 
   estaCarregando = signal(false);
   responsavelSelecionado = signal<Pessoa | null>(null);
@@ -247,43 +249,60 @@ export class CadastroBeneficiarioComponent implements OnInit {
     });
 
     // Escuta alterações na Data de Nascimento e Emancipação para atualizar validações condicionais
-    this.formPessoa.get('dataNascimento')?.valueChanges.subscribe(() => {
-      this.atualizarValidacoesPorIdade();
-    });
+    this.formPessoa
+      .get('dataNascimento')
+      ?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.atualizarValidacoesPorIdade();
+      });
 
-    this.formPessoa.get('emancipado')?.valueChanges.subscribe(() => {
-      this.atualizarValidacoesPorIdade();
-    });
+    this.formPessoa
+      .get('emancipado')
+      ?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.atualizarValidacoesPorIdade();
+      });
 
     // Escuta CPF para busca reativa
-    this.formPessoa.get('cpf')?.valueChanges.subscribe((val) => {
-      this.setConflitoCpf(false);
-      this.pessoaExistenteId.set(null);
-      this.atualizarEstadoCamposPessoa();
+    this.formPessoa
+      .get('cpf')
+      ?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((val) => {
+        this.setConflitoCpf(false);
+        this.pessoaExistenteId.set(null);
+        this.atualizarEstadoCamposPessoa();
 
-      const cpfLimpo = (val || '').replace(/\D/g, '');
-      if (cpfLimpo.length === 11) {
-        this.buscarDadosPessoa();
-      } else {
-        this.buscaCpfSubject.next('');
-      }
-    });
+        const cpfLimpo = limparCpf(val);
+        if (cpfLimpo.length === 11) {
+          this.buscarDadosPessoa();
+        } else {
+          this.buscaCpfSubject.next(null);
+        }
+      });
 
     // Escuta alterações em qualquer campo dos Dados Pessoais (Pessoa + Escolaridade) para desbloquear os demais cards
     merge(
       this.formPessoa.valueChanges,
       this.form.get('nivelEscolaridade')!.valueChanges
-    ).subscribe(() => {
-      this.atualizarEstadoControles();
-    });
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.atualizarEstadoControles();
+      });
 
-    const { estaCarregando } = this.pessoaCadastroFacade.iniciarBuscaCpfReativa({
-      cpfSubject: this.buscaCpfSubject,
-      buscarApiFn: (cpfLimpo) => this.beneficiarioService.verificarCadastroPorCpf(cpfLimpo),
-      getCpfAtualInput: () => this.formPessoa.get('cpf')?.value || '',
-      onSucesso: (pessoa) => this.tratarSucessoBuscaPessoa(pessoa),
-      onErro: (error) => this.tratarErroBuscaPessoa(error),
-    });
+    const { estaCarregando } = this.pessoaCadastroFacade.iniciarBuscaCpfReativa<Pessoa>(
+      {
+        cpfSubject: this.buscaCpfSubject,
+        buscarApiFn: (cpfLimpo) => this.beneficiarioService.verificarCadastroPorCpf(cpfLimpo),
+        getCpfAtualInput: () => this.formPessoa.get('cpf')?.value || '',
+        onSucesso: (pessoa) => this.tratarSucessoBuscaPessoa(pessoa),
+        onErro: (error) => this.tratarErroBuscaPessoa(error),
+      },
+      this.destroyRef,
+    );
     this.estaCarregando = estaCarregando;
 
     // Estado inicial
@@ -397,13 +416,13 @@ export class CadastroBeneficiarioComponent implements OnInit {
   buscarDadosPessoa(): void {
     const cpfControl = this.formPessoa.get('cpf');
     const cpfRaw = cpfControl?.value || '';
-    const cpfLimpo = cpfRaw.replace(/\D/g, '');
+    const cpfLimpo = limparCpf(cpfRaw);
 
     if (cpfLimpo.length !== 11) {
       this.setConflitoCpf(false);
       this.pessoaExistenteId.set(null);
       this.atualizarEstadoCamposPessoa();
-      this.buscaCpfSubject.next('');
+      this.buscaCpfSubject.next(null);
       return;
     }
 
@@ -481,7 +500,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
       if (familiaIdExistente) {
         beneficiario = {
           nome: pessoaValue.nome,
-          cpf: (pessoaValue.cpf || '').replace(/\D/g, ''),
+          cpf: limparCpf(pessoaValue.cpf),
           dataNascimento: converterParaIsoDate(pessoaValue.dataNascimento),
           emancipado: pessoaValue.emancipado,
           podeSairSozinho,
@@ -496,7 +515,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
       } else {
         beneficiario = {
           nome: pessoaValue.nome,
-          cpf: (pessoaValue.cpf || '').replace(/\D/g, ''),
+          cpf: limparCpf(pessoaValue.cpf),
           dataNascimento: converterParaIsoDate(pessoaValue.dataNascimento),
           emancipado: pessoaValue.emancipado,
           podeSairSozinho,

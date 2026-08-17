@@ -1,5 +1,5 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -19,7 +19,7 @@ import { PessoaCadastroFacade } from '../../../core/services/pessoa-cadastro-fac
 import { NotificacaoService } from '../../../core/services/notificacao.service';
 import { AtualizarVoluntarioDto, CriarVoluntarioDto } from '../../../core/models/voluntario.model';
 import { Pessoa } from '../../../core/models/pessoa.model';
-import { formatarCpf } from '../../../shared/utils/cpf.utils';
+import { formatarCpf, limparCpf } from '../../../shared/utils/cpf.utils';
 import { converterParaIsoDate } from '../../../shared/utils/data.utils';
 
 export type TipoConflitoCpf =
@@ -59,8 +59,9 @@ export class CadastroVoluntarioComponent implements OnInit {
   private readonly voluntarioFormService = inject(VoluntarioFormService);
   private readonly pessoaCadastroFacade = inject(PessoaCadastroFacade);
   private readonly notificacao = inject(NotificacaoService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  private readonly buscaCpfSubject = new Subject<string>();
+  private readonly buscaCpfSubject = new Subject<string | null>();
 
   voluntarioId = signal<string | null>(null);
   cpfOriginal = signal<string | null>(null);
@@ -122,43 +123,50 @@ export class CadastroVoluntarioComponent implements OnInit {
 
   private configurarBuscaCpfReativa(): void {
     // Escuta CPF para busca reativa e desbloqueio imediato ao apagar/alterar
-    this.formPessoa.get('cpf')?.valueChanges.subscribe((val) => {
-      const cpfLimpo = (val || '').replace(/\D/g, '');
+    this.formPessoa
+      .get('cpf')
+      ?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((val) => {
+        const cpfLimpo = limparCpf(val);
 
-      if (this.modoEdicao()) {
-        if (cpfLimpo === this.cpfOriginal()) {
-          this.setConflitoCpf(null);
-          this.buscaCpfSubject.next('');
-          return;
-        }
+        if (this.modoEdicao()) {
+          if (cpfLimpo === this.cpfOriginal()) {
+            this.setConflitoCpf(null);
+            this.buscaCpfSubject.next(null);
+            return;
+          }
 
-        if (cpfLimpo.length !== 11) {
-          this.setConflitoCpf(null);
-          this.buscaCpfSubject.next('');
-          return;
-        }
+          if (cpfLimpo.length !== 11) {
+            this.setConflitoCpf(null);
+            this.buscaCpfSubject.next(null);
+            return;
+          }
 
-        this.buscarDadosPessoa();
-      } else {
-        this.setConflitoCpf(null);
-        this.pessoaExistente.set(null);
-        this.atualizarEstadoCamposPessoa();
-
-        if (cpfLimpo.length !== 11) {
-          this.buscaCpfSubject.next('');
-        } else {
           this.buscarDadosPessoa();
-        }
-      }
-    });
+        } else {
+          this.setConflitoCpf(null);
+          this.pessoaExistente.set(null);
+          this.atualizarEstadoCamposPessoa();
 
-    const { estaCarregando } = this.pessoaCadastroFacade.iniciarBuscaCpfReativa({
-      cpfSubject: this.buscaCpfSubject,
-      buscarApiFn: (cpfLimpo) => this.voluntarioService.verificarCadastroPorCpf(cpfLimpo),
-      getCpfAtualInput: () => this.formPessoa.get('cpf')?.value || '',
-      onSucesso: (pessoa) => this.tratarSucessoBuscaPessoa(pessoa),
-      onErro: (error) => this.tratarErroBuscaPessoa(error),
-    });
+          if (cpfLimpo.length !== 11) {
+            this.buscaCpfSubject.next(null);
+          } else {
+            this.buscarDadosPessoa();
+          }
+        }
+      });
+
+    const { estaCarregando } = this.pessoaCadastroFacade.iniciarBuscaCpfReativa<Pessoa>(
+      {
+        cpfSubject: this.buscaCpfSubject,
+        buscarApiFn: (cpfLimpo) => this.voluntarioService.verificarCadastroPorCpf(cpfLimpo),
+        getCpfAtualInput: () => this.formPessoa.get('cpf')?.value || '',
+        onSucesso: (pessoa) => this.tratarSucessoBuscaPessoa(pessoa),
+        onErro: (error) => this.tratarErroBuscaPessoa(error),
+      },
+      this.destroyRef,
+    );
     this.buscandoCpf = estaCarregando;
   }
 
@@ -169,7 +177,7 @@ export class CadastroVoluntarioComponent implements OnInit {
       .pipe(finalize(() => this.estaCarregando.set(false)))
       .subscribe({
         next: (voluntario) => {
-          const cpfLimpo = (voluntario.pessoa.cpf || '').replace(/\D/g, '');
+          const cpfLimpo = limparCpf(voluntario.pessoa.cpf);
           this.cpfOriginal.set(cpfLimpo);
           this.pessoaExistente.set(voluntario.pessoa);
           this.pessoaFormService.preencherForm(this.formPessoa, voluntario.pessoa);
@@ -238,11 +246,11 @@ export class CadastroVoluntarioComponent implements OnInit {
   buscarDadosPessoa(): void {
     const cpfControl = this.formPessoa.get('cpf');
     const cpfRaw = cpfControl?.value || '';
-    const cpfLimpo = cpfRaw.replace(/\D/g, '');
+    const cpfLimpo = limparCpf(cpfRaw);
 
     if (cpfLimpo.length !== 11) {
       this.setConflitoCpf(null);
-      this.buscaCpfSubject.next('');
+      this.buscaCpfSubject.next(null);
       if (!this.modoEdicao()) {
         this.pessoaExistente.set(null);
         this.atualizarEstadoCamposPessoa();
@@ -252,7 +260,7 @@ export class CadastroVoluntarioComponent implements OnInit {
 
     if (this.modoEdicao() && cpfLimpo === this.cpfOriginal()) {
       this.setConflitoCpf(null);
-      this.buscaCpfSubject.next('');
+      this.buscaCpfSubject.next(null);
       return;
     }
 
@@ -284,7 +292,7 @@ export class CadastroVoluntarioComponent implements OnInit {
 
       const payload: AtualizarVoluntarioDto = {
         nome: formPessoaVal.nome,
-        cpf: (formPessoaVal.cpf || '').replace(/\D/g, ''),
+        cpf: limparCpf(formPessoaVal.cpf),
         dataNascimento: converterParaIsoDate(formPessoaVal.dataNascimento),
         tipoVoluntario: formVoluntarioVal.tipoVoluntario,
         formacaoAcademica: formVoluntarioVal.formacaoAcademica || undefined,
@@ -323,7 +331,7 @@ export class CadastroVoluntarioComponent implements OnInit {
       const formPessoaVal = this.formPessoa.getRawValue();
       payload = {
         nome: formPessoaVal.nome,
-        cpf: (formPessoaVal.cpf || '').replace(/\D/g, ''),
+        cpf: limparCpf(formPessoaVal.cpf),
         dataNascimento: converterParaIsoDate(formPessoaVal.dataNascimento),
         tipoVoluntario: formVoluntarioVal.tipoVoluntario,
         formacaoAcademica: formVoluntarioVal.formacaoAcademica || undefined,

@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { PaginacaoResposta } from '../models/api-paginacao-resposta.model';
 import { Beneficiario, BeneficiarioResumo, FiltroBuscaBeneficiario, CriarBeneficiarioDto, AtualizarBeneficiarioDto, TransferirFamiliaDto } from '../models/beneficiario.model';
 import { Pessoa } from '../models/pessoa.model';
+import { limparCpf } from '../../shared/utils/cpf.utils';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +15,8 @@ export class BeneficiarioService {
   private readonly API_URL = `${environment.apiUrl}/beneficiarios`;
 
   verificarCadastroPorCpf(cpf: string): Observable<Pessoa> {
-    return this.http.get<Pessoa>(`${this.API_URL}/verificar-cadastro/cpf/${cpf}`);
+    const cpfLimpo = limparCpf(cpf);
+    return this.http.get<Pessoa>(`${this.API_URL}/verificar-cadastro/cpf/${cpfLimpo}`);
   }
 
   buscarTodos(filtros?: FiltroBuscaBeneficiario): Observable<PaginacaoResposta<BeneficiarioResumo>> {

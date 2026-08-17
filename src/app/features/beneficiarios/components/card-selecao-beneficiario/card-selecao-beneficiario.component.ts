@@ -1,4 +1,5 @@
-import { Component, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, OnInit, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, finalize } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -25,6 +26,7 @@ import { InputComponent } from '../../../../shared/components/ui/input/input.com
 })
 export class CardSelecaoBeneficiarioComponent implements OnInit {
   private readonly beneficiarioService = inject(BeneficiarioService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly buscaSubject = new Subject<string>();
 
   readonly ofuscarCpf = ofuscarCpf;
@@ -36,7 +38,7 @@ export class CardSelecaoBeneficiarioComponent implements OnInit {
   selecionado = input<Pessoa | null>(null);
   ignorarId = input<string | undefined>(undefined);
 
-  // Outputs
+  // Outputs de ação
   selecionar = output<BeneficiarioResumo>();
   desvincular = output<void>();
 
@@ -48,7 +50,10 @@ export class CardSelecaoBeneficiarioComponent implements OnInit {
 
   ngOnInit(): void {
     this.buscaSubject
-      .pipe(debounceTime(300))
+      .pipe(
+        debounceTime(300),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe((termo) => this.executarBusca(termo));
   }
 

@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,7 +10,7 @@ import { FormularioDadosBeneficiarioComponent } from '../../../../../shared/comp
 import { ModalComponent } from '../../../../../shared/components/ui/modal/modal.component';
 import { AlertaComponent } from '../../../../../shared/components/ui/alerta/alerta.component';
 import { calcularIdade, converterParaIsoDate } from '../../../../../shared/utils/data.utils';
-import { formatarCpf } from '../../../../../shared/utils/cpf.utils';
+import { formatarCpf, limparCpf } from '../../../../../shared/utils/cpf.utils';
 
 import { PessoaFormService } from '../../../../../core/services/pessoa-form.service';
 import { BeneficiarioFormService } from '../../../../../core/services/beneficiario-form.service';
@@ -58,6 +59,7 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
   private readonly pessoaFormService = inject(PessoaFormService);
   private readonly beneficiarioFormService = inject(BeneficiarioFormService);
   private readonly pessoaCadastroFacade = inject(PessoaCadastroFacade);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly data = inject<{ beneficiario: Beneficiario }>(MAT_DIALOG_DATA);
 
@@ -65,11 +67,11 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
   readonly estadosCivis = OPCOES_ESTADO_CIVIL;
   readonly vinculosEmpregaticios = OPCOES_VINCULO_EMPREGATICIO;
 
-  private readonly buscaCpfSubject = new Subject<string>();
+  private readonly buscaCpfSubject = new Subject<string | null>();
 
   salvando = signal<boolean>(false);
   buscandoCpf = signal<boolean>(false);
-  cpfOriginal = signal<string>((this.data.beneficiario.pessoa.cpf || '').replace(/\D/g, ''));
+  cpfOriginal = signal<string>(limparCpf(this.data.beneficiario.pessoa.cpf));
   conflitoCpf = signal<ConflitoCpfBeneficiarioInfo | null>(null);
 
   form!: FormGroup;
@@ -92,13 +94,21 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
       return null;
     });
 
-    this.formPessoa.get('dataNascimento')?.valueChanges.subscribe(() => {
-      this.atualizarValidacoesPorIdade();
-    });
+    this.formPessoa
+      .get('dataNascimento')
+      ?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.atualizarValidacoesPorIdade();
+      });
 
-    this.formPessoa.get('emancipado')?.valueChanges.subscribe(() => {
-      this.atualizarValidacoesPorIdade();
-    });
+    this.formPessoa
+      .get('emancipado')
+      ?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.atualizarValidacoesPorIdade();
+      });
 
     this.atualizarValidacoesPorIdade();
   }
@@ -109,31 +119,38 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
   }
 
   private configurarBuscaCpfReativa(): void {
-    this.formPessoa.get('cpf')?.valueChanges.subscribe((val) => {
-      const cpfLimpo = (val || '').replace(/\D/g, '');
+    this.formPessoa
+      .get('cpf')
+      ?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((val) => {
+        const cpfLimpo = limparCpf(val);
 
-      if (cpfLimpo === this.cpfOriginal()) {
-        this.setConflitoCpf(null);
-        this.buscaCpfSubject.next('');
-        return;
-      }
+        if (cpfLimpo === this.cpfOriginal()) {
+          this.setConflitoCpf(null);
+          this.buscaCpfSubject.next(null);
+          return;
+        }
 
-      if (cpfLimpo.length !== 11) {
-        this.setConflitoCpf(null);
-        this.buscaCpfSubject.next('');
-        return;
-      }
+        if (cpfLimpo.length !== 11) {
+          this.setConflitoCpf(null);
+          this.buscaCpfSubject.next(null);
+          return;
+        }
 
-      this.buscarDadosPessoa();
-    });
+        this.buscarDadosPessoa();
+      });
 
-    const { estaCarregando } = this.pessoaCadastroFacade.iniciarBuscaCpfReativa({
-      cpfSubject: this.buscaCpfSubject,
-      buscarApiFn: (cpfLimpo) => this.beneficiarioService.verificarCadastroPorCpf(cpfLimpo),
-      getCpfAtualInput: () => this.formPessoa.get('cpf')?.value || '',
-      onSucesso: (pessoa) => this.tratarSucessoBuscaPessoa(pessoa),
-      onErro: (error) => this.tratarErroBuscaPessoa(error),
-    });
+    const { estaCarregando } = this.pessoaCadastroFacade.iniciarBuscaCpfReativa<Pessoa>(
+      {
+        cpfSubject: this.buscaCpfSubject,
+        buscarApiFn: (cpfLimpo) => this.beneficiarioService.verificarCadastroPorCpf(cpfLimpo),
+        getCpfAtualInput: () => this.formPessoa.get('cpf')?.value || '',
+        onSucesso: (pessoa) => this.tratarSucessoBuscaPessoa(pessoa),
+        onErro: (error) => this.tratarErroBuscaPessoa(error),
+      },
+      this.destroyRef,
+    );
     this.buscandoCpf = estaCarregando;
   }
 
@@ -155,17 +172,17 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
   buscarDadosPessoa(): void {
     const cpfControl = this.formPessoa.get('cpf');
     const cpfRaw = cpfControl?.value || '';
-    const cpfLimpo = cpfRaw.replace(/\D/g, '');
+    const cpfLimpo = limparCpf(cpfRaw);
 
     if (cpfLimpo.length !== 11) {
       this.setConflitoCpf(null);
-      this.buscaCpfSubject.next('');
+      this.buscaCpfSubject.next(null);
       return;
     }
 
     if (cpfLimpo === this.cpfOriginal()) {
       this.setConflitoCpf(null);
-      this.buscaCpfSubject.next('');
+      this.buscaCpfSubject.next(null);
       return;
     }
 
@@ -220,7 +237,7 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
 
     const dto: AtualizarBeneficiarioDto = {
       nome: pessoaValue.nome,
-      cpf: (pessoaValue.cpf || '').replace(/\D/g, ''),
+      cpf: limparCpf(pessoaValue.cpf),
       dataNascimento: converterParaIsoDate(pessoaValue.dataNascimento),
       nivelEscolaridade: dadosFormulario.nivelEscolaridade,
       estadoCivil: dadosFormulario.estadoCivil || undefined,
