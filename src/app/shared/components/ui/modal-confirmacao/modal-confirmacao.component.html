@@ -1,0 +1,26 @@
+<div class="modal-confirmacao-container" [class]="'tipo-' + tipo">
+  <div class="cabecalho">
+    <div class="icone-container">
+      <mat-icon>{{ icone() }}</mat-icon>
+    </div>
+    <h2 class="titulo">{{ titulo }}</h2>
+  </div>
+
+  <div class="corpo">
+    <p class="mensagem">{{ mensagem }}</p>
+  </div>
+
+  <div class="rodape">
+    <app-botao
+      variante="basic"
+      label="Cancelar"
+      (click)="cancelar()"
+    />
+    <app-botao
+      variante="flat"
+      [cor]="corBotaoConfirmar()"
+      label="Confirmar"
+      (click)="confirmar()"
+    />
+  </div>
+</div>

@@ -13,6 +13,8 @@ import {
 import { TabelaCelulaDirective } from '../../shared/components/ui/tabela/directives/tabela-celula.directive';
 import { CursoService } from '../../core/services/curso.service';
 import { CursoFormComponent } from './components/formulario-curso/formulario-curso.component';
+import { ModalConfirmacaoComponent } from '../../shared/components/ui/modal-confirmacao/modal-confirmacao.component';
+import { CONFIG_MODAL } from '../../shared/components/ui/modal/modal.config';
 
 @Component({
   selector: 'app-cursos',
@@ -106,12 +108,22 @@ export class CursosComponent implements OnInit {
   }
 
   excluir(curso: Curso) {
-    if (confirm(`Tem certeza que deseja excluir o curso "${curso.nome}"?`)) {
-      this.estaCarregando.set(true);
+    const dialogRef = this.dialog.open(ModalConfirmacaoComponent, {
+      ...CONFIG_MODAL.sm,
+      data: {
+        titulo: 'Excluir Curso',
+        mensagem: `Tem certeza que deseja excluir o curso "${curso.nome}"? Esta ação não poderá ser desfeita.`,
+        tipo: 'perigo',
+      },
+    });
 
+    dialogRef.afterClosed().subscribe((confirmado) => {
+      if (!confirmado) return;
+
+      this.estaCarregando.set(true);
       this.cursoService.delete(curso.id).subscribe({
         next: () => {
-          this.snackBar.open('Curso excluído!', 'Fechar', { duration: 3000 });
+          this.snackBar.open('Curso excluído com sucesso!', 'Fechar', { duration: 3000 });
           this.carregarCursos();
         },
         error: (err) => {
@@ -120,6 +132,6 @@ export class CursosComponent implements OnInit {
           this.estaCarregando.set(false);
         },
       });
-    }
+    });
   }
 }

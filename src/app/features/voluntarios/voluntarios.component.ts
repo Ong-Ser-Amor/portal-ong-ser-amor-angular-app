@@ -14,6 +14,8 @@ import {
 } from '../../shared/components/ui/tabela/tabela.component';
 import { TabelaCelulaDirective } from '../../shared/components/ui/tabela/directives/tabela-celula.directive';
 import { CriarLoginComponent } from './components/criar-login/criar-login.component';
+import { ModalConfirmacaoComponent } from '../../shared/components/ui/modal-confirmacao/modal-confirmacao.component';
+import { CONFIG_MODAL } from '../../shared/components/ui/modal/modal.config';
 
 @Component({
   selector: 'app-voluntarios',
@@ -91,12 +93,22 @@ export class VoluntariosComponent implements OnInit {
 
 
   excluirVoluntario(voluntario: VoluntarioResumo) {
-    if (confirm(`Tem certeza que deseja excluir ${voluntario.pessoa.nome}?`)) {
-      this.estaCarregando.set(true);
+    const dialogRef = this.dialog.open(ModalConfirmacaoComponent, {
+      ...CONFIG_MODAL.sm,
+      data: {
+        titulo: 'Excluir Voluntário',
+        mensagem: `Tem certeza que deseja excluir o cadastro de "${voluntario.pessoa.nome}"? Esta ação não poderá ser desfeita.`,
+        tipo: 'perigo',
+      },
+    });
 
+    dialogRef.afterClosed().subscribe((confirmado) => {
+      if (!confirmado) return;
+
+      this.estaCarregando.set(true);
       this.voluntarioService.delete(voluntario.id).subscribe({
         next: () => {
-          this.snackBar.open('Voluntário excluído!', 'Fechar', {
+          this.snackBar.open('Voluntário excluído com sucesso!', 'Fechar', {
             duration: 3000,
           });
           this.carregarVoluntarios();
@@ -107,7 +119,7 @@ export class VoluntariosComponent implements OnInit {
           this.estaCarregando.set(false);
         },
       });
-    }
+    });
   }
 
   abrirModalCriacaoLogin(voluntario: VoluntarioResumo) {

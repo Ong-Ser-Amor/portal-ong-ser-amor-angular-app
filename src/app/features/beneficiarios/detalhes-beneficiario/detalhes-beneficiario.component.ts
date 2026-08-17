@@ -34,6 +34,7 @@ import { ModalEdicaoContatoComponent } from './components/modal-edicao-contato/m
 import { ModalEdicaoEnderecoComponent } from './components/modal-edicao-endereco/modal-edicao-endereco.component';
 import { ModalEdicaoDadosFamiliaComponent } from './components/modal-edicao-dados-familia/modal-edicao-dados-familia.component';
 import { ModalTransferirFamiliaComponent } from './components/modal-transferir-familia/modal-transferir-familia.component';
+import { ModalConfirmacaoComponent } from '../../../shared/components/ui/modal-confirmacao/modal-confirmacao.component';
 import { CONFIG_MODAL } from '../../../shared/components/ui/modal/modal.config';
 
 @Component({
@@ -276,7 +277,18 @@ export class DetalhesBeneficiarioComponent implements OnInit {
     }
 
     const valorFormatado = this.formatarValorContato(contato.tipoContato, contato.valor);
-    if (confirm(`Tem certeza que deseja excluir o contato ${valorFormatado}?`)) {
+    const dialogRef = this.dialog.open(ModalConfirmacaoComponent, {
+      ...CONFIG_MODAL.sm,
+      data: {
+        titulo: 'Excluir Contato',
+        mensagem: `Tem certeza que deseja excluir o contato "${valorFormatado}"?`,
+        tipo: 'perigo',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmado) => {
+      if (!confirmado) return;
+
       this.contatoService.remover(contato.id).subscribe({
         next: () => {
           this.snackBar.open('Contato removido com sucesso!', 'Fechar', { duration: 3000 });
@@ -288,6 +300,6 @@ export class DetalhesBeneficiarioComponent implements OnInit {
           this.snackBar.open(msg, 'Fechar', { duration: 4000 });
         },
       });
-    }
+    });
   }
 }

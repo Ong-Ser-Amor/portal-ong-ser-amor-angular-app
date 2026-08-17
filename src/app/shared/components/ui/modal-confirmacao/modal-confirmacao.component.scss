@@ -1,0 +1,82 @@
+:host {
+  display: block;
+}
+
+.modal-confirmacao-container {
+  padding: 24px;
+  background-color: #ffffff;
+
+  .cabecalho {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    .icone-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      flex-shrink: 0;
+
+      mat-icon {
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+      }
+    }
+
+    .titulo {
+      margin: 0;
+      padding: 0;
+      font-size: 1.18rem;
+      font-weight: 600;
+      color: #0f172a;
+      line-height: 1.2;
+    }
+  }
+
+  .corpo {
+    padding: 0;
+    margin: 0 0 24px 0;
+
+    .mensagem {
+      margin: 0;
+      font-size: 0.94rem;
+      color: #475569;
+      line-height: 1.5;
+    }
+  }
+
+  .rodape {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 0;
+    margin: 0;
+  }
+
+  // Tipos de Estilização
+  &.tipo-perigo {
+    .icone-container {
+      background-color: #fef2f2;
+      color: #dc2626;
+    }
+  }
+
+  &.tipo-aviso {
+    .icone-container {
+      background-color: #fffbeb;
+      color: #d97706;
+    }
+  }
+
+  &.tipo-info {
+    .icone-container {
+      background-color: #f0f9ff;
+      color: #0284c7;
+    }
+  }
+}
