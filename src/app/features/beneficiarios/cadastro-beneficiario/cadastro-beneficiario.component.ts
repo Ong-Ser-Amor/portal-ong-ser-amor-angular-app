@@ -243,6 +243,10 @@ export class CadastroBeneficiarioComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.formPessoa.get('cpf')?.addValidators(() => {
+      return this.conflitoCpf() ? { beneficiarioAtivo: true } : null;
+    });
+
     // Escuta alterações na Data de Nascimento e Emancipação para atualizar validações condicionais
     this.formPessoa.get('dataNascimento')?.valueChanges.subscribe(() => {
       this.atualizarValidacoesPorIdade();
@@ -254,14 +258,15 @@ export class CadastroBeneficiarioComponent implements OnInit {
 
     // Escuta CPF para busca reativa
     this.formPessoa.get('cpf')?.valueChanges.subscribe((val) => {
-      this.conflitoCpf.set(false);
+      this.setConflitoCpf(false);
       this.pessoaExistenteId.set(null);
-      this.limparErrosConflitoCpf();
       this.atualizarEstadoCamposPessoa();
 
       const cpfLimpo = (val || '').replace(/\D/g, '');
       if (cpfLimpo.length === 11) {
         this.buscarDadosPessoa();
+      } else {
+        this.buscaCpfSubject.next('');
       }
     });
 
@@ -364,29 +369,13 @@ export class CadastroBeneficiarioComponent implements OnInit {
     }
   }
 
-  private adicionarErroCpf(chave: string): void {
-    const cpfControl = this.formPessoa.get('cpf');
-    cpfControl?.setErrors({
-      ...cpfControl.errors,
-      [chave]: true,
-    });
-  }
-
-  private limparErrosConflitoCpf(): void {
-    const cpfControl = this.formPessoa.get('cpf');
-    if (!cpfControl?.errors) return;
-
-    const errors = { ...cpfControl.errors };
-    delete errors['beneficiarioAtivo'];
-    delete errors['voluntarioAtivo'];
-    delete errors['cpfEmUso'];
-
-    cpfControl.setErrors(Object.keys(errors).length > 0 ? errors : null);
+  private setConflitoCpf(conflito: boolean): void {
+    this.conflitoCpf.set(conflito);
+    this.formPessoa.get('cpf')?.updateValueAndValidity({ emitEvent: false });
   }
 
   private tratarSucessoBuscaPessoa(pessoa: Pessoa): void {
-    this.conflitoCpf.set(false);
-    this.limparErrosConflitoCpf();
+    this.setConflitoCpf(false);
     this.pessoaExistenteId.set(pessoa.id);
     this.pessoaFormService.preencherForm(this.formPessoa, pessoa);
     this.atualizarEstadoCamposPessoa();
@@ -404,11 +393,9 @@ export class CadastroBeneficiarioComponent implements OnInit {
     this.atualizarEstadoCamposPessoa();
     const err = error as any;
     if (err?.status === 409) {
-      this.conflitoCpf.set(true);
-      this.adicionarErroCpf('beneficiarioAtivo');
+      this.setConflitoCpf(true);
     } else {
-      this.conflitoCpf.set(false);
-      this.limparErrosConflitoCpf();
+      this.setConflitoCpf(false);
       console.error('Erro ao buscar dados da pessoa:', error);
     }
   }
@@ -419,10 +406,10 @@ export class CadastroBeneficiarioComponent implements OnInit {
     const cpfLimpo = cpfRaw.replace(/\D/g, '');
 
     if (cpfLimpo.length !== 11) {
-      this.conflitoCpf.set(false);
+      this.setConflitoCpf(false);
       this.pessoaExistenteId.set(null);
-      this.limparErrosConflitoCpf();
       this.atualizarEstadoCamposPessoa();
+      this.buscaCpfSubject.next('');
       return;
     }
 

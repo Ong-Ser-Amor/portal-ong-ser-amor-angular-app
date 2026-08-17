@@ -7,17 +7,25 @@
   <mat-icon matPrefix>{{ prefixIcon() }}</mat-icon>
   }
 
-  @if (control) {
-  <input matInput [appMask]="mask()" [type]="inputType" [placeholder]="placeholder()" [disabled]="disabled()"
-    [required]="required()" [readonly]="readonly()" [attr.autocomplete]="autocomplete()" [attr.maxlength]="maxLength()"
-    [attr.minlength]="minLength()" [attr.min]="min()" [attr.max]="max()" [attr.step]="step()"
-    [formControl]="$any(control)" (input)="onInput($event)" (blur)="onBlur($event)" />
-  } @else {
-  <input matInput [appMask]="mask()" [type]="inputType" [placeholder]="placeholder()" [disabled]="disabled()"
-    [required]="required()" [readonly]="readonly()" [attr.autocomplete]="autocomplete()" [attr.maxlength]="maxLength()"
-    [attr.minlength]="minLength()" [attr.min]="min()" [attr.max]="max()" [attr.step]="step()"
-    [value]="value()" (input)="onInput($event)" (blur)="onBlur($event)" />
-  }
+  <input
+    matInput
+    [appMask]="mask()"
+    [type]="inputType"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [required]="required()"
+    [readonly]="readonly()"
+    [attr.autocomplete]="autocomplete()"
+    [attr.maxlength]="maxLength()"
+    [attr.minlength]="minLength()"
+    [attr.min]="min()"
+    [attr.max]="max()"
+    [attr.step]="step()"
+    [value]="valorInterno()"
+    [errorStateMatcher]="matcher"
+    (input)="onInput($event)"
+    (blur)="onBlur($event)"
+  />
 
   @if (showPasswordToggle() && type() === 'password') {
   <button mat-icon-button matSuffix (click)="togglePasswordVisibility($event)"

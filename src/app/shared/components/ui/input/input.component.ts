@@ -4,18 +4,33 @@ import {
   signal,
   inject,
   output,
+  DoCheck,
+  ViewChild,
 } from '@angular/core';
 import {
   ControlValueAccessor,
   ReactiveFormsModule,
   FormsModule,
   NgControl,
+  AbstractControl,
+  FormGroupDirective,
+  NgForm,
 } from '@angular/forms';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatInput, MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { AppMaskDirective, InputMaskType } from '../../../directives/app-mask.directive';
+import { AppMaskDirective, formatarComMascara, InputMaskType } from '../../../directives/app-mask.directive';
+
+export class CustomErrorStateMatcher implements ErrorStateMatcher {
+  constructor(private getControl: () => AbstractControl | null | undefined) { }
+
+  isErrorState(control: AbstractControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    const parentControl = this.getControl();
+    return !!(parentControl && parentControl.invalid && (parentControl.touched || parentControl.dirty));
+  }
+}
 
 export type InputType =
   | 'text'
@@ -45,8 +60,13 @@ export type InputErrorMessages = Record<string, InputErrorMessage>;
   templateUrl: './input.component.html',
   styleUrl: './input.component.scss',
 })
-export class InputComponent implements ControlValueAccessor {
-  public ngControl = inject(NgControl, { optional: true, self: true });
+export class InputComponent implements ControlValueAccessor, DoCheck {
+  public ngControl = inject(NgControl, {
+    optional: true,
+    self: true,
+  });
+
+  @ViewChild(MatInput) matInput?: MatInput;
 
   // Inputs
   label = input.required<string>();
@@ -55,14 +75,15 @@ export class InputComponent implements ControlValueAccessor {
   hint = input<string>('');
 
   required = input<boolean>(false);
-
   readonly = input<boolean>(false);
   autocomplete = input<string>('off');
+
   maxLength = input<number>();
   minLength = input<number>();
   min = input<number>();
   max = input<number>();
   step = input<number>();
+
   prefixIcon = input<string>('');
   suffixIcon = input<string>('');
   showPasswordToggle = input<boolean>(true);
@@ -84,6 +105,8 @@ export class InputComponent implements ControlValueAccessor {
   disabled = signal<boolean>(false);
   showPassword = signal<boolean>(false);
 
+  readonly matcher = new CustomErrorStateMatcher(() => this.control);
+
   private readonly defaultErrorMessages: InputErrorMessages = {
     required: () => `${this.label()} é obrigatório`,
     email: 'Digite um email válido',
@@ -104,11 +127,17 @@ export class InputComponent implements ControlValueAccessor {
     }
   }
 
+  ngDoCheck(): void {
+    if (this.control && this.matInput) {
+      this.matInput.updateErrorState();
+    }
+  }
+
   onInput(event: Event): void {
-    const val = (event.target as HTMLInputElement).value;
-    this.valorInterno.set(val);
-    this.onChange(val);
-    this.valueChange.emit(val);
+    const value = (event.target as HTMLInputElement).value;
+    this.valorInterno.set(value);
+    this.onChange(value);
+    this.valueChange.emit(value);
   }
 
   onBlur(event: FocusEvent): void {
@@ -116,7 +145,7 @@ export class InputComponent implements ControlValueAccessor {
     this.blur.emit(event);
   }
 
-  get control() {
+  get control(): AbstractControl | null | undefined {
     return this.ngControl?.control;
   }
 
@@ -135,7 +164,10 @@ export class InputComponent implements ControlValueAccessor {
   }
 
   get hasError(): boolean {
-    return !!(this.control?.invalid && this.control.touched);
+    return !!(
+      this.control?.invalid &&
+      (this.control.touched || this.control.dirty)
+    );
   }
 
   get errorMessage(): string {
@@ -162,7 +194,14 @@ export class InputComponent implements ControlValueAccessor {
   }
 
   writeValue(value: any): void {
-    this.valorInterno.set(value || '');
+    const val = value ?? '';
+    const mask = this.mask();
+
+    this.valorInterno.set(
+      mask && typeof val === 'string'
+        ? formatarComMascara(val, mask)
+        : val
+    );
   }
 
   registerOnChange(fn: any): void {

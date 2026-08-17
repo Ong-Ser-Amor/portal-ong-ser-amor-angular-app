@@ -100,6 +100,17 @@ export class CadastroVoluntarioComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.formPessoa.get('cpf')?.addValidators(() => {
+      const conflito = this.conflitoCpf();
+      if (conflito?.tipo === 'OUTRA_PESSOA' || conflito?.tipo === 'OUTRO_VOLUNTARIO_EDICAO') {
+        return { cpfEmUso: true };
+      }
+      if (conflito?.tipo === 'VOLUNTARIO_ATIVO_CRIACAO') {
+        return { voluntarioAtivo: true };
+      }
+      return null;
+    });
+
     this.configurarBuscaCpfReativa();
 
     const id = this.route.snapshot.paramMap.get('id');
@@ -115,25 +126,27 @@ export class CadastroVoluntarioComponent implements OnInit {
       const cpfLimpo = (val || '').replace(/\D/g, '');
 
       if (this.modoEdicao()) {
-        // Se voltou a ser o CPF original do próprio voluntário
         if (cpfLimpo === this.cpfOriginal()) {
-          this.conflitoCpf.set(null);
-          this.limparErrosConflitoCpf();
+          this.setConflitoCpf(null);
+          this.buscaCpfSubject.next('');
           return;
         }
 
         if (cpfLimpo.length !== 11) {
+          this.setConflitoCpf(null);
+          this.buscaCpfSubject.next('');
           return;
         }
 
         this.buscarDadosPessoa();
       } else {
-        this.conflitoCpf.set(null);
+        this.setConflitoCpf(null);
         this.pessoaExistente.set(null);
-        this.limparErrosConflitoCpf();
         this.atualizarEstadoCamposPessoa();
 
-        if (cpfLimpo.length === 11) {
+        if (cpfLimpo.length !== 11) {
+          this.buscaCpfSubject.next('');
+        } else {
           this.buscarDadosPessoa();
         }
       }
@@ -180,36 +193,21 @@ export class CadastroVoluntarioComponent implements OnInit {
     }
   }
 
-  private adicionarErroCpf(chave: 'cpfEmUso' | 'voluntarioAtivo'): void {
-    const cpfControl = this.formPessoa.get('cpf');
-    cpfControl?.setErrors({
-      ...cpfControl.errors,
-      [chave]: true,
-    });
-  }
-
-  private limparErrosConflitoCpf(): void {
-    const cpfControl = this.formPessoa.get('cpf');
-    if (!cpfControl?.errors) return;
-
-    const errors = { ...cpfControl.errors };
-    delete errors['cpfEmUso'];
-    delete errors['voluntarioAtivo'];
-
-    cpfControl.setErrors(Object.keys(errors).length > 0 ? errors : null);
+  private setConflitoCpf(conflito: ConflitoCpfInfo | null): void {
+    this.conflitoCpf.set(conflito);
+    this.formPessoa.get('cpf')?.updateValueAndValidity({ emitEvent: false });
   }
 
   private tratarSucessoBuscaPessoa(pessoa: Pessoa): void {
     if (this.modoEdicao()) {
       // Na edição, se encontrou outra pessoa no banco com esse CPF, NÃO permite a alteração
-      this.conflitoCpf.set({
+      this.setConflitoCpf({
         tipo: 'OUTRA_PESSOA',
       });
-      this.adicionarErroCpf('cpfEmUso');
       return;
     }
 
-    this.conflitoCpf.set(null);
+    this.setConflitoCpf(null);
     this.pessoaExistente.set(pessoa);
     this.pessoaFormService.preencherForm(this.formPessoa, pessoa);
     this.atualizarEstadoCamposPessoa();
@@ -225,12 +223,10 @@ export class CadastroVoluntarioComponent implements OnInit {
 
     if (this.modoEdicao()) {
       if (err?.status === 409) {
-        this.conflitoCpf.set({ tipo: 'OUTRO_VOLUNTARIO_EDICAO' });
-        this.adicionarErroCpf('cpfEmUso');
+        this.setConflitoCpf({ tipo: 'OUTRO_VOLUNTARIO_EDICAO' });
       } else {
         // 404 Not Found: nenhuma pessoa encontrada -> CPF livre para alteração!
-        this.conflitoCpf.set(null);
-        this.limparErrosConflitoCpf();
+        this.setConflitoCpf(null);
       }
       return;
     }
@@ -238,12 +234,10 @@ export class CadastroVoluntarioComponent implements OnInit {
     this.pessoaExistente.set(null);
     this.atualizarEstadoCamposPessoa();
     if (err?.status === 409) {
-      this.conflitoCpf.set({ tipo: 'VOLUNTARIO_ATIVO_CRIACAO' });
-      this.adicionarErroCpf('voluntarioAtivo');
+      this.setConflitoCpf({ tipo: 'VOLUNTARIO_ATIVO_CRIACAO' });
     } else {
       // 404 / não encontrada: nova pessoa livre para cadastro
-      this.conflitoCpf.set(null);
-      this.limparErrosConflitoCpf();
+      this.setConflitoCpf(null);
       console.error('Erro ao buscar dados da pessoa:', error);
     }
   }
@@ -254,18 +248,18 @@ export class CadastroVoluntarioComponent implements OnInit {
     const cpfLimpo = cpfRaw.replace(/\D/g, '');
 
     if (cpfLimpo.length !== 11) {
+      this.setConflitoCpf(null);
+      this.buscaCpfSubject.next('');
       if (!this.modoEdicao()) {
-        this.conflitoCpf.set(null);
         this.pessoaExistente.set(null);
-        this.limparErrosConflitoCpf();
         this.atualizarEstadoCamposPessoa();
       }
       return;
     }
 
     if (this.modoEdicao() && cpfLimpo === this.cpfOriginal()) {
-      this.conflitoCpf.set(null);
-      this.limparErrosConflitoCpf();
+      this.setConflitoCpf(null);
+      this.buscaCpfSubject.next('');
       return;
     }
 
@@ -275,8 +269,7 @@ export class CadastroVoluntarioComponent implements OnInit {
   restaurarCpfOriginal(): void {
     if (this.cpfOriginal()) {
       this.formPessoa.get('cpf')?.setValue(formatarCpf(this.cpfOriginal()!));
-      this.conflitoCpf.set(null);
-      this.limparErrosConflitoCpf();
+      this.setConflitoCpf(null);
     }
   }
 

@@ -20,7 +20,7 @@ export type InputMaskType =
   standalone: true,
 })
 export class AppMaskDirective implements OnInit, AfterViewInit {
-  private readonly el = inject(ElementRef);
+  private readonly elementRef = inject(ElementRef);
   private readonly ngControl = inject(NgControl, { optional: true });
 
   appMask = input<InputMaskType>();
@@ -47,32 +47,13 @@ export class AppMaskDirective implements OnInit, AfterViewInit {
     const mask = this.appMask()?.toLowerCase();
     if (!mask) return;
 
-    const inputEl = this.el.nativeElement as HTMLInputElement;
-    if (!inputEl) return;
+    const inputElement = this.elementRef.nativeElement as HTMLInputElement;
+    if (!inputElement) return;
 
-    const valorLimpo = (inputEl.value || '').replace(/\D/g, '');
-    let novoValor = inputEl.value;
+    const novoValor = formatarComMascara(inputElement.value, mask);
 
-    switch (mask) {
-      case 'cpf':
-        novoValor = formatarCpf(valorLimpo);
-        break;
-      case 'cep':
-        novoValor = formatarCep(valorLimpo);
-        break;
-      case 'celular':
-        novoValor = formatarCelular(valorLimpo);
-        break;
-      case 'telefone_fixo':
-        novoValor = formatarTelefoneFixo(valorLimpo);
-        break;
-      case 'data':
-        novoValor = formatarData(valorLimpo);
-        break;
-    }
-
-    if (inputEl.value !== novoValor) {
-      inputEl.value = novoValor;
+    if (inputElement.value !== novoValor) {
+      inputElement.value = novoValor;
       if (mask !== 'data' && this.ngControl && this.ngControl.control) {
         this.ngControl.control.setValue(novoValor, { emitModelToViewChange: false });
       }
@@ -81,6 +62,26 @@ export class AppMaskDirective implements OnInit, AfterViewInit {
 }
 
 // --- Funções Puras de Formatação ---
+
+export function formatarComMascara(valor: string, mask?: string): string {
+  if (!valor || !mask) return valor || '';
+  const valorLimpo = (valor || '').replace(/\D/g, '');
+
+  switch (mask.toLowerCase()) {
+    case 'cpf':
+      return formatarCpf(valorLimpo);
+    case 'cep':
+      return formatarCep(valorLimpo);
+    case 'celular':
+      return formatarCelular(valorLimpo);
+    case 'telefone_fixo':
+      return formatarTelefoneFixo(valorLimpo);
+    case 'data':
+      return formatarData(valorLimpo);
+    default:
+      return valor;
+  }
+}
 
 function formatarCpf(valor: string): string {
   const v = valor.slice(0, 11);

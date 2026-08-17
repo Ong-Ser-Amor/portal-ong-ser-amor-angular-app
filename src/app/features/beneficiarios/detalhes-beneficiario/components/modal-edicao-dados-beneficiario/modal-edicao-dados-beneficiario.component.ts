@@ -85,6 +85,14 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
 
     this.configurarBuscaCpfReativa();
 
+    this.formPessoa.get('cpf')?.addValidators(() => {
+      const conflito = this.conflitoCpf();
+      if (conflito?.tipo === 'OUTRA_PESSOA' || conflito?.tipo === 'OUTRO_BENEFICIARIO_EDICAO') {
+        return { cpfEmUso: true };
+      }
+      return null;
+    });
+
     this.formPessoa.get('dataNascimento')?.valueChanges.subscribe(() => {
       this.atualizarValidacoesPorIdade();
     });
@@ -96,19 +104,24 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
     this.atualizarValidacoesPorIdade();
   }
 
+  private setConflitoCpf(conflito: ConflitoCpfBeneficiarioInfo | null): void {
+    this.conflitoCpf.set(conflito);
+    this.formPessoa.get('cpf')?.updateValueAndValidity({ emitEvent: false });
+  }
+
   private configurarBuscaCpfReativa(): void {
     this.formPessoa.get('cpf')?.valueChanges.subscribe((val) => {
       const cpfLimpo = (val || '').replace(/\D/g, '');
 
       if (cpfLimpo === this.cpfOriginal()) {
-        this.conflitoCpf.set(null);
-        this.limparErrosConflitoCpf();
+        this.setConflitoCpf(null);
+        this.buscaCpfSubject.next('');
         return;
       }
 
       if (cpfLimpo.length !== 11) {
-        this.conflitoCpf.set(null);
-        this.limparErrosConflitoCpf();
+        this.setConflitoCpf(null);
+        this.buscaCpfSubject.next('');
         return;
       }
 
@@ -125,41 +138,18 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
     this.buscandoCpf = estaCarregando;
   }
 
-  private adicionarErroCpf(chave: string): void {
-    const cpfControl = this.formPessoa.get('cpf');
-    cpfControl?.setErrors({
-      ...cpfControl.errors,
-      [chave]: true,
-    });
-  }
-
-  private limparErrosConflitoCpf(): void {
-    const cpfControl = this.formPessoa.get('cpf');
-    if (!cpfControl?.errors) return;
-
-    const errors = { ...cpfControl.errors };
-    delete errors['cpfEmUso'];
-    delete errors['beneficiarioAtivo'];
-    delete errors['voluntarioAtivo'];
-
-    cpfControl.setErrors(Object.keys(errors).length > 0 ? errors : null);
-  }
-
   private tratarSucessoBuscaPessoa(pessoa: Pessoa): void {
     // Na edição, se encontrou outra pessoa com esse CPF, bloqueia a alteração
-    this.conflitoCpf.set({ tipo: 'OUTRA_PESSOA' });
-    this.adicionarErroCpf('cpfEmUso');
+    this.setConflitoCpf({ tipo: 'OUTRA_PESSOA' });
   }
 
   private tratarErroBuscaPessoa(error: unknown): void {
     const err = error as any;
     if (err?.status === 409) {
-      this.conflitoCpf.set({ tipo: 'OUTRO_BENEFICIARIO_EDICAO' });
-      this.adicionarErroCpf('cpfEmUso');
+      this.setConflitoCpf({ tipo: 'OUTRO_BENEFICIARIO_EDICAO' });
     } else {
       // 404: CPF livre para alteração
-      this.conflitoCpf.set(null);
-      this.limparErrosConflitoCpf();
+      this.setConflitoCpf(null);
     }
   }
 
@@ -169,14 +159,14 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
     const cpfLimpo = cpfRaw.replace(/\D/g, '');
 
     if (cpfLimpo.length !== 11) {
-      this.conflitoCpf.set(null);
-      this.limparErrosConflitoCpf();
+      this.setConflitoCpf(null);
+      this.buscaCpfSubject.next('');
       return;
     }
 
     if (cpfLimpo === this.cpfOriginal()) {
-      this.conflitoCpf.set(null);
-      this.limparErrosConflitoCpf();
+      this.setConflitoCpf(null);
+      this.buscaCpfSubject.next('');
       return;
     }
 
@@ -186,8 +176,7 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
   restaurarCpfOriginal(): void {
     if (this.cpfOriginal()) {
       this.formPessoa.get('cpf')?.setValue(formatarCpf(this.cpfOriginal()));
-      this.conflitoCpf.set(null);
-      this.limparErrosConflitoCpf();
+      this.setConflitoCpf(null);
     }
   }
 
