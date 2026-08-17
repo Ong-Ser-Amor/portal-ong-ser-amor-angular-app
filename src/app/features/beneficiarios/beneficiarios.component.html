@@ -6,9 +6,10 @@
 
 <app-tabela [dados]="beneficiarios()" [colunas]="colunas" [carregando]="estaCarregando()" [clicavel]="true"
   textoSemDados="Nenhum beneficiário encontrado." [totalItens]="totalItens()" [paginaAtual]="paginaAtual()"
-  [itensPorPagina]="itensPorPagina()" (paginaAlterada)="aoMudarPagina($event)" (linhaClicada)="verDetalhes($event)">
+  [itensPorPagina]="itensPorPagina()" (paginaAlterada)="mudarPagina($event)" (linhaClicada)="verDetalhes($event)">
   <ng-template appTabelaCelula="acoes" let-beneficiario>
-    <app-botao variante="icon" icone="visibility" cor="primary" (click)="$event.stopPropagation(); verDetalhes(beneficiario)" />
+    <app-botao variante="icon" icone="visibility" cor="primary"
+      (click)="$event.stopPropagation(); verDetalhes(beneficiario)" />
     <app-botao variante="icon" icone="delete" cor="warn" [desabilitado]="estaCarregando()"
       (click)="$event.stopPropagation(); excluir(beneficiario)" />
   </ng-template>

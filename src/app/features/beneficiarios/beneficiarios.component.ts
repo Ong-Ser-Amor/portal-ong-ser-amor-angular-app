@@ -11,7 +11,7 @@ import { BeneficiarioResumo, FiltroBuscaBeneficiario } from '../../core/models/b
 import { PageEvent } from '@angular/material/paginator';
 import { BeneficiarioService } from '../../core/services/beneficiario.service';
 import { NotificacaoService } from '../../core/services/notificacao.service';
-import { ofuscarCpf } from '../../shared/utils/cpf.utils';
+import { limparCpf, ofuscarCpf } from '../../shared/utils/cpf.utils';
 
 import { CardBuscaComponent } from '../../shared/components/ui/card-busca/card-busca.component';
 
@@ -57,7 +57,7 @@ export class BeneficiariosComponent implements OnInit {
     this.estaCarregando.set(true);
 
     const termo = this.termoBusca().trim();
-    const somenteNumeros = termo.replace(/\D/g, '');
+    const somenteNumeros = limparCpf(termo);
     const ehNumerico = somenteNumeros.length > 0 && (somenteNumeros.length === termo.length || termo.includes('.') || termo.includes('-'));
 
     const filtro: FiltroBuscaBeneficiario = {
@@ -94,7 +94,7 @@ export class BeneficiariosComponent implements OnInit {
           this.itensPorPagina.set(resposta.meta?.itensPorPagina ?? 10);
           this.estaCarregando.set(false);
         },
-        error: (erro) => {
+        error: (erro: unknown) => {
           console.error('Erro ao carregar beneficiários:', erro);
           this.notificacao.erro('Erro ao carregar beneficiários.');
           this.estaCarregando.set(false);
@@ -108,8 +108,8 @@ export class BeneficiariosComponent implements OnInit {
     this.carregarBeneficiarios();
   }
 
-  aoMudarPagina(event: PageEvent) {
-    this.paginaAtual.set(event.pageIndex);
+  mudarPagina(event: PageEvent) {
+    this.paginaAtual.set(event.pageIndex + 1);
     this.itensPorPagina.set(event.pageSize);
     this.carregarBeneficiarios();
   }
