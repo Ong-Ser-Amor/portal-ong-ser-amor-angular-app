@@ -1,12 +1,25 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal, DoCheck, ViewChild } from '@angular/core';
 import {
+  AbstractControl,
   ControlValueAccessor,
+  FormGroupDirective,
   NgControl,
+  NgForm,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { OpcaoSelect } from '../../../../core/models/opcao-select.model';
+
+export class CustomErrorStateMatcher implements ErrorStateMatcher {
+  constructor(private getControl: () => AbstractControl | null | undefined) { }
+
+  isErrorState(control: AbstractControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    const parentControl = this.getControl();
+    return !!(parentControl && parentControl.invalid && (parentControl.touched || parentControl.dirty));
+  }
+}
 
 @Component({
   selector: 'app-select',
@@ -19,8 +32,10 @@ import { OpcaoSelect } from '../../../../core/models/opcao-select.model';
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss',
 })
-export class SelectComponent implements ControlValueAccessor {
+export class SelectComponent implements ControlValueAccessor, DoCheck {
   public ngControl = inject(NgControl, { optional: true, self: true });
+
+  @ViewChild(MatSelect) matSelect?: MatSelect;
 
   // Inputs
   label = input.required<string>();
@@ -34,6 +49,8 @@ export class SelectComponent implements ControlValueAccessor {
   value = signal<any>(null);
   disabled = signal<boolean>(false);
 
+  readonly matcher = new CustomErrorStateMatcher(() => this.control);
+
   // ControlValueAccessor callbacks
   private onChange: (value: any) => void = () => { };
   onTouched: () => void = () => { };
@@ -41,6 +58,12 @@ export class SelectComponent implements ControlValueAccessor {
   constructor() {
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
+    }
+  }
+
+  ngDoCheck(): void {
+    if (this.control && this.matSelect) {
+      this.matSelect.updateErrorState();
     }
   }
 

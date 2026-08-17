@@ -3,7 +3,6 @@ import { Curso } from '../../core/models/curso.model';
 import { CommonModule } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BotaoComponent } from '../../shared/components/ui/botao/botao.component';
 import { CabecalhoPaginaComponent } from '../../shared/components/ui/cabecalho-pagina/cabecalho-pagina.component';
 import {
@@ -12,6 +11,7 @@ import {
 } from '../../shared/components/ui/tabela/tabela.component';
 import { TabelaCelulaDirective } from '../../shared/components/ui/tabela/directives/tabela-celula.directive';
 import { CursoService } from '../../core/services/curso.service';
+import { NotificacaoService } from '../../core/services/notificacao.service';
 import { CursoFormComponent } from './components/formulario-curso/formulario-curso.component';
 import { ModalConfirmacaoComponent } from '../../shared/components/ui/modal-confirmacao/modal-confirmacao.component';
 import { CONFIG_MODAL } from '../../shared/components/ui/modal/modal.config';
@@ -22,7 +22,6 @@ import { CONFIG_MODAL } from '../../shared/components/ui/modal/modal.config';
   imports: [
     CommonModule,
     MatDialogModule,
-    MatSnackBarModule,
     BotaoComponent,
     CabecalhoPaginaComponent,
     TabelaComponent,
@@ -33,7 +32,7 @@ import { CONFIG_MODAL } from '../../shared/components/ui/modal/modal.config';
 export class CursosComponent implements OnInit {
   private cursoService = inject(CursoService);
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
+  private notificacao = inject(NotificacaoService);
 
   cursos = signal<Curso[]>([]);
   estaCarregando = signal(false);
@@ -69,6 +68,7 @@ export class CursosComponent implements OnInit {
         },
         error: (err) => {
           console.error('Erro ao carregar cursos:', err);
+          this.notificacao.erro('Erro ao carregar cursos.');
           this.estaCarregando.set(false);
         },
       });
@@ -123,12 +123,12 @@ export class CursosComponent implements OnInit {
       this.estaCarregando.set(true);
       this.cursoService.delete(curso.id).subscribe({
         next: () => {
-          this.snackBar.open('Curso excluído com sucesso!', 'Fechar', { duration: 3000 });
+          this.notificacao.sucesso('Curso excluído com sucesso!');
           this.carregarCursos();
         },
         error: (err) => {
           console.error(err);
-          this.snackBar.open('Erro ao excluir curso.', 'Fechar');
+          this.notificacao.erro('Erro ao excluir curso.');
           this.estaCarregando.set(false);
         },
       });

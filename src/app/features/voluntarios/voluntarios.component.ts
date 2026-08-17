@@ -5,7 +5,6 @@ import { VoluntarioResumo } from '../../core/models/voluntario.model';
 import { CommonModule } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BotaoComponent } from '../../shared/components/ui/botao/botao.component';
 import { CabecalhoPaginaComponent } from '../../shared/components/ui/cabecalho-pagina/cabecalho-pagina.component';
 import { CardBuscaComponent } from '../../shared/components/ui/card-busca/card-busca.component';
@@ -18,6 +17,7 @@ import { CriarLoginComponent } from './components/criar-login/criar-login.compon
 import { ModalConfirmacaoComponent } from '../../shared/components/ui/modal-confirmacao/modal-confirmacao.component';
 import { CONFIG_MODAL } from '../../shared/components/ui/modal/modal.config';
 import { FiltroBuscaVoluntario } from '../../core/models/voluntario.model';
+import { NotificacaoService } from '../../core/services/notificacao.service';
 
 @Component({
   selector: 'app-voluntarios',
@@ -26,7 +26,6 @@ import { FiltroBuscaVoluntario } from '../../core/models/voluntario.model';
     CommonModule,
     RouterLink,
     MatDialogModule,
-    MatSnackBarModule,
     BotaoComponent,
     CabecalhoPaginaComponent,
     CardBuscaComponent,
@@ -40,7 +39,7 @@ export class VoluntariosComponent implements OnInit {
   private router = inject(Router);
   private voluntarioService = inject(VoluntarioService);
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
+  private notificacao = inject(NotificacaoService);
 
   voluntarios = signal<VoluntarioResumo[]>([]);
   estaCarregando = signal(false);
@@ -91,7 +90,7 @@ export class VoluntariosComponent implements OnInit {
         },
         error: (err) => {
           console.error('Erro ao carregar voluntários:', err);
-          this.snackBar.open('Erro ao carregar voluntários.', 'Fechar');
+          this.notificacao.erro('Erro ao carregar voluntários.');
           this.estaCarregando.set(false);
         },
       });
@@ -130,14 +129,12 @@ export class VoluntariosComponent implements OnInit {
       this.estaCarregando.set(true);
       this.voluntarioService.delete(voluntario.id).subscribe({
         next: () => {
-          this.snackBar.open('Voluntário excluído com sucesso!', 'Fechar', {
-            duration: 3000,
-          });
+          this.notificacao.sucesso('Voluntário excluído com sucesso!');
           this.carregarVoluntarios();
         },
         error: (err) => {
           console.error(err);
-          this.snackBar.open('Erro ao excluir voluntário.', 'Fechar');
+          this.notificacao.erro('Erro ao excluir voluntário.');
           this.estaCarregando.set(false);
         },
       });
@@ -152,9 +149,7 @@ export class VoluntariosComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        this.snackBar.open('Login criado com sucesso!', 'Fechar', {
-          duration: 3000,
-        });
+        this.notificacao.sucesso('Login criado com sucesso!');
         this.carregarVoluntarios();
       }
     });

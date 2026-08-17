@@ -28,8 +28,8 @@ import { CardComponent } from '../../../shared/components/ui/card/card.component
 import { Subject, finalize, map, merge, startWith } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { calcularIdade } from '../../../shared/utils/data.utils';
+import { NotificacaoService } from '../../../core/services/notificacao.service';
+import { calcularIdade, converterParaIsoDate } from '../../../shared/utils/data.utils';
 import { CriarContatoBeneficiarioDto } from '../../../core/models/contato.model';
 import {
   CriarBeneficiarioDto,
@@ -48,7 +48,6 @@ import { BeneficiarioService } from '../../../core/services/beneficiario.service
     MatRadioModule,
     MatProgressBarModule,
     MatIconModule,
-    MatSnackBarModule,
     CabecalhoPaginaComponent,
     InputComponent,
     SelectComponent,
@@ -79,7 +78,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
   private readonly contatoFormService = inject(ContatoFormService);
   private readonly pessoaCadastroFacade = inject(PessoaCadastroFacade);
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificacao = inject(NotificacaoService);
 
   private readonly buscaResponsavelSubject = new Subject<string>();
   private readonly buscaCpfSubject = new Subject<string>();
@@ -381,11 +380,6 @@ export class CadastroBeneficiarioComponent implements OnInit {
     this.atualizarEstadoCamposPessoa();
     this.atualizarValidacoesPorIdade();
     this.atualizarEstadoControles();
-    this.snackBar.open(
-      'Pessoa identificada no sistema! Dados pessoais preenchidos automaticamente.',
-      'Fechar',
-      { duration: 4000 }
-    );
   }
 
   private tratarErroBuscaPessoa(error: unknown): void {
@@ -488,7 +482,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
         beneficiario = {
           nome: pessoaValue.nome,
           cpf: (pessoaValue.cpf || '').replace(/\D/g, ''),
-          dataNascimento: pessoaValue.dataNascimento,
+          dataNascimento: converterParaIsoDate(pessoaValue.dataNascimento),
           emancipado: pessoaValue.emancipado,
           podeSairSozinho,
           responsavelId,
@@ -503,7 +497,7 @@ export class CadastroBeneficiarioComponent implements OnInit {
         beneficiario = {
           nome: pessoaValue.nome,
           cpf: (pessoaValue.cpf || '').replace(/\D/g, ''),
-          dataNascimento: pessoaValue.dataNascimento,
+          dataNascimento: converterParaIsoDate(pessoaValue.dataNascimento),
           emancipado: pessoaValue.emancipado,
           podeSairSozinho,
           responsavelId,
@@ -537,15 +531,13 @@ export class CadastroBeneficiarioComponent implements OnInit {
       .pipe(finalize(() => this.estaCarregando.set(false)))
       .subscribe({
         next: () => {
-          this.snackBar.open('Beneficiário cadastrado com sucesso!', 'Fechar', {
-            duration: 3000,
-          });
+          this.notificacao.sucesso('Beneficiário cadastrado com sucesso!');
           this.router.navigate(['/beneficiarios']);
         },
         error: (error) => {
           console.error('Erro ao criar beneficiário:', error);
           const mensagem = error.error?.message || 'Erro ao realizar o cadastro do beneficiário. Tente novamente.';
-          this.snackBar.open(mensagem, 'Fechar', { duration: 5000 });
+          this.notificacao.erro(mensagem);
         },
       });
   }

@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 
 import { InputComponent, InputType } from '../../../../../shared/components/ui/input/input.component';
@@ -11,6 +10,7 @@ import { ModalComponent } from '../../../../../shared/components/ui/modal/modal.
 
 import { ContatoService } from '../../../../../core/services/contato.service';
 import { ContatoFormService } from '../../../../../core/services/contato-form.service';
+import { NotificacaoService } from '../../../../../core/services/notificacao.service';
 import { Beneficiario } from '../../../../../core/models/beneficiario.model';
 import { AtualizarContatoDto, ContatoResposta, CriarContatoDto, OPCOES_TIPO_CONTATO, TipoContato } from '../../../../../core/models/contato.model';
 
@@ -25,7 +25,6 @@ export interface ModalEdicaoContatoData {
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
-    MatSnackBarModule,
     InputComponent,
     SelectComponent,
     CheckboxComponent,
@@ -36,7 +35,7 @@ export interface ModalEdicaoContatoData {
 })
 export class ModalEdicaoContatoComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ModalEdicaoContatoComponent>);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificacao = inject(NotificacaoService);
   private readonly contatoService = inject(ContatoService);
   private readonly contatoFormService = inject(ContatoFormService);
 
@@ -113,12 +112,12 @@ export class ModalEdicaoContatoComponent implements OnInit {
         .pipe(finalize(() => this.salvando.set(false)))
         .subscribe({
           next: () => {
-            this.snackBar.open('Canal de contato atualizado com sucesso!', 'Fechar', { duration: 3000 });
+            this.notificacao.sucesso('Contato atualizado com sucesso!');
             this.dialogRef.close(true);
           },
           error: (err) => {
-            console.error('Erro ao atualizar canal de contato:', err);
-            this.snackBar.open('Erro ao atualizar o canal de contato. Tente novamente.', 'Fechar', { duration: 4000 });
+            console.error('Erro ao atualizar contato:', err);
+            this.notificacao.erro('Erro ao atualizar o contato. Tente novamente.');
           },
         });
     } else {
@@ -134,12 +133,12 @@ export class ModalEdicaoContatoComponent implements OnInit {
         .pipe(finalize(() => this.salvando.set(false)))
         .subscribe({
           next: () => {
-            this.snackBar.open('Canal de contato adicionado com sucesso!', 'Fechar', { duration: 3000 });
+            this.notificacao.sucesso('Contato adicionado com sucesso!');
             this.dialogRef.close(true);
           },
           error: (err) => {
             console.error('Erro ao cadastrar canal de contato:', err);
-            this.snackBar.open('Erro ao cadastrar o canal de contato. Tente novamente.', 'Fechar', { duration: 4000 });
+            this.notificacao.erro('Erro ao cadastrar o contato. Tente novamente.');
           },
         });
     }

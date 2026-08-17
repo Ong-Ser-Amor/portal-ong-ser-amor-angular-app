@@ -11,10 +11,11 @@
     [required]="required()"
     [min]="dataMinima"
     [max]="dataMaxima"
+    [value]="value()"
+    [errorStateMatcher]="matcher"
     (input)="onInput($event)"
     (dateChange)="onDateChange($event)"
     (blur)="onTouched()"
-    [formControl]="$any(control)"
   />
 
   <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>

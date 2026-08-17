@@ -3,12 +3,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CabecalhoPaginaComponent } from '../../../shared/components/ui/cabecalho-pagina/cabecalho-pagina.component';
 import { BotaoComponent } from '../../../shared/components/ui/botao/botao.component';
 import { CardComponent } from '../../../shared/components/ui/card/card.component';
 import { BeneficiarioService } from '../../../core/services/beneficiario.service';
 import { ContatoService } from '../../../core/services/contato.service';
+import { NotificacaoService } from '../../../core/services/notificacao.service';
 import {
   Beneficiario,
   BeneficiarioResumo,
@@ -46,7 +46,6 @@ import { CONFIG_MODAL } from '../../../shared/components/ui/modal/modal.config';
     CardComponent,
     MatProgressBarModule,
     MatDialogModule,
-    MatSnackBarModule,
   ],
   templateUrl: './detalhes-beneficiario.component.html',
   styleUrl: './detalhes-beneficiario.component.scss',
@@ -57,7 +56,7 @@ export class DetalhesBeneficiarioComponent implements OnInit {
   private readonly beneficiarioService = inject(BeneficiarioService);
   private readonly contatoService = inject(ContatoService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificacao = inject(NotificacaoService);
 
   readonly ofuscarCpf = ofuscarCpf;
   readonly formatarCpf = formatarCpf;
@@ -190,7 +189,7 @@ export class DetalhesBeneficiarioComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((resultado) => {
       if (resultado) {
-        this.beneficiario.set(resultado);
+        this.carregarBeneficiario(beneficiario.id);
       }
     });
   }
@@ -272,7 +271,7 @@ export class DetalhesBeneficiarioComponent implements OnInit {
   confirmarExcluirContato(beneficiario: Beneficiario, contato: ContatoResposta): void {
     const contatosAtuais = beneficiario.pessoa.contatos || [];
     if (contatosAtuais.length <= 1) {
-      this.snackBar.open('O beneficiário deve possuir pelo menos 1 canal de contato.', 'Fechar', { duration: 4000 });
+      this.notificacao.aviso('O beneficiário deve possuir pelo menos 1 canal de contato.');
       return;
     }
 
@@ -291,13 +290,13 @@ export class DetalhesBeneficiarioComponent implements OnInit {
 
       this.contatoService.remover(contato.id).subscribe({
         next: () => {
-          this.snackBar.open('Contato removido com sucesso!', 'Fechar', { duration: 3000 });
+          this.notificacao.sucesso('Contato removido com sucesso!');
           this.carregarBeneficiario(beneficiario.id);
         },
         error: (err) => {
           console.error('Erro ao remover contato:', err);
           const msg = err.error?.message || 'Erro ao remover contato.';
-          this.snackBar.open(msg, 'Fechar', { duration: 4000 });
+          this.notificacao.erro(msg);
         },
       });
     });

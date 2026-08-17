@@ -134,10 +134,18 @@ export class InputComponent implements ControlValueAccessor, DoCheck {
   }
 
   onInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.valorInterno.set(value);
-    this.onChange(value);
-    this.valueChange.emit(value);
+    const inputElement = event.target as HTMLInputElement;
+    const rawValue = inputElement.value;
+    const mask = this.mask();
+    const formattedValue = mask ? formatarComMascara(rawValue, mask) : rawValue;
+
+    if (inputElement.value !== formattedValue) {
+      inputElement.value = formattedValue;
+    }
+
+    this.valorInterno.set(formattedValue);
+    this.onChange(formattedValue);
+    this.valueChange.emit(formattedValue);
   }
 
   onBlur(event: FocusEvent): void {

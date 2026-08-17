@@ -6,7 +6,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   MAT_DIALOG_DATA,
   MatDialogModule,
@@ -16,6 +15,7 @@ import { Curso } from '../../../../core/models/curso.model';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import { CursoService } from '../../../../core/services/curso.service';
+import { NotificacaoService } from '../../../../core/services/notificacao.service';
 
 @Component({
   selector: 'app-formulario-curso',
@@ -23,7 +23,6 @@ import { CursoService } from '../../../../core/services/curso.service';
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
-    MatSnackBarModule,
     MatProgressBarModule,
     BotaoComponent,
     InputComponent,
@@ -35,7 +34,7 @@ export class CursoFormComponent {
   private fb = inject(FormBuilder);
   private cursoService = inject(CursoService);
   private dialogRef = inject(MatDialogRef<CursoFormComponent>);
-  private snackBar = inject(MatSnackBar);
+  private notificacao = inject(NotificacaoService);
 
   data = inject<Curso>(MAT_DIALOG_DATA);
 
@@ -72,17 +71,14 @@ export class CursoFormComponent {
 
     request$.subscribe({
       next: () => {
-        this.snackBar.open(
-          this.isEditMode ? 'Curso atualizado!' : 'Curso criado!',
-          'Fechar',
-          { duration: 3000 },
+        this.notificacao.sucesso(
+          this.isEditMode ? 'Curso atualizado com sucesso!' : 'Curso criado com sucesso!'
         );
         this.dialogRef.close(true);
       },
       error: (err) => {
         console.error(err);
-        this.snackBar.open('Erro ao salvar.', 'Fechar');
-
+        this.notificacao.erro('Erro ao salvar curso.');
         this.isSaving.set(false);
       },
     });

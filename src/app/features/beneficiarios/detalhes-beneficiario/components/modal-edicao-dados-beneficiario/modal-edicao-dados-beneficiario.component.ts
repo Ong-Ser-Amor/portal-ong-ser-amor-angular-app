@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Subject, finalize } from 'rxjs';
@@ -16,6 +15,7 @@ import { PessoaFormService } from '../../../../../core/services/pessoa-form.serv
 import { BeneficiarioFormService } from '../../../../../core/services/beneficiario-form.service';
 import { BeneficiarioService } from '../../../../../core/services/beneficiario.service';
 import { PessoaCadastroFacade } from '../../../../../core/services/pessoa-cadastro-facade.service';
+import { NotificacaoService } from '../../../../../core/services/notificacao.service';
 import {
   AtualizarBeneficiarioDto,
   Beneficiario,
@@ -39,7 +39,6 @@ export interface ConflitoCpfBeneficiarioInfo {
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
-    MatSnackBarModule,
     MatIconModule,
     MatProgressBarModule,
     AlertaComponent,
@@ -54,7 +53,7 @@ export interface ConflitoCpfBeneficiarioInfo {
 export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly dialogRef = inject(MatDialogRef<ModalEdicaoDadosBeneficiarioComponent>);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificacao = inject(NotificacaoService);
   private readonly beneficiarioService = inject(BeneficiarioService);
   private readonly pessoaFormService = inject(PessoaFormService);
   private readonly beneficiarioFormService = inject(BeneficiarioFormService);
@@ -240,12 +239,12 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
       .pipe(finalize(() => this.salvando.set(false)))
       .subscribe({
         next: (beneficiarioAtualizado) => {
-          this.snackBar.open('Dados pessoais atualizados com sucesso!', 'Fechar', { duration: 3000 });
+          this.notificacao.sucesso('Dados pessoais atualizados com sucesso!');
           this.dialogRef.close(beneficiarioAtualizado);
         },
         error: (err) => {
           console.error('Erro ao atualizar dados pessoais:', err);
-          this.snackBar.open('Erro ao atualizar os dados pessoais. Tente novamente.', 'Fechar', { duration: 4000 });
+          this.notificacao.erro('Erro ao atualizar os dados pessoais. Tente novamente.');
         },
       });
   }

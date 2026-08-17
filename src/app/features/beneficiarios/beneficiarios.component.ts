@@ -10,7 +10,7 @@ import { TabelaCelulaDirective } from '../../shared/components/ui/tabela/directi
 import { BeneficiarioResumo, FiltroBuscaBeneficiario } from '../../core/models/beneficiario.model';
 import { PageEvent } from '@angular/material/paginator';
 import { BeneficiarioService } from '../../core/services/beneficiario.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificacaoService } from '../../core/services/notificacao.service';
 import { ofuscarCpf } from '../../shared/utils/cpf.utils';
 
 import { CardBuscaComponent } from '../../shared/components/ui/card-busca/card-busca.component';
@@ -30,7 +30,7 @@ import { CardBuscaComponent } from '../../shared/components/ui/card-busca/card-b
 })
 export class BeneficiariosComponent implements OnInit {
   private beneficiarioService = inject(BeneficiarioService);
-  private snackBar = inject(MatSnackBar);
+  private notificacao = inject(NotificacaoService);
   private router = inject(Router);
 
   beneficiarios = signal<BeneficiarioResumo[]>([]);
@@ -96,7 +96,7 @@ export class BeneficiariosComponent implements OnInit {
         },
         error: (erro) => {
           console.error('Erro ao carregar beneficiários:', erro);
-          this.snackBar.open('Erro ao carregar beneficiários.', 'Fechar');
+          this.notificacao.erro('Erro ao carregar beneficiários.');
           this.estaCarregando.set(false);
         },
       });

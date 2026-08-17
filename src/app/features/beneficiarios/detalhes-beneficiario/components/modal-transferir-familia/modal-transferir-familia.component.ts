@@ -1,7 +1,6 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -14,6 +13,7 @@ import { FormularioEnderecoComponent } from '../../../../../shared/components/fo
 import { BeneficiarioService } from '../../../../../core/services/beneficiario.service';
 import { FamiliaFormService } from '../../../../../core/services/familia-form.service';
 import { EnderecoFormService } from '../../../../../core/services/endereco-form.service';
+import { NotificacaoService } from '../../../../../core/services/notificacao.service';
 import { Beneficiario, BeneficiarioResumo, TransferirFamiliaDto } from '../../../../../core/models/beneficiario.model';
 import { BotaoComponent } from '../../../../../shared/components/ui/botao/botao.component';
 
@@ -30,7 +30,6 @@ export type TipoTransferencia = 'EXISTENTE' | 'NOVA';
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
-    MatSnackBarModule,
     MatRadioModule,
     MatIconModule,
     ModalComponent,
@@ -44,7 +43,7 @@ export type TipoTransferencia = 'EXISTENTE' | 'NOVA';
 })
 export class ModalTransferirFamiliaComponent {
   private readonly dialogRef = inject(MatDialogRef<ModalTransferirFamiliaComponent>);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificacao = inject(NotificacaoService);
   private readonly beneficiarioService = inject(BeneficiarioService);
   private readonly familiaFormService = inject(FamiliaFormService);
   private readonly enderecoFormService = inject(EnderecoFormService);
@@ -94,11 +93,11 @@ export class ModalTransferirFamiliaComponent {
 
   aoSelecionarFamiliarDestino(familiar: BeneficiarioResumo): void {
     if (!familiar.familiaId) {
-      this.snackBar.open('O beneficiário selecionado não possui uma família vinculada.', 'Fechar', { duration: 4000 });
+      this.notificacao.aviso('O beneficiário selecionado não possui uma família vinculada.');
       return;
     }
     if (this.data.beneficiario.familia && familiar.familiaId === this.data.beneficiario.familia.id) {
-      this.snackBar.open('O beneficiário já pertence a esta mesma família.', 'Fechar', { duration: 4000 });
+      this.notificacao.aviso('O beneficiário já pertence a esta mesma família.');
       return;
     }
     this.familiarDestinoSelecionado.set(familiar);
@@ -155,12 +154,12 @@ export class ModalTransferirFamiliaComponent {
       .pipe(finalize(() => this.salvando.set(false)))
       .subscribe({
         next: () => {
-          this.snackBar.open('Beneficiário transferido de família com sucesso!', 'Fechar', { duration: 3000 });
+          this.notificacao.sucesso('Beneficiário transferido de família com sucesso!');
           this.dialogRef.close(true);
         },
         error: (err) => {
           console.error('Erro ao transferir beneficiário de família:', err);
-          this.snackBar.open('Erro ao transferir beneficiário de família. Tente novamente.', 'Fechar', { duration: 4000 });
+          this.notificacao.erro('Erro ao transferir beneficiário de família. Tente novamente.');
         },
       });
   }

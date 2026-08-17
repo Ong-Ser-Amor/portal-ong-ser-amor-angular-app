@@ -1,13 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 
 import { ModalComponent } from '../../../../../shared/components/ui/modal/modal.component';
 import { FormularioEnderecoComponent } from '../../../../../shared/components/formularios/formulario-endereco/formulario-endereco.component';
 import { EnderecoService } from '../../../../../core/services/endereco.service';
 import { EnderecoFormService } from '../../../../../core/services/endereco-form.service';
+import { NotificacaoService } from '../../../../../core/services/notificacao.service';
 import { Beneficiario } from '../../../../../core/models/beneficiario.model';
 import { AtualizarEnderecoDto, Endereco } from '../../../../../core/models/endereco.model';
 
@@ -22,7 +22,6 @@ export interface ModalEdicaoEnderecoData {
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
-    MatSnackBarModule,
     ModalComponent,
     FormularioEnderecoComponent,
   ],
@@ -31,7 +30,7 @@ export interface ModalEdicaoEnderecoData {
 })
 export class ModalEdicaoEnderecoComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ModalEdicaoEnderecoComponent>);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificacao = inject(NotificacaoService);
   private readonly enderecoService = inject(EnderecoService);
   private readonly enderecoFormService = inject(EnderecoFormService);
 
@@ -72,12 +71,12 @@ export class ModalEdicaoEnderecoComponent implements OnInit {
       .pipe(finalize(() => this.salvando.set(false)))
       .subscribe({
         next: () => {
-          this.snackBar.open('Endereço atualizado com sucesso!', 'Fechar', { duration: 3000 });
+          this.notificacao.sucesso('Endereço atualizado com sucesso!');
           this.dialogRef.close(true);
         },
         error: (err) => {
           console.error('Erro ao atualizar endereço:', err);
-          this.snackBar.open('Erro ao atualizar o endereço. Tente novamente.', 'Fechar', { duration: 4000 });
+          this.notificacao.erro('Erro ao atualizar o endereço. Tente novamente.');
         },
       });
   }

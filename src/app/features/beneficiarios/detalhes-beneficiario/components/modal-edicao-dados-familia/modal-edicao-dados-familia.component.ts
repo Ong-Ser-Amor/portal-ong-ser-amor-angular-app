@@ -1,13 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 
 import { ModalComponent } from '../../../../../shared/components/ui/modal/modal.component';
 import { FormularioDadosFamiliaComponent } from '../../../../../shared/components/formularios/formulario-dados-familia/formulario-dados-familia.component';
 import { FamiliaService } from '../../../../../core/services/familia.service';
 import { FamiliaFormService } from '../../../../../core/services/familia-form.service';
+import { NotificacaoService } from '../../../../../core/services/notificacao.service';
 import { Beneficiario } from '../../../../../core/models/beneficiario.model';
 import { AtualizarFamiliaDto, Familia } from '../../../../../core/models/familia.model';
 
@@ -22,7 +22,6 @@ export interface ModalEdicaoDadosFamiliaData {
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
-    MatSnackBarModule,
     ModalComponent,
     FormularioDadosFamiliaComponent,
   ],
@@ -31,7 +30,7 @@ export interface ModalEdicaoDadosFamiliaData {
 })
 export class ModalEdicaoDadosFamiliaComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ModalEdicaoDadosFamiliaComponent>);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificacao = inject(NotificacaoService);
   private readonly familiaService = inject(FamiliaService);
   private readonly familiaFormService = inject(FamiliaFormService);
 
@@ -68,12 +67,12 @@ export class ModalEdicaoDadosFamiliaComponent implements OnInit {
       .pipe(finalize(() => this.salvando.set(false)))
       .subscribe({
         next: () => {
-          this.snackBar.open('Dados da família atualizados com sucesso!', 'Fechar', { duration: 3000 });
+          this.notificacao.sucesso('Dados da família atualizados com sucesso!');
           this.dialogRef.close(true);
         },
         error: (err) => {
           console.error('Erro ao atualizar dados da família:', err);
-          this.snackBar.open('Erro ao atualizar os dados da família. Tente novamente.', 'Fechar', { duration: 4000 });
+          this.notificacao.erro('Erro ao atualizar os dados da família. Tente novamente.');
         },
       });
   }

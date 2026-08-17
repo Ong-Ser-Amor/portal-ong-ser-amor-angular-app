@@ -1,6 +1,6 @@
 <app-cabecalho-pagina titulo="Cadastro de Beneficiário" [exibirBotaoVoltar]="true" [rotaVoltar]="'/beneficiarios'" />
 
-<form [formGroup]="form" (ngSubmit)="salvar()">
+<form [formGroup]="form" novalidate (ngSubmit)="salvar()">
   <!-- Card 1: Dados Pessoais -->
   <app-card titulo="Dados Pessoais" icone="person">
     @if (estaCarregando()) {
@@ -86,6 +86,7 @@
   <div class="form-acoes">
     <app-botao label="Cancelar" variante="stroked" [routerLink]="'/beneficiarios'" />
     <app-botao label="Salvar Beneficiário" cor="primary" tipo="submit" [carregando]="estaCarregando()"
-      [desabilitado]="!dadosPessoaisPreenchidos() || estaCarregando()" />
+      [desabilitado]="!dadosPessoaisPreenchidos() || estaCarregando()"
+      (click)="salvar()" />
   </div>
 </form>

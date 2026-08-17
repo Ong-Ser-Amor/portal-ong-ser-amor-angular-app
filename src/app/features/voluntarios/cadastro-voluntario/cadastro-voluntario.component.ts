@@ -4,7 +4,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Subject, finalize, map, merge, startWith } from 'rxjs';
 
 import { CabecalhoPaginaComponent } from '../../../shared/components/ui/cabecalho-pagina/cabecalho-pagina.component';
@@ -17,9 +16,11 @@ import { PessoaFormService } from '../../../core/services/pessoa-form.service';
 import { VoluntarioFormService } from '../../../core/services/voluntario-form.service';
 import { VoluntarioService } from '../../../core/services/voluntario.service';
 import { PessoaCadastroFacade } from '../../../core/services/pessoa-cadastro-facade.service';
+import { NotificacaoService } from '../../../core/services/notificacao.service';
 import { AtualizarVoluntarioDto, CriarVoluntarioDto } from '../../../core/models/voluntario.model';
 import { Pessoa } from '../../../core/models/pessoa.model';
 import { formatarCpf } from '../../../shared/utils/cpf.utils';
+import { converterParaIsoDate } from '../../../shared/utils/data.utils';
 
 export type TipoConflitoCpf =
   | 'OUTRA_PESSOA'
@@ -39,7 +40,6 @@ export interface ConflitoCpfInfo {
     RouterLink,
     MatProgressBarModule,
     MatIconModule,
-    MatSnackBarModule,
     CabecalhoPaginaComponent,
     CardComponent,
     BotaoComponent,
@@ -58,7 +58,7 @@ export class CadastroVoluntarioComponent implements OnInit {
   private readonly pessoaFormService = inject(PessoaFormService);
   private readonly voluntarioFormService = inject(VoluntarioFormService);
   private readonly pessoaCadastroFacade = inject(PessoaCadastroFacade);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notificacao = inject(NotificacaoService);
 
   private readonly buscaCpfSubject = new Subject<string>();
 
@@ -82,7 +82,7 @@ export class CadastroVoluntarioComponent implements OnInit {
   readonly formPessoaValido = toSignal(
     merge(this.formPessoa.statusChanges, this.formPessoa.valueChanges).pipe(
       map(() => this.formPessoa.valid || Boolean(this.pessoaExistente())),
-      startWith(this.formPessoa.valid)
+      startWith(this.formPessoa.valid || Boolean(this.pessoaExistente()))
     ),
     { initialValue: false }
   );
@@ -177,9 +177,7 @@ export class CadastroVoluntarioComponent implements OnInit {
         },
         error: (err) => {
           console.error('Erro ao carregar dados do voluntário:', err);
-          this.snackBar.open('Erro ao carregar voluntário para edição.', 'Fechar', {
-            duration: 4000,
-          });
+          this.notificacao.erro('Erro ao carregar voluntário para edição.');
           this.router.navigate(['/voluntarios']);
         },
       });
@@ -211,11 +209,6 @@ export class CadastroVoluntarioComponent implements OnInit {
     this.pessoaExistente.set(pessoa);
     this.pessoaFormService.preencherForm(this.formPessoa, pessoa);
     this.atualizarEstadoCamposPessoa();
-    this.snackBar.open(
-      'Pessoa identificada no sistema! Dados pessoais preenchidos automaticamente.',
-      'Fechar',
-      { duration: 4000 }
-    );
   }
 
   private tratarErroBuscaPessoa(error: unknown): void {
@@ -274,7 +267,10 @@ export class CadastroVoluntarioComponent implements OnInit {
   }
 
   salvar(): void {
-    if (!this.formularioValido()) {
+    const pessoaValida = this.formPessoa.valid || Boolean(this.pessoaExistente());
+    const voluntarioValido = this.formVoluntario.valid;
+
+    if (!pessoaValida || !voluntarioValido) {
       this.formPessoa.markAllAsTouched();
       this.formVoluntario.markAllAsTouched();
       return;
@@ -289,7 +285,7 @@ export class CadastroVoluntarioComponent implements OnInit {
       const payload: AtualizarVoluntarioDto = {
         nome: formPessoaVal.nome,
         cpf: (formPessoaVal.cpf || '').replace(/\D/g, ''),
-        dataNascimento: formPessoaVal.dataNascimento,
+        dataNascimento: converterParaIsoDate(formPessoaVal.dataNascimento),
         tipoVoluntario: formVoluntarioVal.tipoVoluntario,
         formacaoAcademica: formVoluntarioVal.formacaoAcademica || undefined,
         statusFormacao: formVoluntarioVal.statusFormacao || undefined,
@@ -300,14 +296,14 @@ export class CadastroVoluntarioComponent implements OnInit {
         .pipe(finalize(() => this.estaSalvando.set(false)))
         .subscribe({
           next: () => {
-            this.snackBar.open('Voluntário atualizado com sucesso!', 'Fechar', { duration: 3000 });
+            this.notificacao.sucesso('Voluntário atualizado com sucesso!');
             this.router.navigate(['/voluntarios']);
           },
           error: (err) => {
             console.error('Erro ao atualizar voluntário:', err);
             const mensagem =
               err.error?.message || 'Erro ao atualizar voluntário. Verifique os dados e tente novamente.';
-            this.snackBar.open(mensagem, 'Fechar', { duration: 5000 });
+            this.notificacao.erro(mensagem);
           },
         });
       return;
@@ -328,7 +324,7 @@ export class CadastroVoluntarioComponent implements OnInit {
       payload = {
         nome: formPessoaVal.nome,
         cpf: (formPessoaVal.cpf || '').replace(/\D/g, ''),
-        dataNascimento: formPessoaVal.dataNascimento,
+        dataNascimento: converterParaIsoDate(formPessoaVal.dataNascimento),
         tipoVoluntario: formVoluntarioVal.tipoVoluntario,
         formacaoAcademica: formVoluntarioVal.formacaoAcademica || undefined,
         statusFormacao: formVoluntarioVal.statusFormacao || undefined,
@@ -340,7 +336,7 @@ export class CadastroVoluntarioComponent implements OnInit {
       .pipe(finalize(() => this.estaSalvando.set(false)))
       .subscribe({
         next: () => {
-          this.snackBar.open('Voluntário cadastrado com sucesso!', 'Fechar', { duration: 3000 });
+          this.notificacao.sucesso('Voluntário cadastrado com sucesso!');
           this.router.navigate(['/voluntarios']);
         },
         error: (err) => {
@@ -350,9 +346,8 @@ export class CadastroVoluntarioComponent implements OnInit {
             (err.status === 409
               ? 'Já existe um cadastro ativo com este CPF.'
               : 'Erro ao cadastrar voluntário. Verifique os dados e tente novamente.');
-          this.snackBar.open(mensagem, 'Fechar', { duration: 5000 });
+          this.notificacao.erro(mensagem);
         },
       });
   }
 }
-

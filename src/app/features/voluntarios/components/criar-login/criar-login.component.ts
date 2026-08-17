@@ -5,9 +5,9 @@ import {
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Voluntario, VoluntarioResumo } from '../../../../core/models/voluntario.model';
 import { UsuarioService } from '../../../../core/services/usuario.service';
+import { NotificacaoService } from '../../../../core/services/notificacao.service';
 import {
   LoginFormComponent,
   LoginFormSubmit,
@@ -23,7 +23,6 @@ interface CreateLoginDialogData {
   imports: [
     CommonModule,
     MatDialogModule,
-    MatSnackBarModule,
     LoginFormComponent,
   ],
   templateUrl: './criar-login.component.html',
@@ -32,7 +31,7 @@ interface CreateLoginDialogData {
 export class CriarLoginComponent {
   private usuarioService = inject(UsuarioService);
   private dialogRef = inject(MatDialogRef<CriarLoginComponent>);
-  private snackBar = inject(MatSnackBar);
+  private notificacao = inject(NotificacaoService);
 
   dados = inject<CreateLoginDialogData>(MAT_DIALOG_DATA);
   estaSalvando = signal(false);
@@ -48,15 +47,13 @@ export class CriarLoginComponent {
 
     this.usuarioService.create(payload).subscribe({
       next: () => {
-        this.snackBar.open('Login criado com sucesso!', 'Fechar', {
-          duration: 3000,
-        });
+        this.notificacao.sucesso('Login criado com sucesso!');
         this.dialogRef.close(true);
       },
       error: (err) => {
         const mensagem =
           err.error?.message || 'Erro ao criar login. Verifique o e-mail.';
-        this.snackBar.open(mensagem, 'Fechar');
+        this.notificacao.erro(mensagem);
         this.estaSalvando.set(false);
       },
     });

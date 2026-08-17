@@ -1,12 +1,16 @@
-import { Component, inject, input, signal, Injectable } from '@angular/core';
+import { Component, inject, input, signal, Injectable, DoCheck, ViewChild } from '@angular/core';
 import {
+  AbstractControl,
   ControlValueAccessor,
+  FormGroupDirective,
   FormsModule,
   NgControl,
+  NgForm,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatInput, MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, NativeDateAdapter } from '@angular/material/core';
 import { AppMaskDirective } from '../../../directives/app-mask.directive';
@@ -57,6 +61,15 @@ export class PtBrDateAdapter extends NativeDateAdapter {
   }
 }
 
+export class CustomErrorStateMatcher implements ErrorStateMatcher {
+  constructor(private getControl: () => AbstractControl | null | undefined) { }
+
+  isErrorState(control: AbstractControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    const parentControl = this.getControl();
+    return !!(parentControl && parentControl.invalid && (parentControl.touched || parentControl.dirty));
+  }
+}
+
 @Component({
   selector: 'app-date-input',
   standalone: true,
@@ -76,8 +89,10 @@ export class PtBrDateAdapter extends NativeDateAdapter {
   templateUrl: './date-input.component.html',
   styleUrl: './date-input.component.scss',
 })
-export class DateInputComponent implements ControlValueAccessor {
+export class DateInputComponent implements ControlValueAccessor, DoCheck {
   public ngControl = inject(NgControl, { optional: true, self: true });
+
+  @ViewChild(MatInput) matInput?: MatInput;
 
   // Inputs
   label = input.required<string>();
@@ -107,6 +122,8 @@ export class DateInputComponent implements ControlValueAccessor {
   value = signal<Date | null>(null);
   disabled = signal<boolean>(false);
 
+  readonly matcher = new CustomErrorStateMatcher(() => this.control);
+
   // ControlValueAccessor callbacks
   private onChange: (value: any) => void = () => { };
   public onTouched: () => void = () => { };
@@ -114,6 +131,12 @@ export class DateInputComponent implements ControlValueAccessor {
   constructor() {
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
+    }
+  }
+
+  ngDoCheck(): void {
+    if (this.control && this.matInput) {
+      this.matInput.updateErrorState();
     }
   }
 

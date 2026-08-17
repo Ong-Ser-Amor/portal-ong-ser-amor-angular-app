@@ -1,7 +1,7 @@
 <app-cabecalho-pagina [titulo]="modoEdicao() ? 'Edição de Voluntário' : 'Cadastro de Voluntário'"
   [exibirBotaoVoltar]="true" [rotaVoltar]="'/voluntarios'" />
 
-<form [formGroup]="form" (ngSubmit)="salvar()">
+<form [formGroup]="form" novalidate (ngSubmit)="salvar()">
   <!-- Card 1: Dados Pessoais -->
   <app-card titulo="Dados Pessoais" icone="person">
     @if (buscandoCpf() || estaSalvando() || estaCarregando()) {
@@ -76,6 +76,7 @@
     <app-botao label="Cancelar" variante="stroked" [routerLink]="'/voluntarios'" />
     <app-botao [label]="modoEdicao() ? 'Salvar Alterações' : 'Salvar Voluntário'" cor="primary" tipo="submit"
       [carregando]="estaSalvando()"
-      [desabilitado]="estaSalvando() || buscandoCpf() || estaCarregando()" />
+      [desabilitado]="estaSalvando() || buscandoCpf() || estaCarregando()"
+      (click)="salvar()" />
   </div>
 </form>
