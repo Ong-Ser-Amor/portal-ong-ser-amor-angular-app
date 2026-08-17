@@ -8,7 +8,7 @@
   textoSemDados="Nenhum beneficiário encontrado." [totalItens]="totalItens()" [paginaAtual]="paginaAtual()"
   [itensPorPagina]="itensPorPagina()" (paginaAlterada)="aoMudarPagina($event)" (linhaClicada)="verDetalhes($event)">
   <ng-template appTabelaCelula="acoes" let-beneficiario>
-    <app-botao variante="icon" icone="edit" cor="primary" (click)="$event.stopPropagation(); editar(beneficiario)" />
+    <app-botao variante="icon" icone="visibility" cor="primary" (click)="$event.stopPropagation(); verDetalhes(beneficiario)" />
     <app-botao variante="icon" icone="delete" cor="warn" [desabilitado]="estaCarregando()"
       (click)="$event.stopPropagation(); excluir(beneficiario)" />
   </ng-template>

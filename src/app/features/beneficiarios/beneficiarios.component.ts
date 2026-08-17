@@ -118,10 +118,6 @@ export class BeneficiariosComponent implements OnInit {
     this.router.navigate(['/beneficiarios', beneficiario.id]);
   }
 
-  editar(beneficiario: BeneficiarioResumo) {
-    console.log('Editar beneficiário:', beneficiario);
-  }
-
   excluir(beneficiario: BeneficiarioResumo) {
     console.log('Excluir beneficiário:', beneficiario);
   }
