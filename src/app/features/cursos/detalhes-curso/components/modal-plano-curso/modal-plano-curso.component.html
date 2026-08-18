@@ -1,0 +1,17 @@
+<app-modal
+  [titulo]="ehEdicao ? 'Editar Plano de Curso' : 'Novo Plano de Curso'"
+  icone="assignment"
+  [confirmarDesabilitado]="salvando()"
+  [carregando]="salvando()"
+  (fechar)="cancelar()"
+  (salvar)="salvar()"
+>
+  <form [formGroup]="form" (ngSubmit)="salvar()" class="form-container">
+    <app-input
+      formControlName="nome"
+      label="Nome do plano de curso"
+      placeholder="Ex: Introdução à Programação Web"
+      [required]="true"
+    />
+  </form>
+</app-modal>

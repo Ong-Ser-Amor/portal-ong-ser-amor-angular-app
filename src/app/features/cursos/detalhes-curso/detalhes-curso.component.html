@@ -1,0 +1,40 @@
+<app-cabecalho-pagina [titulo]="curso()?.nome || 'Detalhes do Curso'">
+  <app-botao label="Voltar" variante="stroked" icone="arrow_back" (click)="voltar()" />
+</app-cabecalho-pagina>
+
+<div class="detalhes-curso-container">
+  <app-spinner [carregando]="estaCarregando()" />
+
+  @if (!estaCarregando() && curso()) {
+  <div class="conteudo-detalhes">
+    <!-- Seção Planos de Curso -->
+    <section class="secao-detalhe">
+      <div class="secao-cabecalho">
+        <h2 class="secao-titulo">Planos de Curso</h2>
+        <app-botao label="Novo Plano" icone="add" cor="primary" (click)="adicionarPlanoCurso()" />
+      </div>
+
+      <app-tabela [dados]="planos()" [colunas]="colunasPlanos" [carregando]="estaCarregandoPlanos()"
+        textoSemDados="Nenhum plano de curso encontrado." [totalItens]="totalItensPlanos()"
+        [paginaAtual]="paginaAtualPlanos()" [itensPorPagina]="itensPorPaginaPlanos()"
+        (paginaAlterada)="mudarPaginaPlanos($event)">
+        <ng-template appTabelaCelula="acoes" let-plano>
+          <app-botao variante="icon" icone="edit" cor="primary" (click)="editarPlanoCurso(plano)" />
+        </ng-template>
+      </app-tabela>
+    </section>
+
+    <!-- Seção Turmas -->
+    <section class="secao-detalhe">
+      <div class="secao-cabecalho">
+        <h2 class="secao-titulo">Turmas</h2>
+      </div>
+
+      <app-tabela [dados]="turmas()" [colunas]="colunasTurmas" [carregando]="estaCarregandoTurmas()"
+        textoSemDados="Nenhuma turma encontrada para este curso." [totalItens]="totalItensTurmas()"
+        [paginaAtual]="paginaAtualTurmas()" [itensPorPagina]="itensPorPaginaTurmas()"
+        (paginaAlterada)="mudarPaginaTurmas($event)" />
+    </section>
+  </div>
+  }
+</div>

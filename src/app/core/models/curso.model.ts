@@ -3,10 +3,15 @@ export interface Curso {
   nome: string;
 }
 
-export interface CriaCursoRequest {
+export interface CriarCursoDto {
   nome: string;
 }
 
-export interface AtualizaCursoRequest {
+export interface AtualizarCursoDto {
   nome: string;
+}
+
+export interface FiltroBuscaCurso {
+  pagina?: number;
+  itensPorPagina?: number;
 }

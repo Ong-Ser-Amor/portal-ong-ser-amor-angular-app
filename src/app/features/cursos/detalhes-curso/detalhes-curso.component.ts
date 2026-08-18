@@ -1,0 +1,216 @@
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
+import { PageEvent } from '@angular/material/paginator';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+
+import { CabecalhoPaginaComponent } from '../../../shared/components/ui/cabecalho-pagina/cabecalho-pagina.component';
+import { BotaoComponent } from '../../../shared/components/ui/botao/botao.component';
+import { SpinnerComponent } from '../../../shared/components/ui/spinner/spinner.component';
+import {
+  TabelaComponent,
+  ColunaTabela,
+} from '../../../shared/components/ui/tabela/tabela.component';
+import { TabelaCelulaDirective } from '../../../shared/components/ui/tabela/directives/tabela-celula.directive';
+import { NotificacaoService } from '../../../core/services/notificacao.service';
+import { CursoService } from '../../../core/services/curso.service';
+import { PlanoCursoService } from '../../../core/services/plano-curso.service';
+import { TurmaService } from '../../../core/services/turma.service';
+import { Curso } from '../../../core/models/curso.model';
+import { PlanoCurso } from '../../../core/models/plano-curso.model';
+import { ROTULOS_STATUS_TURMA, Turma } from '../../../core/models/turma.model';
+import { formatarData } from '../../../shared/utils/data.utils';
+import { CONFIG_MODAL } from '../../../shared/components/ui/modal/modal.config';
+import { ModalPlanoCursoComponent } from './components/modal-plano-curso/modal-plano-curso.component';
+
+@Component({
+  selector: 'app-detalhes-curso',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterLink,
+    MatDialogModule,
+    CabecalhoPaginaComponent,
+    BotaoComponent,
+    SpinnerComponent,
+    TabelaComponent,
+    TabelaCelulaDirective,
+  ],
+  templateUrl: './detalhes-curso.component.html',
+  styleUrl: './detalhes-curso.component.scss',
+})
+export class DetalhesCursoComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
+  private readonly cursoService = inject(CursoService);
+  private readonly planoCursoService = inject(PlanoCursoService);
+  private readonly turmaService = inject(TurmaService);
+  private readonly notificacao = inject(NotificacaoService);
+
+  cursoId = signal<number | null>(null);
+  curso = signal<Curso | null>(null);
+  estaCarregando = signal<boolean>(true);
+
+  // Estados de listagem de planos de curso
+  planos = signal<PlanoCurso[]>([]);
+  estaCarregandoPlanos = signal<boolean>(false);
+  paginaAtualPlanos = signal<number>(1);
+  itensPorPaginaPlanos = signal<number>(10);
+  totalItensPlanos = signal<number>(0);
+
+  colunasPlanos: ColunaTabela<PlanoCurso>[] = [
+    { chave: 'nome', titulo: 'Nome do Plano de Curso' },
+    { chave: 'acoes', titulo: 'Ações' },
+  ];
+
+  // Estados de listagem de turmas
+  turmas = signal<Turma[]>([]);
+  estaCarregandoTurmas = signal<boolean>(false);
+  paginaAtualTurmas = signal<number>(1);
+  itensPorPaginaTurmas = signal<number>(10);
+  totalItensTurmas = signal<number>(0);
+
+  colunasTurmas: ColunaTabela<Turma>[] = [
+    { chave: 'nome', titulo: 'Nome da Turma' },
+    { chave: 'planoCurso', titulo: 'Plano de Curso', celula: (t) => t.planoCurso?.nome || '—' },
+    { chave: 'cargaHoraria', titulo: 'Carga Horária', celula: (t) => `${t.cargaHoraria}h` },
+    { chave: 'dataInicio', titulo: 'Início', celula: (t) => formatarData(t.dataInicio) },
+    { chave: 'dataFim', titulo: 'Fim', celula: (t) => formatarData(t.dataFim) },
+    { chave: 'status', titulo: 'Status', celula: (t) => ROTULOS_STATUS_TURMA[t.status] || t.status },
+  ];
+
+  ngOnInit(): void {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    const id = idParam ? Number(idParam) : null;
+
+    if (!id || isNaN(id)) {
+      this.notificacao.erro('Curso não encontrado.');
+      this.voltar();
+      return;
+    }
+
+    this.cursoId.set(id);
+    this.carregarCurso(id);
+    this.carregarPlanosCurso();
+    this.carregarTurmas(id);
+  }
+
+  carregarCurso(id: number): void {
+    this.estaCarregando.set(true);
+
+    this.cursoService
+      .buscarPorId(id)
+      .pipe(finalize(() => this.estaCarregando.set(false)))
+      .subscribe({
+        next: (curso) => {
+          this.curso.set(curso);
+        },
+        error: (erro) => {
+          console.error('Erro ao carregar curso:', erro);
+          this.notificacao.erro('Erro ao carregar dados do curso.');
+          this.voltar();
+        },
+      });
+  }
+
+  carregarPlanosCurso(): void {
+    this.estaCarregandoPlanos.set(true);
+
+    this.planoCursoService
+      .buscarTodos({
+        pagina: this.paginaAtualPlanos(),
+        itensPorPagina: this.itensPorPaginaPlanos(),
+      })
+      .pipe(finalize(() => this.estaCarregandoPlanos.set(false)))
+      .subscribe({
+        next: (resposta) => {
+          this.planos.set(resposta.dados || []);
+          this.totalItensPlanos.set(resposta.meta?.totalItens ?? (resposta.dados?.length || 0));
+          this.itensPorPaginaPlanos.set(resposta.meta?.itensPorPagina ?? 10);
+        },
+        error: (erro) => {
+          console.error('Erro ao carregar planos de curso:', erro);
+          this.notificacao.erro('Erro ao carregar planos de curso.');
+        },
+      });
+  }
+
+  adicionarPlanoCurso(): void {
+    if (!this.cursoId()) return;
+
+    const dialogRef = this.dialog.open(ModalPlanoCursoComponent, {
+      ...CONFIG_MODAL.sm,
+      data: {
+        cursoId: this.cursoId()!,
+        plano: null,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((sucesso) => {
+      if (sucesso) {
+        this.carregarPlanosCurso();
+      }
+    });
+  }
+
+  editarPlanoCurso(plano: PlanoCurso): void {
+    if (!this.cursoId()) return;
+
+    const dialogRef = this.dialog.open(ModalPlanoCursoComponent, {
+      ...CONFIG_MODAL.sm,
+      data: {
+        cursoId: this.cursoId()!,
+        plano,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((sucesso) => {
+      if (sucesso) {
+        this.carregarPlanosCurso();
+      }
+    });
+  }
+
+  carregarTurmas(cursoId: number): void {
+    this.estaCarregandoTurmas.set(true);
+
+    this.turmaService
+      .buscarTodos({
+        cursoId: cursoId.toString(),
+        pagina: this.paginaAtualTurmas(),
+        itensPorPagina: this.itensPorPaginaTurmas(),
+      })
+      .pipe(finalize(() => this.estaCarregandoTurmas.set(false)))
+      .subscribe({
+        next: (resposta) => {
+          this.turmas.set(resposta.dados || []);
+          this.totalItensTurmas.set(resposta.meta?.totalItens ?? (resposta.dados?.length || 0));
+          this.itensPorPaginaTurmas.set(resposta.meta?.itensPorPagina ?? 10);
+        },
+        error: (erro) => {
+          console.error('Erro ao carregar turmas:', erro);
+          this.notificacao.erro('Erro ao carregar turmas do curso.');
+        },
+      });
+  }
+
+  mudarPaginaPlanos(event: PageEvent): void {
+    this.paginaAtualPlanos.set(event.pageIndex + 1);
+    this.itensPorPaginaPlanos.set(event.pageSize);
+    this.carregarPlanosCurso();
+  }
+
+  mudarPaginaTurmas(event: PageEvent): void {
+    this.paginaAtualTurmas.set(event.pageIndex + 1);
+    this.itensPorPaginaTurmas.set(event.pageSize);
+    if (this.cursoId()) {
+      this.carregarTurmas(this.cursoId()!);
+    }
+  }
+
+  voltar(): void {
+    this.router.navigate(['/cursos']);
+  }
+}

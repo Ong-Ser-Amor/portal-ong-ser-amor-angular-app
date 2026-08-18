@@ -1,0 +1,32 @@
+.detalhes-curso-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: relative;
+  min-height: 200px;
+}
+
+.conteudo-detalhes {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.secao-detalhe {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .secao-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .secao-titulo {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0;
+    }
+  }
+}

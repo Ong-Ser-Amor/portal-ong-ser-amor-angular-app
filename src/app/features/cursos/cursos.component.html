@@ -6,6 +6,8 @@
   [dados]="cursos()"
   [colunas]="colunas"
   [carregando]="estaCarregando()"
+  [clicavel]="true"
+  (linhaClicada)="verDetalhes($event)"
   textoSemDados="Nenhum curso encontrado."
   [totalItens]="totalItens()"
   [paginaAtual]="paginaAtual()"
@@ -17,14 +19,14 @@
       variante="icon"
       icone="edit"
       cor="primary"
-      (click)="editar(curso)"
+      (click)="$event.stopPropagation(); editar(curso)"
     />
     <app-botao
       variante="icon"
       icone="delete"
       cor="warn"
       [desabilitado]="estaCarregando()"
-      (click)="excluir(curso)"
+      (click)="$event.stopPropagation(); excluir(curso)"
     />
   </ng-template>
 </app-tabela>

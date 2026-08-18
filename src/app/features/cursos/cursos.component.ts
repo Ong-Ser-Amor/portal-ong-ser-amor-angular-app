@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { Curso } from '../../core/models/curso.model';
 import { CommonModule } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
@@ -12,7 +13,7 @@ import {
 import { TabelaCelulaDirective } from '../../shared/components/ui/tabela/directives/tabela-celula.directive';
 import { CursoService } from '../../core/services/curso.service';
 import { NotificacaoService } from '../../core/services/notificacao.service';
-import { CursoFormComponent } from './components/formulario-curso/formulario-curso.component';
+import { ModalCursoComponent } from './components/modal-curso/modal-curso.component';
 import { ModalConfirmacaoComponent } from '../../shared/components/ui/modal-confirmacao/modal-confirmacao.component';
 import { CONFIG_MODAL } from '../../shared/components/ui/modal/modal.config';
 
@@ -30,6 +31,7 @@ import { CONFIG_MODAL } from '../../shared/components/ui/modal/modal.config';
   templateUrl: './cursos.component.html',
 })
 export class CursosComponent implements OnInit {
+  private router = inject(Router);
   private cursoService = inject(CursoService);
   private dialog = inject(MatDialog);
   private notificacao = inject(NotificacaoService);
@@ -55,7 +57,10 @@ export class CursosComponent implements OnInit {
     this.estaCarregando.set(true);
 
     this.cursoService
-      .getAll(this.paginaAtual(), this.itensPorPagina())
+      .buscarTodos({
+        pagina: this.paginaAtual(),
+        itensPorPagina: this.itensPorPagina(),
+      })
       .subscribe({
         next: (response) => {
           this.cursos.set(response.dados);
@@ -82,8 +87,8 @@ export class CursosComponent implements OnInit {
   }
 
   adicionar() {
-    const dialogRef = this.dialog.open(CursoFormComponent, {
-      width: '400px',
+    const dialogRef = this.dialog.open(ModalCursoComponent, {
+      ...CONFIG_MODAL.sm,
       data: null,
     });
 
@@ -95,8 +100,8 @@ export class CursosComponent implements OnInit {
   }
 
   editar(curso: Curso) {
-    const dialogRef = this.dialog.open(CursoFormComponent, {
-      width: '400px',
+    const dialogRef = this.dialog.open(ModalCursoComponent, {
+      ...CONFIG_MODAL.sm,
       data: curso,
     });
 
@@ -121,7 +126,7 @@ export class CursosComponent implements OnInit {
       if (!confirmado) return;
 
       this.estaCarregando.set(true);
-      this.cursoService.delete(curso.id).subscribe({
+      this.cursoService.excluir(curso.id).subscribe({
         next: () => {
           this.notificacao.sucesso('Curso excluído com sucesso!');
           this.carregarCursos();
@@ -133,5 +138,9 @@ export class CursosComponent implements OnInit {
         },
       });
     });
+  }
+
+  verDetalhes(curso: Curso): void {
+    this.router.navigate(['/cursos', curso.id]);
   }
 }
