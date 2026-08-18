@@ -3,7 +3,12 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { PaginacaoResposta } from '../models/api-paginacao-resposta.model';
 import { Observable } from 'rxjs';
-import { FiltroBuscaTurma, Turma } from '../models/turma.model';
+import {
+  AtualizarTurmaDto,
+  CriarTurmaDto,
+  FiltroBuscaTurma,
+  Turma,
+} from '../models/turma.model';
 
 @Injectable({
   providedIn: 'root',
@@ -29,5 +34,17 @@ export class TurmaService {
     }
 
     return this.http.get<PaginacaoResposta<Turma>>(this.API_URL, { params });
+  }
+
+  buscarPorId(id: string): Observable<Turma> {
+    return this.http.get<Turma>(`${this.API_URL}/${id}`);
+  }
+
+  criar(payload: CriarTurmaDto): Observable<Turma> {
+    return this.http.post<Turma>(this.API_URL, payload);
+  }
+
+  atualizar(id: string, payload: AtualizarTurmaDto): Observable<Turma> {
+    return this.http.patch<Turma>(`${this.API_URL}/${id}`, payload);
   }
 }

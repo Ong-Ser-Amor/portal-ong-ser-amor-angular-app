@@ -1,0 +1,84 @@
+<app-modal
+  [titulo]="ehEdicao ? 'Editar Turma' : 'Nova Turma'"
+  icone="groups"
+  [confirmarDesabilitado]="salvando()"
+  [carregando]="salvando()"
+  (fechar)="cancelar()"
+  (salvar)="salvar()"
+>
+  <form [formGroup]="form" (ngSubmit)="salvar()" class="form-container">
+    <div class="linha-form">
+      <app-select
+        formControlName="planoCursoId"
+        label="Plano de Curso"
+        [opcoes]="opcoesPlanosCurso()"
+        placeholder="Selecione o plano de curso"
+        [required]="true"
+      />
+    </div>
+
+    <div class="linha-form">
+      <app-input
+        formControlName="nome"
+        label="Nome da Turma"
+        placeholder="Ex: Turma 2026/1 - Noite"
+        [required]="true"
+      />
+    </div>
+
+    <div class="grid-form-2">
+      <app-input
+        formControlName="cargaHoraria"
+        label="Carga Horária (horas)"
+        type="number"
+        placeholder="Ex: 40"
+        [required]="true"
+      />
+
+      <app-select
+        formControlName="status"
+        label="Status"
+        [opcoes]="opcoesStatusTurma"
+        [required]="true"
+      />
+    </div>
+
+    <div class="grid-form-2">
+      <app-date-input
+        formControlName="dataInicio"
+        label="Data de Início"
+        [required]="true"
+      />
+
+      <app-date-input
+        formControlName="dataFim"
+        label="Data de Término"
+        [required]="true"
+      />
+    </div>
+
+    <div class="linha-form">
+      <app-select
+        formControlName="criterioAvaliacao"
+        label="Critério de Avaliação"
+        [opcoes]="opcoesCriterioAvaliacao"
+        [required]="true"
+      />
+    </div>
+
+    <div class="grid-form-2">
+      <app-input
+        formControlName="frequenciaMinima"
+        label="Frequência Mínima (%)"
+        type="number"
+        placeholder="Ex: 75"
+      />
+
+      <app-input
+        formControlName="notaMinima"
+        label="Nota/XP Mínimo"
+        placeholder="Ex: 6.00"
+      />
+    </div>
+  </form>
+</app-modal>

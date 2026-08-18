@@ -23,6 +23,7 @@ import { ROTULOS_STATUS_TURMA, Turma } from '../../../core/models/turma.model';
 import { formatarData } from '../../../shared/utils/data.utils';
 import { CONFIG_MODAL } from '../../../shared/components/ui/modal/modal.config';
 import { ModalPlanoCursoComponent } from './components/modal-plano-curso/modal-plano-curso.component';
+import { ModalTurmaComponent } from './components/modal-turma/modal-turma.component';
 
 @Component({
   selector: 'app-detalhes-curso',
@@ -74,11 +75,12 @@ export class DetalhesCursoComponent implements OnInit {
 
   colunasTurmas: ColunaTabela<Turma>[] = [
     { chave: 'nome', titulo: 'Nome da Turma' },
-    { chave: 'planoCurso', titulo: 'Plano de Curso', celula: (t) => t.planoCurso?.nome || '—' },
-    { chave: 'cargaHoraria', titulo: 'Carga Horária', celula: (t) => `${t.cargaHoraria}h` },
-    { chave: 'dataInicio', titulo: 'Início', celula: (t) => formatarData(t.dataInicio) },
-    { chave: 'dataFim', titulo: 'Fim', celula: (t) => formatarData(t.dataFim) },
-    { chave: 'status', titulo: 'Status', celula: (t) => ROTULOS_STATUS_TURMA[t.status] || t.status },
+    { chave: 'planoCurso', titulo: 'Plano de Curso', celula: (turma) => turma.planoCurso?.nome || '—' },
+    { chave: 'cargaHoraria', titulo: 'Carga Horária', celula: (turma) => `${turma.cargaHoraria}h` },
+    { chave: 'dataInicio', titulo: 'Início', celula: (turma) => formatarData(turma.dataInicio) },
+    { chave: 'dataFim', titulo: 'Fim', celula: (turma) => formatarData(turma.dataFim) },
+    { chave: 'status', titulo: 'Status', celula: (turma) => ROTULOS_STATUS_TURMA[turma.status] || turma.status },
+    { chave: 'acoes', titulo: 'Ações' },
   ];
 
   ngOnInit(): void {
@@ -169,6 +171,44 @@ export class DetalhesCursoComponent implements OnInit {
     dialogRef.afterClosed().subscribe((sucesso) => {
       if (sucesso) {
         this.carregarPlanosCurso();
+      }
+    });
+  }
+
+  adicionarTurma(): void {
+    if (!this.cursoId()) return;
+
+    const dialogRef = this.dialog.open(ModalTurmaComponent, {
+      ...CONFIG_MODAL.md,
+      data: {
+        cursoId: this.cursoId()!,
+        planos: this.planos(),
+        turma: null,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((sucesso) => {
+      if (sucesso) {
+        this.carregarTurmas(this.cursoId()!);
+      }
+    });
+  }
+
+  editarTurma(turma: Turma): void {
+    if (!this.cursoId()) return;
+
+    const dialogRef = this.dialog.open(ModalTurmaComponent, {
+      ...CONFIG_MODAL.md,
+      data: {
+        cursoId: this.cursoId()!,
+        planos: this.planos(),
+        turma,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((sucesso) => {
+      if (sucesso) {
+        this.carregarTurmas(this.cursoId()!);
       }
     });
   }
