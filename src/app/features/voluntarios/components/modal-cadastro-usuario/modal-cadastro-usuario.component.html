@@ -1,0 +1,45 @@
+<app-modal
+  [titulo]="'Cadastrar Usuário - ' + dados.voluntario.pessoa.nome"
+  icone="person_add"
+  textoConfirmar="Cadastrar Usuário"
+  [confirmarDesabilitado]="salvando()"
+  [carregando]="salvando()"
+  (fechar)="cancelar()"
+  (salvar)="salvar()"
+>
+  <form [formGroup]="form" (ngSubmit)="salvar()" class="form-container">
+    <p class="info-text">
+      Digite o e-mail e a senha para que <strong>{{ dados.voluntario.pessoa.nome }}</strong> possa acessar o sistema.
+    </p>
+
+    <app-input
+      formControlName="email"
+      label="E-mail"
+      type="email"
+      placeholder="email@exemplo.com"
+      [required]="true"
+      autocomplete="email"
+    />
+
+    <app-input
+      formControlName="senha"
+      label="Senha"
+      type="password"
+      placeholder="Mínimo 8 caracteres"
+      [required]="true"
+      [showPasswordToggle]="false"
+    />
+
+    <app-input
+      formControlName="confirmarSenha"
+      label="Confirmar Senha"
+      type="password"
+      placeholder="Repita a senha"
+      [required]="true"
+      [showPasswordToggle]="false"
+      [errorMessages]="{
+        senhasNaoIguais: 'As senhas não coincidem'
+      }"
+    />
+  </form>
+</app-modal>

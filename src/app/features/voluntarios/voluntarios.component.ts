@@ -13,7 +13,7 @@ import {
   ColunaTabela,
 } from '../../shared/components/ui/tabela/tabela.component';
 import { TabelaCelulaDirective } from '../../shared/components/ui/tabela/directives/tabela-celula.directive';
-import { CriarLoginComponent } from './components/criar-login/criar-login.component';
+import { ModalCadastroUsuarioComponent } from './components/modal-cadastro-usuario/modal-cadastro-usuario.component';
 import { ModalConfirmacaoComponent } from '../../shared/components/ui/modal-confirmacao/modal-confirmacao.component';
 import { CONFIG_MODAL } from '../../shared/components/ui/modal/modal.config';
 import { FiltroBuscaVoluntario } from '../../core/models/voluntario.model';
@@ -141,15 +141,14 @@ export class VoluntariosComponent implements OnInit {
     });
   }
 
-  abrirModalCriacaoLogin(voluntario: VoluntarioResumo) {
-    const dialogRef = this.dialog.open(CriarLoginComponent, {
-      width: '500px',
+  abrirModalCadastroUsuario(voluntario: VoluntarioResumo) {
+    const dialogRef = this.dialog.open(ModalCadastroUsuarioComponent, {
+      ...CONFIG_MODAL.sm,
       data: { voluntario },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result === true) {
-        this.notificacao.sucesso('Login criado com sucesso!');
+    dialogRef.afterClosed().subscribe((sucesso) => {
+      if (sucesso) {
         this.carregarVoluntarios();
       }
     });
