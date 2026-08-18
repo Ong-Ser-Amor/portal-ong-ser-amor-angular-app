@@ -11,7 +11,7 @@ import { NotificacaoService } from '../../../../../core/services/notificacao.ser
 import { Beneficiario } from '../../../../../core/models/beneficiario.model';
 import { AtualizarFamiliaDto, Familia } from '../../../../../core/models/familia.model';
 
-export interface ModalEdicaoDadosFamiliaData {
+export interface DadosModalEdicaoDadosFamilia {
   beneficiario: Beneficiario;
   familia: Familia;
 }
@@ -34,7 +34,7 @@ export class ModalEdicaoDadosFamiliaComponent implements OnInit {
   private readonly familiaService = inject(FamiliaService);
   private readonly familiaFormService = inject(FamiliaFormService);
 
-  readonly data = inject<ModalEdicaoDadosFamiliaData>(MAT_DIALOG_DATA);
+  readonly data = inject<DadosModalEdicaoDadosFamilia>(MAT_DIALOG_DATA);
 
   salvando = signal<boolean>(false);
   form!: FormGroup;

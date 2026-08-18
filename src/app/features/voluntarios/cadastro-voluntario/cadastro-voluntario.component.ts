@@ -22,12 +22,12 @@ import { Pessoa } from '../../../core/models/pessoa.model';
 import { formatarCpf, limparCpf } from '../../../shared/utils/cpf.utils';
 import { converterParaIsoDate } from '../../../shared/utils/data.utils';
 
-export type TipoConflitoCpf =
+type TipoConflitoCpf =
   | 'OUTRA_PESSOA'
   | 'VOLUNTARIO_ATIVO_CRIACAO'
   | 'OUTRO_VOLUNTARIO_EDICAO';
 
-export interface ConflitoCpfInfo {
+interface ConflitoCpfInfo {
   tipo: TipoConflitoCpf;
   nomePessoa?: string;
 }

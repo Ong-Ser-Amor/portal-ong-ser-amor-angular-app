@@ -22,14 +22,14 @@ import { PlanoCurso } from '../../../../../core/models/plano-curso.model';
 import {
   OPCOES_CRITERIO_AVALIACAO_TURMA,
   OPCOES_STATUS_TURMA,
-  Turma,
+  TurmaResumo,
 } from '../../../../../core/models/turma.model';
 import { OpcaoSelect } from '../../../../../core/models/opcao-select.model';
 
-export interface ModalTurmaData {
-  cursoId: string | number;
+export interface DadosModalTurma {
+  cursoId: string;
   planos: PlanoCurso[];
-  turma?: Turma | null;
+  turma?: TurmaResumo | null;
 }
 
 @Component({
@@ -52,7 +52,7 @@ export class ModalTurmaComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ModalTurmaComponent>);
   private readonly notificacao = inject(NotificacaoService);
 
-  readonly data = inject<ModalTurmaData>(MAT_DIALOG_DATA);
+  readonly data = inject<DadosModalTurma>(MAT_DIALOG_DATA);
 
   form!: FormGroup;
   ehEdicao = false;

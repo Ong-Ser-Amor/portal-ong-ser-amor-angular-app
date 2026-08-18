@@ -11,7 +11,7 @@ import { NotificacaoService } from '../../../../../core/services/notificacao.ser
 import { Beneficiario } from '../../../../../core/models/beneficiario.model';
 import { AtualizarEnderecoDto, Endereco } from '../../../../../core/models/endereco.model';
 
-export interface ModalEdicaoEnderecoData {
+export interface DadosModalEdicaoEndereco {
   beneficiario: Beneficiario;
   endereco: Endereco;
 }
@@ -34,7 +34,7 @@ export class ModalEdicaoEnderecoComponent implements OnInit {
   private readonly enderecoService = inject(EnderecoService);
   private readonly enderecoFormService = inject(EnderecoFormService);
 
-  readonly data = inject<ModalEdicaoEnderecoData>(MAT_DIALOG_DATA);
+  readonly data = inject<DadosModalEdicaoEndereco>(MAT_DIALOG_DATA);
 
   salvando = signal<boolean>(false);
   form!: FormGroup;

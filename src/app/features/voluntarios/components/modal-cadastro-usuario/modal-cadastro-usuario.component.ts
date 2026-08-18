@@ -20,7 +20,7 @@ import { Voluntario, VoluntarioResumo } from '../../../../core/models/voluntario
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import { NotificacaoService } from '../../../../core/services/notificacao.service';
 
-export interface ModalCadastroUsuarioData {
+export interface DadosModalCadastroUsuario {
   voluntario: Voluntario | VoluntarioResumo;
 }
 
@@ -42,7 +42,7 @@ export class ModalCadastroUsuarioComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ModalCadastroUsuarioComponent>);
   private readonly notificacao = inject(NotificacaoService);
 
-  readonly dados = inject<ModalCadastroUsuarioData>(MAT_DIALOG_DATA);
+  readonly dados = inject<DadosModalCadastroUsuario>(MAT_DIALOG_DATA);
 
   form!: FormGroup;
   salvando = signal<boolean>(false);

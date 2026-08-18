@@ -8,6 +8,7 @@ import {
   CriarTurmaDto,
   FiltroBuscaTurma,
   Turma,
+  TurmaResumo,
 } from '../models/turma.model';
 
 @Injectable({
@@ -17,7 +18,7 @@ export class TurmaService {
   private readonly http = inject(HttpClient);
   private readonly API_URL = `${environment.apiUrl}/turmas`;
 
-  buscarTodos(filtro: FiltroBuscaTurma = {}): Observable<PaginacaoResposta<Turma>> {
+  buscarTodos(filtro: FiltroBuscaTurma = {}): Observable<PaginacaoResposta<TurmaResumo>> {
     let params = new HttpParams();
 
     if (filtro.pagina) {
@@ -33,7 +34,7 @@ export class TurmaService {
       params = params.set('planoCursoId', filtro.planoCursoId.toString());
     }
 
-    return this.http.get<PaginacaoResposta<Turma>>(this.API_URL, { params });
+    return this.http.get<PaginacaoResposta<TurmaResumo>>(this.API_URL, { params });
   }
 
   buscarPorId(id: string): Observable<Turma> {

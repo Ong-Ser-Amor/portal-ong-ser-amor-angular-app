@@ -15,7 +15,7 @@ import { NotificacaoService } from '../../../../../core/services/notificacao.ser
 import { Beneficiario } from '../../../../../core/models/beneficiario.model';
 import { AtualizarContatoDto, ContatoResposta, CriarContatoDto, OPCOES_TIPO_CONTATO, TipoContato } from '../../../../../core/models/contato.model';
 
-export interface ModalEdicaoContatoData {
+export interface DadosModalEdicaoContato {
   beneficiario: Beneficiario;
   contato?: ContatoResposta;
 }
@@ -41,7 +41,7 @@ export class ModalEdicaoContatoComponent implements OnInit {
   private readonly contatoFormService = inject(ContatoFormService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly data = inject<ModalEdicaoContatoData>(MAT_DIALOG_DATA);
+  readonly data = inject<DadosModalEdicaoContato>(MAT_DIALOG_DATA);
 
   readonly tiposContato = OPCOES_TIPO_CONTATO;
   salvando = signal<boolean>(false);

@@ -19,7 +19,7 @@ import { PlanoCursoService } from '../../../core/services/plano-curso.service';
 import { TurmaService } from '../../../core/services/turma.service';
 import { Curso } from '../../../core/models/curso.model';
 import { PlanoCurso } from '../../../core/models/plano-curso.model';
-import { ROTULOS_STATUS_TURMA, Turma } from '../../../core/models/turma.model';
+import { ROTULOS_STATUS_TURMA, Turma, TurmaResumo } from '../../../core/models/turma.model';
 import { formatarData } from '../../../shared/utils/data.utils';
 import { CONFIG_MODAL } from '../../../shared/components/ui/modal/modal.config';
 import { ModalPlanoCursoComponent } from './components/modal-plano-curso/modal-plano-curso.component';
@@ -51,7 +51,7 @@ export class DetalhesCursoComponent implements OnInit {
   private readonly turmaService = inject(TurmaService);
   private readonly notificacao = inject(NotificacaoService);
 
-  cursoId = signal<number | null>(null);
+  cursoId = signal<string | null>(null);
   curso = signal<Curso | null>(null);
   estaCarregando = signal<boolean>(true);
 
@@ -68,16 +68,15 @@ export class DetalhesCursoComponent implements OnInit {
   ];
 
   // Estados de listagem de turmas
-  turmas = signal<Turma[]>([]);
+  turmas = signal<TurmaResumo[]>([]);
   estaCarregandoTurmas = signal<boolean>(false);
   paginaAtualTurmas = signal<number>(1);
   itensPorPaginaTurmas = signal<number>(10);
   totalItensTurmas = signal<number>(0);
 
-  colunasTurmas: ColunaTabela<Turma>[] = [
+  colunasTurmas: ColunaTabela<TurmaResumo>[] = [
     { chave: 'nome', titulo: 'Nome da Turma' },
     { chave: 'planoCurso', titulo: 'Plano de Curso', celula: (turma) => turma.planoCurso?.nome || '—' },
-    { chave: 'cargaHoraria', titulo: 'Carga Horária', celula: (turma) => `${turma.cargaHoraria}h` },
     { chave: 'dataInicio', titulo: 'Início', celula: (turma) => formatarData(turma.dataInicio) },
     { chave: 'dataFim', titulo: 'Fim', celula: (turma) => formatarData(turma.dataFim) },
     { chave: 'status', titulo: 'Status', celula: (turma) => ROTULOS_STATUS_TURMA[turma.status] || turma.status },
@@ -85,10 +84,9 @@ export class DetalhesCursoComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
-    const id = idParam ? Number(idParam) : null;
+    const id = this.route.snapshot.paramMap.get('id');
 
-    if (!id || isNaN(id)) {
+    if (!id) {
       this.notificacao.erro('Curso não encontrado.');
       this.voltar();
       return;
@@ -100,7 +98,7 @@ export class DetalhesCursoComponent implements OnInit {
     this.carregarTurmas(id);
   }
 
-  carregarCurso(id: number): void {
+  carregarCurso(id: string): void {
     this.estaCarregando.set(true);
 
     this.cursoService
@@ -224,7 +222,7 @@ export class DetalhesCursoComponent implements OnInit {
     });
   }
 
-  editarTurma(turma: Turma): void {
+  editarTurma(turma: TurmaResumo): void {
     if (!this.cursoId()) return;
 
     const dialogRef = this.dialog.open(ModalTurmaComponent, {
@@ -243,7 +241,7 @@ export class DetalhesCursoComponent implements OnInit {
     });
   }
 
-  excluirTurma(turma: Turma): void {
+  excluirTurma(turma: TurmaResumo): void {
     const dialogRef = this.dialog.open(ModalConfirmacaoComponent, {
       ...CONFIG_MODAL.sm,
       data: {
@@ -274,12 +272,12 @@ export class DetalhesCursoComponent implements OnInit {
     });
   }
 
-  carregarTurmas(cursoId: number): void {
+  carregarTurmas(cursoId: string): void {
     this.estaCarregandoTurmas.set(true);
 
     this.turmaService
       .buscarTodos({
-        cursoId: cursoId.toString(),
+        cursoId: cursoId,
         pagina: this.paginaAtualTurmas(),
         itensPorPagina: this.itensPorPaginaTurmas(),
       })

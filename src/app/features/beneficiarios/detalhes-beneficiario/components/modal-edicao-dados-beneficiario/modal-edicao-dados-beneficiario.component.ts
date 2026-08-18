@@ -28,10 +28,14 @@ import { Pessoa } from '../../../../../core/models/pessoa.model';
 import { FormularioDadosPessoaComponent } from '../../../../../shared/components/formularios/formulario-dados-pessoa/formulario-dados-pessoa.component';
 import { FormularioPermissoesMenorComponent } from '../../../../../shared/components/formularios/formulario-permissoes-menor/formulario-permissoes-menor.component';
 
-export type TipoConflitoCpfBeneficiario = 'OUTRA_PESSOA' | 'OUTRO_BENEFICIARIO_EDICAO';
+type TipoConflitoCpfBeneficiario = 'OUTRA_PESSOA' | 'OUTRO_BENEFICIARIO_EDICAO';
 
-export interface ConflitoCpfBeneficiarioInfo {
+interface ConflitoCpfBeneficiarioInfo {
   tipo: TipoConflitoCpfBeneficiario;
+}
+
+export interface DadosModalEdicaoDadosBeneficiario {
+  beneficiario: Beneficiario;
 }
 
 @Component({
@@ -61,7 +65,7 @@ export class ModalEdicaoDadosBeneficiarioComponent implements OnInit {
   private readonly pessoaCadastroFacade = inject(PessoaCadastroFacade);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly data = inject<{ beneficiario: Beneficiario }>(MAT_DIALOG_DATA);
+  readonly data = inject<DadosModalEdicaoDadosBeneficiario>(MAT_DIALOG_DATA);
 
   readonly niveisEscolaridade = OPCOES_NIVEL_ESCOLARIDADE;
   readonly estadosCivis = OPCOES_ESTADO_CIVIL;

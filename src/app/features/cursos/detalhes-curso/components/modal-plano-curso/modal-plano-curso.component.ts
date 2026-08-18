@@ -18,8 +18,8 @@ import { PlanoCursoService } from '../../../../../core/services/plano-curso.serv
 import { NotificacaoService } from '../../../../../core/services/notificacao.service';
 import { PlanoCurso } from '../../../../../core/models/plano-curso.model';
 
-export interface ModalPlanoCursoData {
-  cursoId: string | number;
+export interface DadosModalPlanoCurso {
+  cursoId: string;
   plano?: PlanoCurso | null;
 }
 
@@ -41,7 +41,7 @@ export class ModalPlanoCursoComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ModalPlanoCursoComponent>);
   private readonly notificacao = inject(NotificacaoService);
 
-  readonly data = inject<ModalPlanoCursoData>(MAT_DIALOG_DATA);
+  readonly data = inject<DadosModalPlanoCurso>(MAT_DIALOG_DATA);
 
   form!: FormGroup;
   ehEdicao = false;

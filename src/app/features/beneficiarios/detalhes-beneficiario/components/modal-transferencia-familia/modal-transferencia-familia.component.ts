@@ -17,12 +17,12 @@ import { NotificacaoService } from '../../../../../core/services/notificacao.ser
 import { Beneficiario, BeneficiarioResumo, TransferirFamiliaDto } from '../../../../../core/models/beneficiario.model';
 import { BotaoComponent } from '../../../../../shared/components/ui/botao/botao.component';
 
-export interface ModalTransferenciaFamiliaData {
+export interface DadosModalTransferenciaFamilia {
   beneficiario: Beneficiario;
   ehUnicoMembro?: boolean;
 }
 
-export type TipoTransferencia = 'EXISTENTE' | 'NOVA';
+type TipoTransferencia = 'EXISTENTE' | 'NOVA';
 
 @Component({
   selector: 'app-modal-transferencia-familia',
@@ -48,7 +48,7 @@ export class ModalTransferenciaFamiliaComponent {
   private readonly familiaFormService = inject(FamiliaFormService);
   private readonly enderecoFormService = inject(EnderecoFormService);
 
-  readonly data = inject<ModalTransferenciaFamiliaData>(MAT_DIALOG_DATA);
+  readonly data = inject<DadosModalTransferenciaFamilia>(MAT_DIALOG_DATA);
 
   salvando = signal<boolean>(false);
   tipoTransferencia = signal<TipoTransferencia>('EXISTENTE');

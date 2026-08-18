@@ -40,8 +40,9 @@ export interface ProfessorResumo {
   nome: string;
 }
 
-export interface Turma {
+export interface TurmaResumo {
   id: string;
+  planoCursoId: string;
   nome: string;
   planoCurso?: PlanoCurso;
   cargaHoraria: number;
@@ -51,6 +52,9 @@ export interface Turma {
   criterioAvaliacao: CriterioAvaliacaoTurma;
   frequenciaMinima?: number | null;
   notaMinima?: string | null;
+}
+
+export interface Turma extends TurmaResumo {
   professores?: ProfessorResumo[];
 }
 
