@@ -41,4 +41,8 @@ export class PlanoCursoService {
   atualizar(id: string, payload: AtualizarPlanoCursoDto): Observable<PlanoCurso> {
     return this.http.patch<PlanoCurso>(`${this.API_URL}/${id}`, payload);
   }
+
+  excluir(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${id}`);
+  }
 }

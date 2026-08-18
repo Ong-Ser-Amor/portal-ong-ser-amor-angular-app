@@ -20,6 +20,13 @@
         (paginaAlterada)="mudarPaginaPlanos($event)">
         <ng-template appTabelaCelula="acoes" let-plano>
           <app-botao variante="icon" icone="edit" cor="primary" (click)="editarPlanoCurso(plano)" />
+          <app-botao
+            variante="icon"
+            icone="delete"
+            cor="warn"
+            [desabilitado]="estaCarregandoPlanos()"
+            (click)="excluirPlanoCurso(plano)"
+          />
         </ng-template>
       </app-tabela>
     </section>

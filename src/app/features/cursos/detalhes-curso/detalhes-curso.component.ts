@@ -24,6 +24,7 @@ import { formatarData } from '../../../shared/utils/data.utils';
 import { CONFIG_MODAL } from '../../../shared/components/ui/modal/modal.config';
 import { ModalPlanoCursoComponent } from './components/modal-plano-curso/modal-plano-curso.component';
 import { ModalTurmaComponent } from './components/modal-turma/modal-turma.component';
+import { ModalConfirmacaoComponent } from '../../../shared/components/ui/modal-confirmacao/modal-confirmacao.component';
 
 @Component({
   selector: 'app-detalhes-curso',
@@ -172,6 +173,35 @@ export class DetalhesCursoComponent implements OnInit {
       if (sucesso) {
         this.carregarPlanosCurso();
       }
+    });
+  }
+
+  excluirPlanoCurso(plano: PlanoCurso): void {
+    const dialogRef = this.dialog.open(ModalConfirmacaoComponent, {
+      ...CONFIG_MODAL.sm,
+      data: {
+        titulo: 'Excluir Plano de Curso',
+        mensagem: `Tem certeza que deseja excluir o plano de curso "${plano.nome}"? Esta ação não poderá ser desfeita.`,
+        tipo: 'perigo',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmado) => {
+      if (!confirmado) return;
+
+      this.estaCarregandoPlanos.set(true);
+      this.planoCursoService.excluir(plano.id).subscribe({
+        next: () => {
+          this.notificacao.sucesso('Plano de curso excluído com sucesso!');
+          this.carregarPlanosCurso();
+        },
+        error: (erro) => {
+          console.error('Erro ao excluir plano de curso:', erro);
+          const mensagem = erro?.error?.message || 'Erro ao excluir plano de curso.';
+          this.notificacao.erro(mensagem);
+          this.estaCarregandoPlanos.set(false);
+        },
+      });
     });
   }
 
