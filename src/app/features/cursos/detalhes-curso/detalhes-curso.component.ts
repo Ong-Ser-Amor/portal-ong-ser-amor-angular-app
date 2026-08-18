@@ -243,6 +243,37 @@ export class DetalhesCursoComponent implements OnInit {
     });
   }
 
+  excluirTurma(turma: Turma): void {
+    const dialogRef = this.dialog.open(ModalConfirmacaoComponent, {
+      ...CONFIG_MODAL.sm,
+      data: {
+        titulo: 'Excluir Turma',
+        mensagem: `Tem certeza que deseja excluir a turma "${turma.nome}"? Esta ação não poderá ser desfeita.`,
+        tipo: 'perigo',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmado) => {
+      if (!confirmado) return;
+
+      this.estaCarregandoTurmas.set(true);
+      this.turmaService.excluir(turma.id).subscribe({
+        next: () => {
+          this.notificacao.sucesso('Turma excluída com sucesso!');
+          if (this.cursoId()) {
+            this.carregarTurmas(this.cursoId()!);
+          }
+        },
+        error: (erro) => {
+          console.error('Erro ao excluir turma:', erro);
+          const mensagem = erro?.error?.message || 'Erro ao excluir turma.';
+          this.notificacao.erro(mensagem);
+          this.estaCarregandoTurmas.set(false);
+        },
+      });
+    });
+  }
+
   carregarTurmas(cursoId: number): void {
     this.estaCarregandoTurmas.set(true);
 

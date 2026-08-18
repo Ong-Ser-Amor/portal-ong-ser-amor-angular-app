@@ -47,4 +47,8 @@ export class TurmaService {
   atualizar(id: string, payload: AtualizarTurmaDto): Observable<Turma> {
     return this.http.patch<Turma>(`${this.API_URL}/${id}`, payload);
   }
+
+  excluir(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${id}`);
+  }
 }

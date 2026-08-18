@@ -44,6 +44,13 @@
         (paginaAlterada)="mudarPaginaTurmas($event)">
         <ng-template appTabelaCelula="acoes" let-turma>
           <app-botao variante="icon" icone="edit" cor="primary" (click)="editarTurma(turma)" />
+          <app-botao
+            variante="icon"
+            icone="delete"
+            cor="warn"
+            [desabilitado]="estaCarregandoTurmas()"
+            (click)="excluirTurma(turma)"
+          />
         </ng-template>
       </app-tabela>
     </section>
