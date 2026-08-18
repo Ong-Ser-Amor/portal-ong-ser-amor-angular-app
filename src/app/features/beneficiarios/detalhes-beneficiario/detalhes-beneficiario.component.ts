@@ -33,7 +33,7 @@ import { ModalEdicaoDadosBeneficiarioComponent } from './components/modal-edicao
 import { ModalEdicaoContatoComponent } from './components/modal-edicao-contato/modal-edicao-contato.component';
 import { ModalEdicaoEnderecoComponent } from './components/modal-edicao-endereco/modal-edicao-endereco.component';
 import { ModalEdicaoDadosFamiliaComponent } from './components/modal-edicao-dados-familia/modal-edicao-dados-familia.component';
-import { ModalTransferirFamiliaComponent } from './components/modal-transferir-familia/modal-transferir-familia.component';
+import { ModalTransferenciaFamiliaComponent } from './components/modal-transferencia-familia/modal-transferencia-familia.component';
 import { ModalConfirmacaoComponent } from '../../../shared/components/ui/modal-confirmacao/modal-confirmacao.component';
 import { CONFIG_MODAL } from '../../../shared/components/ui/modal/modal.config';
 
@@ -252,8 +252,8 @@ export class DetalhesBeneficiarioComponent implements OnInit {
     });
   }
 
-  abrirModalTransferirFamilia(beneficiario: Beneficiario): void {
-    const dialogRef = this.dialog.open(ModalTransferirFamiliaComponent, {
+  abrirModalTransferenciaFamilia(beneficiario: Beneficiario): void {
+    const dialogRef = this.dialog.open(ModalTransferenciaFamiliaComponent, {
       ...CONFIG_MODAL.lg,
       data: {
         beneficiario,

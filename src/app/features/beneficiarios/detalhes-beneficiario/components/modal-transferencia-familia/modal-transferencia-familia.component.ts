@@ -17,7 +17,7 @@ import { NotificacaoService } from '../../../../../core/services/notificacao.ser
 import { Beneficiario, BeneficiarioResumo, TransferirFamiliaDto } from '../../../../../core/models/beneficiario.model';
 import { BotaoComponent } from '../../../../../shared/components/ui/botao/botao.component';
 
-export interface ModalTransferirFamiliaData {
+export interface ModalTransferenciaFamiliaData {
   beneficiario: Beneficiario;
   ehUnicoMembro?: boolean;
 }
@@ -25,7 +25,7 @@ export interface ModalTransferirFamiliaData {
 export type TipoTransferencia = 'EXISTENTE' | 'NOVA';
 
 @Component({
-  selector: 'app-modal-transferir-familia',
+  selector: 'app-modal-transferencia-familia',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -38,17 +38,17 @@ export type TipoTransferencia = 'EXISTENTE' | 'NOVA';
     FormularioDadosFamiliaComponent,
     FormularioEnderecoComponent,
   ],
-  templateUrl: './modal-transferir-familia.component.html',
-  styleUrl: './modal-transferir-familia.component.scss',
+  templateUrl: './modal-transferencia-familia.component.html',
+  styleUrl: './modal-transferencia-familia.component.scss',
 })
-export class ModalTransferirFamiliaComponent {
-  private readonly dialogRef = inject(MatDialogRef<ModalTransferirFamiliaComponent>);
+export class ModalTransferenciaFamiliaComponent {
+  private readonly dialogRef = inject(MatDialogRef<ModalTransferenciaFamiliaComponent>);
   private readonly notificacao = inject(NotificacaoService);
   private readonly beneficiarioService = inject(BeneficiarioService);
   private readonly familiaFormService = inject(FamiliaFormService);
   private readonly enderecoFormService = inject(EnderecoFormService);
 
-  readonly data = inject<ModalTransferirFamiliaData>(MAT_DIALOG_DATA);
+  readonly data = inject<ModalTransferenciaFamiliaData>(MAT_DIALOG_DATA);
 
   salvando = signal<boolean>(false);
   tipoTransferencia = signal<TipoTransferencia>('EXISTENTE');
