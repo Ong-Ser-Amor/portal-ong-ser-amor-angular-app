@@ -72,12 +72,14 @@
         label="Frequência Mínima (%)"
         type="number"
         placeholder="Ex: 75"
+        [required]="frequenciaObrigatoria"
       />
 
       <app-input
         formControlName="notaMinima"
         label="Nota/XP Mínimo"
         placeholder="Ex: 6.00"
+        [required]="notaObrigatoria"
       />
     </div>
   </form>
