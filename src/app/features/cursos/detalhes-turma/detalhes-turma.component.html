@@ -1,0 +1,104 @@
+<div class="pagina-detalhes-turma">
+  <app-cabecalho-pagina
+    [titulo]="turma() ? turma()!.nome : 'Detalhes da Turma'"
+    [exibirBotaoVoltar]="true"
+    [rotaVoltar]="obterRotaVoltar()"
+  />
+
+  @if (estaCarregando()) {
+    <div class="carregando-container">
+      <app-spinner />
+    </div>
+  }
+
+  @if (turma(); as dadosTurma) {
+    <div class="conteudo-detalhes">
+      <!-- Card: Informações da Turma -->
+      <app-card titulo="Informações da Turma" icone="groups">
+        <div class="grid-detalhes">
+          <div class="detalhe-item">
+            <span class="label">Nome da Turma</span>
+            <span class="valor">{{ dadosTurma.nome }}</span>
+          </div>
+
+          <div class="detalhe-item">
+            <span class="label">Plano de Curso</span>
+            <span class="valor">{{ dadosTurma.planoCurso?.nome || '—' }}</span>
+          </div>
+
+          <div class="detalhe-item">
+            <span class="label">Curso</span>
+            <span class="valor">{{ dadosTurma.planoCurso?.curso?.nome || '—' }}</span>
+          </div>
+
+          <div class="detalhe-item">
+            <span class="label">Status</span>
+            <span class="valor">
+              <span class="badge-status status-{{ dadosTurma.status.toLowerCase() }}">
+                {{ rotulosStatus[dadosTurma.status] || dadosTurma.status }}
+              </span>
+            </span>
+          </div>
+
+          <div class="detalhe-item">
+            <span class="label">Carga Horária</span>
+            <span class="valor">{{ dadosTurma.cargaHoraria }} horas</span>
+          </div>
+
+          <div class="detalhe-item">
+            <span class="label">Data de Início</span>
+            <span class="valor">{{ formatarData(dadosTurma.dataInicio) }}</span>
+          </div>
+
+          <div class="detalhe-item">
+            <span class="label">Data de Término</span>
+            <span class="valor">{{ formatarData(dadosTurma.dataFim) }}</span>
+          </div>
+
+          <div class="detalhe-item">
+            <span class="label">Critério de Avaliação</span>
+            <span class="valor">{{ rotulosCriterio[dadosTurma.criterioAvaliacao] || dadosTurma.criterioAvaliacao }}</span>
+          </div>
+
+          <div class="detalhe-item">
+            <span class="label">Frequência Mínima</span>
+            <span class="valor">{{ dadosTurma.frequenciaMinima !== null && dadosTurma.frequenciaMinima !== undefined ? dadosTurma.frequenciaMinima + '%' : 'Não exigida' }}</span>
+          </div>
+
+          <div class="detalhe-item">
+            <span class="label">Nota/XP Mínimo</span>
+            <span class="valor">{{ dadosTurma.notaMinima ? dadosTurma.notaMinima : 'Não exigida' }}</span>
+          </div>
+        </div>
+      </app-card>
+
+      <!-- Seção: Professores Vinculados -->
+      <section class="secao-detalhe">
+        <div class="secao-cabecalho">
+          <h2 class="secao-titulo">Professores Vinculados</h2>
+          <app-botao
+            label="Vincular Professor"
+            icone="person_add"
+            cor="primary"
+            (click)="abrirModalVincularProfessor()"
+          />
+        </div>
+
+        <app-tabela
+          [dados]="dadosTurma.professores || []"
+          [colunas]="colunasProfessores"
+          textoSemDados="Nenhum professor vinculado a esta turma."
+        >
+          <ng-template appTabelaCelula="acoes" let-professor>
+            <app-botao
+              variante="icon"
+              icone="delete"
+              cor="warn"
+              (click)="desvincularProfessor(professor)"
+            />
+          </ng-template>
+        </app-tabela>
+      </section>
+    </div>
+  }
+</div>

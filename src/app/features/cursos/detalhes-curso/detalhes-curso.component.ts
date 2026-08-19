@@ -94,7 +94,7 @@ export class DetalhesCursoComponent implements OnInit {
 
     this.cursoId.set(id);
     this.carregarCurso(id);
-    this.carregarPlanosCurso();
+    this.carregarPlanosCurso(id);
     this.carregarTurmas(id);
   }
 
@@ -116,11 +116,15 @@ export class DetalhesCursoComponent implements OnInit {
       });
   }
 
-  carregarPlanosCurso(): void {
+  carregarPlanosCurso(cursoId?: string): void {
+    const id = cursoId || this.cursoId();
+    if (!id) return;
+
     this.estaCarregandoPlanos.set(true);
 
     this.planoCursoService
       .buscarTodos({
+        cursoId: id,
         pagina: this.paginaAtualPlanos(),
         itensPorPagina: this.itensPorPaginaPlanos(),
       })
@@ -239,6 +243,11 @@ export class DetalhesCursoComponent implements OnInit {
         this.carregarTurmas(this.cursoId()!);
       }
     });
+  }
+
+  verDetalhesTurma(turma: TurmaResumo): void {
+    if (!this.cursoId()) return;
+    this.router.navigate(['/cursos', this.cursoId()!, 'turmas', turma.id]);
   }
 
   excluirTurma(turma: TurmaResumo): void {

@@ -1,0 +1,26 @@
+<app-modal
+  titulo="Vincular Professor"
+  icone="person_add"
+  [confirmarDesabilitado]="salvando() || carregandoVoluntarios() || opcoesVoluntarios().length === 0"
+  [carregando]="salvando()"
+  (fechar)="cancelar()"
+  (salvar)="salvar()"
+>
+  <form [formGroup]="form" (ngSubmit)="salvar()" class="form-container">
+    @if (carregandoVoluntarios()) {
+      <p class="aviso-carregando">Carregando voluntários disponíveis...</p>
+    } @else if (opcoesVoluntarios().length === 0) {
+      <p class="aviso-vazio">Nenhum voluntário disponível para vinculação.</p>
+    } @else {
+      <div class="linha-form">
+        <app-select
+          formControlName="professorId"
+          label="Professor (Voluntário)"
+          [opcoes]="opcoesVoluntarios()"
+          placeholder="Selecione um voluntário"
+          [required]="true"
+        />
+      </div>
+    }
+  </form>
+</app-modal>

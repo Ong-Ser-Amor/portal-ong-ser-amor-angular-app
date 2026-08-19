@@ -26,6 +26,9 @@ export class PlanoCursoService {
     if (filtro.itensPorPagina) {
       params = params.set('itensPorPagina', filtro.itensPorPagina.toString());
     }
+    if (filtro.cursoId) {
+      params = params.set('cursoId', filtro.cursoId.toString());
+    }
 
     return this.http.get<PaginacaoResposta<PlanoCurso>>(this.API_URL, { params });
   }

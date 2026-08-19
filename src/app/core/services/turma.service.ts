@@ -52,4 +52,12 @@ export class TurmaService {
   excluir(id: string): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/${id}`);
   }
+
+  vincularProfessor(turmaId: string, professorId: string): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/${turmaId}/professores`, { professorId });
+  }
+
+  desvincularProfessor(turmaId: string, professorId: string): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${turmaId}/professores/${professorId}`);
+  }
 }

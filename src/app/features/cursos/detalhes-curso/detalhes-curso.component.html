@@ -38,18 +38,37 @@
         <app-botao label="Nova Turma" icone="add" cor="primary" (click)="adicionarTurma()" />
       </div>
 
-      <app-tabela [dados]="turmas()" [colunas]="colunasTurmas" [carregando]="estaCarregandoTurmas()"
-        textoSemDados="Nenhuma turma encontrada para este curso." [totalItens]="totalItensTurmas()"
-        [paginaAtual]="paginaAtualTurmas()" [itensPorPagina]="itensPorPaginaTurmas()"
-        (paginaAlterada)="mudarPaginaTurmas($event)">
+      <app-tabela
+        [dados]="turmas()"
+        [colunas]="colunasTurmas"
+        [carregando]="estaCarregandoTurmas()"
+        [clicavel]="true"
+        (linhaClicada)="verDetalhesTurma($event)"
+        textoSemDados="Nenhuma turma encontrada para este curso."
+        [totalItens]="totalItensTurmas()"
+        [paginaAtual]="paginaAtualTurmas()"
+        [itensPorPagina]="itensPorPaginaTurmas()"
+        (paginaAlterada)="mudarPaginaTurmas($event)"
+      >
         <ng-template appTabelaCelula="acoes" let-turma>
-          <app-botao variante="icon" icone="edit" cor="primary" (click)="editarTurma(turma)" />
+          <app-botao
+            variante="icon"
+            icone="visibility"
+            cor="primary"
+            (click)="$event.stopPropagation(); verDetalhesTurma(turma)"
+          />
+          <app-botao
+            variante="icon"
+            icone="edit"
+            cor="primary"
+            (click)="$event.stopPropagation(); editarTurma(turma)"
+          />
           <app-botao
             variante="icon"
             icone="delete"
             cor="warn"
             [desabilitado]="estaCarregandoTurmas()"
-            (click)="excluirTurma(turma)"
+            (click)="$event.stopPropagation(); excluirTurma(turma)"
           />
         </ng-template>
       </app-tabela>
