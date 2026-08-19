@@ -72,6 +72,46 @@
     background-color: #fee2e2;
     color: #b91c1c;
   }
+
+  &.status-aula-agendada {
+    background-color: #fef3c7;
+    color: #b45309;
+  }
+
+  &.status-aula-realizada {
+    background-color: #dcfce7;
+    color: #15803d;
+  }
+
+  &.status-aula-cancelada {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+
+  &.status-matricula-ativa {
+    background-color: #e0f2fe;
+    color: #0369a1;
+  }
+
+  &.status-matricula-concluida {
+    background-color: #dcfce7;
+    color: #15803d;
+  }
+
+  &.status-matricula-evadida {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+}
+
+.badge-resultado-aprovado {
+  font-weight: 600;
+  color: #15803d;
+}
+
+.badge-resultado-reprovado {
+  font-weight: 600;
+  color: #b91c1c;
 }
 
 .secao-detalhe {

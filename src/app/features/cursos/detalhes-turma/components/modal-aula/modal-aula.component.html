@@ -1,0 +1,38 @@
+<app-modal
+  [titulo]="ehEdicao ? 'Editar Aula' : 'Nova Aula'"
+  icone="event_note"
+  [confirmarDesabilitado]="salvando()"
+  [carregando]="salvando()"
+  (fechar)="cancelar()"
+  (salvar)="salvar()"
+>
+  <form [formGroup]="form" (ngSubmit)="salvar()" class="form-container">
+    <div class="linha-form">
+      <app-date-input
+        formControlName="data"
+        label="Data da Aula"
+        [required]="true"
+      />
+    </div>
+
+    <div class="linha-form">
+      <app-input
+        formControlName="tema"
+        label="Tema / Conteúdo Programático"
+        placeholder="Ex: Introdução a Algoritmos e Estruturas"
+        [required]="true"
+      />
+    </div>
+
+    @if (ehEdicao) {
+      <div class="linha-form">
+        <app-select
+          formControlName="status"
+          label="Status"
+          [opcoes]="opcoesStatusAula"
+          [required]="true"
+        />
+      </div>
+    }
+  </form>
+</app-modal>

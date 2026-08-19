@@ -77,8 +77,7 @@ export class ModalCursoComponent implements OnInit {
         },
         error: (err) => {
           console.error('Erro ao salvar curso:', err);
-          const msg = err?.error?.message || 'Erro ao salvar curso.';
-          this.notificacao.erro(msg);
+          this.notificacao.erro('Erro ao salvar o curso. Tente novamente.');
         },
       });
   }

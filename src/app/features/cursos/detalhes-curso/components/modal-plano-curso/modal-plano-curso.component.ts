@@ -87,8 +87,7 @@ export class ModalPlanoCursoComponent implements OnInit {
         },
         error: (err) => {
           console.error('Erro ao salvar plano de curso:', err);
-          const msg = err?.error?.message || 'Erro ao salvar plano de curso.';
-          this.notificacao.erro(msg);
+          this.notificacao.erro('Erro ao salvar o plano de curso. Tente novamente.');
         },
       });
   }

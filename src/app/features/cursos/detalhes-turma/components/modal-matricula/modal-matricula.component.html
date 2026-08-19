@@ -1,0 +1,61 @@
+<app-modal
+  [titulo]="ehEdicao ? 'Editar Matrícula' : 'Matricular Aluno'"
+  icone="school"
+  [confirmarDesabilitado]="salvando() || (!ehEdicao && (carregandoBeneficiarios() || opcoesBeneficiarios().length === 0))"
+  [carregando]="salvando()"
+  (fechar)="cancelar()"
+  (salvar)="salvar()"
+>
+  <form [formGroup]="form" (ngSubmit)="salvar()" class="form-container">
+    @if (!ehEdicao) {
+      @if (carregandoBeneficiarios()) {
+        <p class="aviso-carregando">Carregando beneficiários disponíveis...</p>
+      } @else if (opcoesBeneficiarios().length === 0) {
+        <p class="aviso-vazio">Nenhum beneficiário disponível para matrícula.</p>
+      } @else {
+        <div class="linha-form">
+          <app-select
+            formControlName="beneficiarioId"
+            label="Aluno (Beneficiário)"
+            [opcoes]="opcoesBeneficiarios()"
+            placeholder="Selecione um beneficiário"
+            [required]="true"
+          />
+        </div>
+      }
+    } @else {
+      <div class="linha-form">
+        <app-select
+          formControlName="status"
+          label="Status da Matrícula"
+          [opcoes]="opcoesStatusMatricula"
+          [required]="true"
+        />
+      </div>
+
+      <div class="linha-form">
+        <app-select
+          formControlName="resultadoFinal"
+          label="Resultado Final"
+          [opcoes]="opcoesResultadoFinal"
+        />
+      </div>
+
+      <div class="linha-form">
+        <app-input
+          formControlName="notaFinal"
+          label="Nota / Pontuação Final"
+          placeholder="Ex: 8.50"
+        />
+      </div>
+
+      <div class="linha-form">
+        <app-input
+          formControlName="parecerPedagogico"
+          label="Parecer Pedagógico"
+          placeholder="Observações e avaliação do aluno"
+        />
+      </div>
+    }
+  </form>
+</app-modal>

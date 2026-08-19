@@ -72,6 +72,56 @@
         </div>
       </app-card>
 
+      <!-- Seção: Aulas -->
+      <section class="secao-detalhe">
+        <div class="secao-cabecalho">
+          <h2 class="secao-titulo">Aulas</h2>
+          <app-botao
+            label="Nova Aula"
+            icone="add"
+            cor="primary"
+            (click)="adicionarAula()"
+          />
+        </div>
+
+        <app-tabela
+          [dados]="aulas()"
+          [colunas]="colunasAulas"
+          [carregando]="estaCarregandoAulas()"
+          textoSemDados="Nenhuma aula cadastrada para esta turma."
+          [totalItens]="totalItensAulas()"
+          [paginaAtual]="paginaAtualAulas()"
+          [itensPorPagina]="itensPorPaginaAulas()"
+          (paginaAlterada)="mudarPaginaAulas($event)"
+        >
+          <ng-template appTabelaCelula="data" let-aula>
+            {{ formatarData(aula.data) }}
+          </ng-template>
+
+          <ng-template appTabelaCelula="status" let-aula>
+            <span class="badge-status status-aula-{{ aula.status.toLowerCase() }}">
+              {{ obterRotuloStatusAula(aula.status) }}
+            </span>
+          </ng-template>
+
+          <ng-template appTabelaCelula="acoes" let-aula>
+            <app-botao
+              variante="icon"
+              icone="edit"
+              cor="primary"
+              (click)="editarAula(aula)"
+            />
+            <app-botao
+              variante="icon"
+              icone="delete"
+              cor="warn"
+              [desabilitado]="estaCarregandoAulas()"
+              (click)="excluirAula(aula)"
+            />
+          </ng-template>
+        </app-tabela>
+      </section>
+
       <!-- Seção: Professores Vinculados -->
       <section class="secao-detalhe">
         <div class="secao-cabecalho">
@@ -95,6 +145,69 @@
               icone="delete"
               cor="warn"
               (click)="desvincularProfessor(professor)"
+            />
+          </ng-template>
+        </app-tabela>
+      </section>
+
+      <!-- Seção: Alunos / Matrículas -->
+      <section class="secao-detalhe">
+        <div class="secao-cabecalho">
+          <h2 class="secao-titulo">Alunos Matriculados</h2>
+          <app-botao
+            label="Matricular Aluno"
+            icone="person_add"
+            cor="primary"
+            (click)="adicionarMatricula()"
+          />
+        </div>
+
+        <app-tabela
+          [dados]="matriculas()"
+          [colunas]="colunasMatriculas"
+          [carregando]="estaCarregandoMatriculas()"
+          textoSemDados="Nenhum aluno matriculado nesta turma."
+          [totalItens]="totalItensMatriculas()"
+          [paginaAtual]="paginaAtualMatriculas()"
+          [itensPorPagina]="itensPorPaginaMatriculas()"
+          (paginaAlterada)="mudarPaginaMatriculas($event)"
+        >
+          <ng-template appTabelaCelula="nomeAluno" let-matricula>
+            {{ matricula.beneficiario?.nome }}
+          </ng-template>
+
+          <ng-template appTabelaCelula="status" let-matricula>
+            <span class="badge-status status-matricula-{{ matricula.status.toLowerCase() }}">
+              {{ obterRotuloStatusMatricula(matricula.status) }}
+            </span>
+          </ng-template>
+
+          <ng-template appTabelaCelula="resultadoFinal" let-matricula>
+            <span
+              [class.badge-resultado-aprovado]="matricula.resultadoFinal === 'APROVADO'"
+              [class.badge-resultado-reprovado]="matricula.resultadoFinal === 'REPROVADO'"
+            >
+              {{ obterRotuloResultadoFinal(matricula.resultadoFinal) }}
+            </span>
+          </ng-template>
+
+          <ng-template appTabelaCelula="notaFinal" let-matricula>
+            {{ matricula.notaFinal ? matricula.notaFinal : '—' }}
+          </ng-template>
+
+          <ng-template appTabelaCelula="acoes" let-matricula>
+            <app-botao
+              variante="icon"
+              icone="edit"
+              cor="primary"
+              (click)="editarMatricula(matricula)"
+            />
+            <app-botao
+              variante="icon"
+              icone="delete"
+              cor="warn"
+              [desabilitado]="estaCarregandoMatriculas()"
+              (click)="excluirMatricula(matricula)"
             />
           </ng-template>
         </app-tabela>

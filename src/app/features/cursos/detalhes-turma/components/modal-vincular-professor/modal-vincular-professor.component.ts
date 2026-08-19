@@ -98,8 +98,7 @@ export class ModalVincularProfessorComponent implements OnInit {
         },
         error: (erro) => {
           console.error('Erro ao vincular professor:', erro);
-          const mensagem = erro?.error?.message || 'Erro ao vincular professor à turma.';
-          this.notificacao.erro(mensagem);
+          this.notificacao.erro('Erro ao vincular o professor. Tente novamente.');
         },
       });
   }

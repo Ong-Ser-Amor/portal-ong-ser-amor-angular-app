@@ -180,8 +180,7 @@ export class ModalTurmaComponent implements OnInit {
         },
         error: (err) => {
           console.error('Erro ao salvar turma:', err);
-          const msg = err?.error?.message || 'Erro ao salvar turma.';
-          this.notificacao.erro(msg);
+          this.notificacao.erro('Erro ao salvar a turma. Tente novamente.');
         },
       });
   }

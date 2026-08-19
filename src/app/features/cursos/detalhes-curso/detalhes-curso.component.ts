@@ -199,8 +199,7 @@ export class DetalhesCursoComponent implements OnInit {
         },
         error: (erro) => {
           console.error('Erro ao excluir plano de curso:', erro);
-          const mensagem = erro?.error?.message || 'Erro ao excluir plano de curso.';
-          this.notificacao.erro(mensagem);
+          this.notificacao.erro('Erro ao excluir o plano de curso. Tente novamente.');
           this.estaCarregandoPlanos.set(false);
         },
       });
@@ -273,8 +272,7 @@ export class DetalhesCursoComponent implements OnInit {
         },
         error: (erro) => {
           console.error('Erro ao excluir turma:', erro);
-          const mensagem = erro?.error?.message || 'Erro ao excluir turma.';
-          this.notificacao.erro(mensagem);
+          this.notificacao.erro('Erro ao excluir a turma. Tente novamente.');
           this.estaCarregandoTurmas.set(false);
         },
       });

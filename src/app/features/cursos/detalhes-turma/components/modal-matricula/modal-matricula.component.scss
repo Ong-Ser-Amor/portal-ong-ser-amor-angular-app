@@ -1,0 +1,21 @@
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0.5rem 0;
+}
+
+.linha-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.aviso-carregando,
+.aviso-vazio {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-muted, #64748b);
+  text-align: center;
+  padding: 1rem 0;
+}
