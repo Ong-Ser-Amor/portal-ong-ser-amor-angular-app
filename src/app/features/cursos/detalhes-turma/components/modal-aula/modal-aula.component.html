@@ -11,6 +11,9 @@
       <app-date-input
         formControlName="data"
         label="Data da Aula"
+        [min]="data.dataInicioTurma"
+        [max]="data.dataFimTurma"
+        [errorMessages]="mensagensErroData"
         [required]="true"
       />
     </div>

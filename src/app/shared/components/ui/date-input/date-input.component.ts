@@ -70,6 +70,10 @@ export class CustomErrorStateMatcher implements ErrorStateMatcher {
   }
 }
 
+export type DateInputErrorMessage = string | ((error: any) => string);
+
+export type DateInputErrorMessages = Record<string, DateInputErrorMessage>;
+
 @Component({
   selector: 'app-date-input',
   standalone: true,
@@ -106,6 +110,9 @@ export class DateInputComponent implements ControlValueAccessor, DoCheck {
   /** Data máxima limite estática em objeto Date ou string no formato 'YYYY-MM-DD' */
   max = input<Date | string>();
 
+  /** Mensagens de erro personalizadas para sobrescrever ou estender as mensagens padrão */
+  errorMessages = input<DateInputErrorMessages>({});
+
   /** Se true, bloqueia automaticamente a seleção de qualquer data no futuro (posterior a HOJE) */
   bloquearFuturo = input<boolean>(false);
 
@@ -123,6 +130,13 @@ export class DateInputComponent implements ControlValueAccessor, DoCheck {
   disabled = signal<boolean>(false);
 
   readonly matcher = new CustomErrorStateMatcher(() => this.control);
+
+  private readonly defaultErrorMessages: DateInputErrorMessages = {
+    required: () => `${this.label()} é obrigatório`,
+    matDatepickerParse: 'Data inválida',
+    matDatepickerMin: 'Data inferior ao limite permitido',
+    matDatepickerMax: 'Data superior ao limite permitido',
+  };
 
   // ControlValueAccessor callbacks
   private onChange: (value: any) => void = () => { };
@@ -147,9 +161,19 @@ export class DateInputComponent implements ControlValueAccessor, DoCheck {
   private converterParaDate(valor: Date | string | undefined | null): Date | null {
     if (!valor) return null;
     if (typeof valor === 'string') {
-      const partes = valor.split('-').map(Number);
-      if (partes.length === 3 && !partes.some(isNaN)) {
-        return new Date(partes[0], partes[1] - 1, partes[2]);
+      const texto = valor.trim();
+      const textoData = texto.includes('T') ? texto.split('T')[0] : texto;
+      if (textoData.includes('-')) {
+        const partes = textoData.split('-').map(Number);
+        if (partes.length === 3 && !partes.some(isNaN)) {
+          return new Date(partes[0], partes[1] - 1, partes[2]);
+        }
+      }
+      if (textoData.includes('/')) {
+        const partes = textoData.split('/').map(Number);
+        if (partes.length === 3 && !partes.some(isNaN)) {
+          return new Date(partes[2], partes[1] - 1, partes[0]);
+        }
       }
     }
     if (valor instanceof Date && !isNaN(valor.getTime())) {
@@ -254,24 +278,26 @@ export class DateInputComponent implements ControlValueAccessor, DoCheck {
   }
 
   get mensagemErro(): string {
-    if (!this.control?.errors) return '';
+    const errors = this.control?.errors;
 
-    const erros = this.control.errors;
-
-    if (erros['required']) {
-      return `${this.label()} é obrigatório`;
-    }
-    if (erros['matDatepickerParse']) {
-      return 'Data inválida';
-    }
-    if (erros['matDatepickerMin']) {
-      return 'Data inferior ao limite permitido';
-    }
-    if (erros['matDatepickerMax']) {
-      return 'Data superior ao limite permitido';
+    if (!errors) {
+      return '';
     }
 
-    return 'Campo inválido';
+    const messages: DateInputErrorMessages = {
+      ...this.defaultErrorMessages,
+      ...this.errorMessages(),
+    };
+
+    const errorKey = Object.keys(errors).find((key) => messages[key]);
+
+    if (!errorKey) {
+      return 'Campo inválido';
+    }
+
+    const message = messages[errorKey];
+
+    return typeof message === 'function' ? message(errors[errorKey]) : message;
   }
 
   onInput(event: Event): void {

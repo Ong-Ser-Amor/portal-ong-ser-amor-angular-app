@@ -1,13 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { finalize } from 'rxjs';
 
 import { ModalComponent } from '../../../../../shared/components/ui/modal/modal.component';
 import { InputComponent } from '../../../../../shared/components/ui/input/input.component';
 import { SelectComponent } from '../../../../../shared/components/ui/select/select.component';
-import { DateInputComponent } from '../../../../../shared/components/ui/date-input/date-input.component';
+import { DateInputComponent, DateInputErrorMessages } from '../../../../../shared/components/ui/date-input/date-input.component';
 import { AulaService } from '../../../../../core/services/aula.service';
 import { NotificacaoService } from '../../../../../core/services/notificacao.service';
 import {
@@ -19,6 +19,8 @@ import {
 
 export interface DadosModalAula {
   turmaId: string;
+  dataInicioTurma?: string;
+  dataFimTurma?: string;
   aula?: Aula | null;
 }
 
@@ -50,6 +52,11 @@ export class ModalAulaComponent implements OnInit {
 
   readonly opcoesStatusAula = OPCOES_STATUS_AULA;
 
+  readonly mensagensErroData: DateInputErrorMessages = {
+    matDatepickerMin: 'Data anterior ao início da turma',
+    matDatepickerMax: 'Data posterior ao término da turma',
+  };
+
   ngOnInit(): void {
     this.ehEdicao = !!this.data?.aula;
     const aula = this.data?.aula;
@@ -57,7 +64,13 @@ export class ModalAulaComponent implements OnInit {
     this.form = this.fb.group({
       data: [
         aula?.data ? aula.data.split('T')[0] : '',
-        [Validators.required],
+        [
+          Validators.required,
+          this.criarValidadorPeriodoTurma(
+            this.data?.dataInicioTurma,
+            this.data?.dataFimTurma
+          ),
+        ],
       ],
       tema: [
         aula?.tema || '',
@@ -68,6 +81,38 @@ export class ModalAulaComponent implements OnInit {
         [Validators.required],
       ],
     });
+  }
+
+  private criarValidadorPeriodoTurma(dataInicio?: string, dataFim?: string) {
+    const inicioStr = dataInicio ? (dataInicio.includes('T') ? dataInicio.split('T')[0] : dataInicio) : '';
+    const fimStr = dataFim ? (dataFim.includes('T') ? dataFim.split('T')[0] : dataFim) : '';
+
+    return (control: AbstractControl): ValidationErrors | null => {
+      const valor = control.value;
+      if (!valor) return null;
+
+      let dataStr = '';
+      if (typeof valor === 'string') {
+        dataStr = valor.includes('T') ? valor.split('T')[0] : valor;
+      } else if (valor instanceof Date && !isNaN(valor.getTime())) {
+        const y = valor.getFullYear();
+        const m = String(valor.getMonth() + 1).padStart(2, '0');
+        const d = String(valor.getDate()).padStart(2, '0');
+        dataStr = `${y}-${m}-${d}`;
+      }
+
+      if (!dataStr) return null;
+
+      if (inicioStr && dataStr < inicioStr) {
+        return { matDatepickerMin: true };
+      }
+
+      if (fimStr && dataStr > fimStr) {
+        return { matDatepickerMax: true };
+      }
+
+      return null;
+    };
   }
 
   cancelar(): void {

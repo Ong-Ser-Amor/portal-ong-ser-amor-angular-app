@@ -202,10 +202,15 @@ export class DetalhesTurmaComponent implements OnInit {
   adicionarAula(): void {
     if (!this.turmaId()) return;
 
+    const dataInicio = this.turma()?.dataInicio ? this.turma()!.dataInicio.split('T')[0] : undefined;
+    const dataFim = this.turma()?.dataFim ? this.turma()!.dataFim.split('T')[0] : undefined;
+
     const dialogRef = this.dialog.open(ModalAulaComponent, {
       ...CONFIG_MODAL.sm,
       data: {
         turmaId: this.turmaId()!,
+        dataInicioTurma: dataInicio,
+        dataFimTurma: dataFim,
         aula: null,
       },
     });
@@ -220,10 +225,15 @@ export class DetalhesTurmaComponent implements OnInit {
   editarAula(aula: Aula): void {
     if (!this.turmaId()) return;
 
+    const dataInicio = this.turma()?.dataInicio ? this.turma()!.dataInicio.split('T')[0] : undefined;
+    const dataFim = this.turma()?.dataFim ? this.turma()!.dataFim.split('T')[0] : undefined;
+
     const dialogRef = this.dialog.open(ModalAulaComponent, {
       ...CONFIG_MODAL.sm,
       data: {
         turmaId: this.turmaId()!,
+        dataInicioTurma: dataInicio,
+        dataFimTurma: dataFim,
         aula,
       },
     });
