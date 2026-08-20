@@ -16,9 +16,9 @@ import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ModalComponent } from '../../../../../shared/components/ui/modal/modal.component';
-import { InputComponent } from '../../../../../shared/components/ui/input/input.component';
+import { InputComponent, InputErrorMessages } from '../../../../../shared/components/ui/input/input.component';
 import { SelectComponent } from '../../../../../shared/components/ui/select/select.component';
-import { DateInputComponent } from '../../../../../shared/components/ui/date-input/date-input.component';
+import { DateInputComponent, DateInputErrorMessages } from '../../../../../shared/components/ui/date-input/date-input.component';
 import { TurmaService } from '../../../../../core/services/turma.service';
 import { NotificacaoService } from '../../../../../core/services/notificacao.service';
 import { PlanoCurso } from '../../../../../core/models/plano-curso.model';
@@ -81,6 +81,18 @@ export class ModalTurmaComponent implements OnInit {
       rotulo: plano.nome,
     }))
   );
+
+  readonly mensagensErroNome: InputErrorMessages = {
+    nomeDuplicado: 'Já existe uma turma com este nome neste plano de curso',
+  };
+
+  readonly mensagensErroDataInicio: DateInputErrorMessages = {
+    conflitoAulas: 'Data posterior a aulas já cadastradas nesta turma',
+  };
+
+  readonly mensagensErroDataFim: DateInputErrorMessages = {
+    conflitoAulas: 'Data anterior a aulas já cadastradas nesta turma',
+  };
 
   get frequenciaObrigatoria(): boolean {
     const criterio = this.form?.get('criterioAvaliacao')?.value;
@@ -304,6 +316,55 @@ export class ModalTurmaComponent implements OnInit {
         },
         error: (err) => {
           console.error('Erro ao salvar turma:', err);
+
+          // 409 Conflict - Unicidade de nome de turma no mesmo plano
+          if (err?.status === 409) {
+            this.form.get('nome')?.setErrors({ nomeDuplicado: true });
+            this.notificacao.erro(
+              'Já existe uma turma cadastrada com este nome para este plano de curso.'
+            );
+            return;
+          }
+
+          // 400 Bad Request - Regras de negócio e consistência documentadas da API
+          if (err?.status === 400) {
+            const codigo = err?.error?.codigo;
+
+            if (codigo === 'TURMA_ALUNOS_ATIVOS_AO_FINALIZAR') {
+              this.notificacao.erro(
+                'Não é possível finalizar a turma pois ainda existem alunos com a matrícula no status ATIVA. Conclua ou evada as matrículas antes de finalizar.'
+              );
+              return;
+            }
+
+            if (codigo === 'TURMA_CONFLITO_DATA_INICIO') {
+              this.form.get('dataInicio')?.setErrors({ conflitoAulas: true });
+              this.notificacao.erro(
+                'Não é possível alterar a data de início da turma, pois já existem aulas cadastradas em datas anteriores a esse novo limite.'
+              );
+              return;
+            }
+
+            if (codigo === 'TURMA_CONFLITO_DATA_FIM') {
+              this.form.get('dataFim')?.setErrors({ conflitoAulas: true });
+              this.notificacao.erro(
+                'Não é possível adiantar a data final da turma, pois já existem aulas cadastradas em datas posteriores a esse novo limite.'
+              );
+              return;
+            }
+
+            if (codigo === 'TURMA_DATAS_INVERTIDAS') {
+              this.notificacao.erro('A data final não pode ser anterior à data de início da turma.');
+              return;
+            }
+
+            const mensagemApi = err?.error?.message;
+            if (mensagemApi && typeof mensagemApi === 'string') {
+              this.notificacao.erro(mensagemApi);
+              return;
+            }
+          }
+
           this.notificacao.erro('Erro ao salvar a turma. Tente novamente.');
         },
       });

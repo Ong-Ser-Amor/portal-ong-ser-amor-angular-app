@@ -22,6 +22,7 @@
         formControlName="nome"
         label="Nome da Turma"
         placeholder="Ex: Turma 2026/1 - Noite"
+        [errorMessages]="mensagensErroNome"
         [required]="true"
       />
     </div>
@@ -47,12 +48,14 @@
       <app-date-input
         formControlName="dataInicio"
         label="Data de Início"
+        [errorMessages]="mensagensErroDataInicio"
         [required]="true"
       />
 
       <app-date-input
         formControlName="dataFim"
         label="Data de Término"
+        [errorMessages]="mensagensErroDataFim"
         [required]="true"
       />
     </div>
