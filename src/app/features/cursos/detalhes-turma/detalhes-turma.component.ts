@@ -273,6 +273,14 @@ export class DetalhesTurmaComponent implements OnInit {
     });
   }
 
+  abrirChamadaAula(aula: Aula): void {
+    const cursoId = this.cursoId();
+    const turmaId = this.turmaId();
+    if (!cursoId || !turmaId) return;
+
+    this.router.navigate(['/cursos', cursoId, 'turmas', turmaId, 'aulas', aula.id, 'chamada']);
+  }
+
   // --- Professores ---
   abrirModalVincularProfessor(): void {
     if (!this.turmaId()) return;

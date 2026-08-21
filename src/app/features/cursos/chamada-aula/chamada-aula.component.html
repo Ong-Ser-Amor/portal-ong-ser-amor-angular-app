@@ -1,0 +1,168 @@
+<app-cabecalho-pagina titulo="Lista de Presença" [exibirBotaoVoltar]="true" [rotaVoltar]="obterRotaVoltar()" />
+
+@if (estaCarregando()) {
+<div class="carregando-container">
+  <app-spinner />
+</div>
+} @else {
+<div class="container">
+  <!-- Card Contextual da Aula -->
+  <app-card titulo="Informações da Aula e Turma" icone="event_note">
+      <div class="grid-detalhes">
+        <div class="detalhe-item">
+          <span class="label">Turma</span>
+          <span class="valor">{{ turma()?.nome || '-' }}</span>
+        </div>
+
+        <div class="detalhe-item">
+          <span class="label">Data da Aula</span>
+          <span class="valor">{{ formatarData(aula()?.data) }}</span>
+        </div>
+
+        <div class="detalhe-item">
+          <span class="label">Tema / Conteúdo Programático</span>
+          <span class="valor">{{ aula()?.tema || '-' }}</span>
+        </div>
+
+        <div class="detalhe-item">
+          <span class="label">Status da Aula</span>
+          <span class="valor">
+            @if (aula()?.status; as status) {
+            <span class="badge-status status-aula-{{ status.toLowerCase() }}">
+              {{ rotulosStatusAula[status] }}
+            </span>
+            }
+          </span>
+        </div>
+      </div>
+    </app-card>
+
+    <!-- Painel de Métricas e Ações em Massa -->
+    <app-card>
+      <div class="painel-resumo">
+        <div class="metricas-presenca">
+          <div class="card-metrica total">
+            <span class="metrica-numero">{{ totalAlunos() }}</span>
+            <span class="metrica-rotulo">Total de Alunos</span>
+          </div>
+
+          <div class="card-metrica presentes">
+            <span class="metrica-numero">{{ totalPresentes() }}</span>
+            <span class="metrica-rotulo">Presentes</span>
+          </div>
+
+          <div class="card-metrica faltas">
+            <span class="metrica-numero">{{ totalFaltas() }}</span>
+            <span class="metrica-rotulo">Faltas</span>
+          </div>
+
+          <div class="card-metrica justificadas">
+            <span class="metrica-numero">{{ totalJustificadas() }}</span>
+            <span class="metrica-rotulo">Justificadas</span>
+          </div>
+        </div>
+
+        <div class="acoes-em-massa">
+          <app-botao label="Limpar Seleções" icone="restart_alt" variante="stroked" (click)="limparSelecoes()" />
+        </div>
+      </div>
+    </app-card>
+
+    <!-- Lista de Presença dos Alunos -->
+    <section class="secao-alunos">
+      <div class="secao-titulo-bloco">
+        <h2 class="secao-titulo">Alunos Matriculados</h2>
+        <span class="contador-badge">{{ totalAlunos() }} alunos</span>
+      </div>
+
+      @if (linhas().length === 0) {
+      <div class="sem-alunos-container">
+        <mat-icon class="sem-alunos-icone">people_outline</mat-icon>
+        <p class="sem-alunos-texto">
+          Nenhum aluno matriculado nesta turma para registrar chamada.
+        </p>
+      </div>
+      } @else {
+      <div class="lista-alunos-cards">
+        @for (linha of linhas(); track linha.matriculaId; let i = $index) {
+        <div class="card-aluno">
+          <div class="linha-principal-aluno">
+            <!-- Identificação do Aluno -->
+            <div class="dados-aluno">
+              <span class="indice-aluno">{{ i + 1 }}</span>
+              <div class="avatar-aluno">
+                <mat-icon>person</mat-icon>
+              </div>
+              <div class="nome-bloco">
+                <span class="nome-aluno">{{ linha.nomeAluno }}</span>
+              </div>
+            </div>
+
+            <!-- Toggle Segmented de Presença -->
+            <div class="segmented-pill">
+              <button type="button" class="pill-btn pill-presente" [class.ativo]="linha.presente === true"
+                (click)="definirPresenca(linha, true)">
+                <mat-icon class="pill-icon">check</mat-icon>
+                <span>Presente</span>
+              </button>
+
+              <button type="button" class="pill-btn pill-falta" [class.ativo]="linha.presente === false"
+                (click)="definirPresenca(linha, false)">
+                <mat-icon class="pill-icon">close</mat-icon>
+                <span>Falta</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Detalhes de Falta / Justificativa / Observação -->
+          @if (linha.presente === false) {
+          <div class="bloco-justificativa">
+            <div class="linha-justificativa-controles">
+              <app-checkbox label="Falta Justificada" [(ngModel)]="linha.faltaJustificada"
+                (ngModelChange)="aoMudarFaltaJustificada(linha)" />
+
+              @if (linha.faltaJustificada) {
+              <div class="campo-motivo-wrapper">
+                <app-select label="Motivo da Justificativa" [opcoes]="opcoesMotivo"
+                  [(ngModel)]="linha.motivoJustificativa" [required]="true" />
+              </div>
+              }
+            </div>
+
+            <div class="campo-observacao-wrapper">
+              <app-input label="Observação da Falta / Atestado" placeholder="Ex: Apresentou atestado médico"
+                [maxLength]="255" [(ngModel)]="linha.observacao" />
+            </div>
+          </div>
+          } @else if (linha.presente === true) {
+          <!-- Campo de Observação opcional para aluno presente -->
+          <div class="bloco-observacao-presente">
+            <app-input label="Observação Pedagógica (opcional)" placeholder="Ex: Destaque na atividade"
+              [maxLength]="255" [(ngModel)]="linha.observacao" />
+          </div>
+          }
+        </div>
+        }
+      </div>
+      }
+    </section>
+
+    <!-- Rodapé de Ações -->
+    <div class="rodape-acoes">
+      <div class="lado-esquerdo">
+        @if (chamadaExistente()) {
+        <app-botao label="Excluir Lista de Presença" icone="delete" cor="warn" variante="stroked"
+          [carregando]="estaExcluindo()" [desabilitado]="estaSalvando() || estaExcluindo()"
+          (click)="excluirChamada()" />
+        }
+      </div>
+
+      <div class="lado-direito">
+        <app-botao label="Cancelar" variante="stroked" [desabilitado]="estaSalvando() || estaExcluindo()"
+          (click)="voltar()" />
+        <app-botao label="Salvar" icone="save" cor="primary" [carregando]="estaSalvando()"
+          [desabilitado]="estaSalvando() || estaExcluindo() || linhas().length === 0" (click)="salvar()" />
+      </div>
+    </div>
+  </div>
+  }

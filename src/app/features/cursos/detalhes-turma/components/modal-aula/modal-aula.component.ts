@@ -14,8 +14,10 @@ import {
   AtualizarAulaDto,
   Aula,
   CriarAulaDto,
-  OPCOES_STATUS_AULA,
+  OPCOES_STATUS_EDICAO_AULA,
+  StatusAula,
 } from '../../../../../core/models/aula.model';
+import { OpcaoSelect } from '../../../../../core/models/opcao-select.model';
 
 export interface DadosModalAula {
   turmaId: string;
@@ -50,7 +52,12 @@ export class ModalAulaComponent implements OnInit {
   ehEdicao = false;
   salvando = signal<boolean>(false);
 
-  readonly opcoesStatusAula = OPCOES_STATUS_AULA;
+  get opcoesStatusAula(): OpcaoSelect<StatusAula>[] {
+    if (this.data?.aula?.status === 'REALIZADA') {
+      return [{ valor: 'REALIZADA', rotulo: 'Realizada' }];
+    }
+    return OPCOES_STATUS_EDICAO_AULA;
+  }
 
   readonly mensagensErroData: DateInputErrorMessages = {
     matDatepickerMin: 'Data anterior ao início da turma',
@@ -78,7 +85,10 @@ export class ModalAulaComponent implements OnInit {
         [Validators.required, Validators.minLength(3), Validators.maxLength(255)],
       ],
       status: [
-        aula?.status || 'AGENDADA',
+        {
+          value: aula?.status || 'AGENDADA',
+          disabled: aula?.status === 'REALIZADA',
+        },
         [Validators.required],
       ],
     });

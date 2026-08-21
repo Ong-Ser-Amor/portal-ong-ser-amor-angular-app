@@ -14,6 +14,11 @@ export const OPCOES_STATUS_AULA: OpcaoSelect<StatusAula>[] = [
   { valor: 'CANCELADA', rotulo: 'Cancelada' },
 ];
 
+export const OPCOES_STATUS_EDICAO_AULA: OpcaoSelect<StatusAula>[] = [
+  { valor: 'AGENDADA', rotulo: 'Agendada' },
+  { valor: 'CANCELADA', rotulo: 'Cancelada' },
+];
+
 export interface Aula {
   id: string;
   turmaId: string;

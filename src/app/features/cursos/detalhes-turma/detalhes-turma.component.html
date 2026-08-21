@@ -107,6 +107,12 @@
           <ng-template appTabelaCelula="acoes" let-aula>
             <app-botao
               variante="icon"
+              icone="checklist_rtl"
+              cor="primary"
+              (click)="abrirChamadaAula(aula)"
+            />
+            <app-botao
+              variante="icon"
               icone="edit"
               cor="primary"
               (click)="editarAula(aula)"

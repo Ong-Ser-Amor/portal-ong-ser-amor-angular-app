@@ -33,6 +33,7 @@
           formControlName="status"
           label="Status"
           [opcoes]="opcoesStatusAula"
+          [hint]="data.aula?.status === 'REALIZADA' ? 'Status controlado pela lista de presença' : ''"
           [required]="true"
         />
       </div>
