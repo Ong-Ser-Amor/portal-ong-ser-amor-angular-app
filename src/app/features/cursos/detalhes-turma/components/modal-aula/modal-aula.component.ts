@@ -55,6 +55,7 @@ export class ModalAulaComponent implements OnInit {
   readonly mensagensErroData: DateInputErrorMessages = {
     matDatepickerMin: 'Data anterior ao início da turma',
     matDatepickerMax: 'Data posterior ao término da turma',
+    dataDuplicada: 'Já existe uma aula cadastrada nesta data',
   };
 
   ngOnInit(): void {
@@ -150,10 +151,7 @@ export class ModalAulaComponent implements OnInit {
             this.notificacao.sucesso('Aula atualizada com sucesso!');
             this.dialogRef.close(true);
           },
-          error: (erro) => {
-            console.error('Erro ao atualizar aula:', erro);
-            this.notificacao.erro('Erro ao atualizar a aula. Tente novamente.');
-          },
+          error: (erro) => this.tratarErroRequisicao(erro, 'atualizar'),
         });
     } else {
       const payload: CriarAulaDto = {
@@ -170,11 +168,67 @@ export class ModalAulaComponent implements OnInit {
             this.notificacao.sucesso('Aula cadastrada com sucesso!');
             this.dialogRef.close(true);
           },
-          error: (erro) => {
-            console.error('Erro ao cadastrar aula:', erro);
-            this.notificacao.erro('Erro ao cadastrar a aula. Tente novamente.');
-          },
+          error: (erro) => this.tratarErroRequisicao(erro, 'cadastrar'),
         });
     }
+  }
+
+  private tratarErroRequisicao(erro: any, acao: 'cadastrar' | 'atualizar'): void {
+    console.error(`Erro ao ${acao} aula:`, erro);
+
+    // 409 Conflict - Duplicidade de data na mesma turma
+    if (erro?.status === 409) {
+      this.form.get('data')?.setErrors({ dataDuplicada: true });
+      this.notificacao.erro(
+        'Já existe uma aula cadastrada nesta mesma data para esta turma.'
+      );
+      return;
+    }
+
+    // 400 Bad Request - Regras de negócio documentadas da API
+    if (erro?.status === 400) {
+      const codigo = erro?.error?.codigo;
+
+      if (codigo === 'AULA_COM_CHAMADA_NAO_PODE_AGENDAR') {
+        this.notificacao.erro(
+          'Esta aula já possui registros de presença lançados e não pode retornar ao status de Agendada. Exclua a lista de chamadas da aula primeiro.'
+        );
+        return;
+      }
+
+      if (codigo === 'AULA_COM_CHAMADA_NAO_PODE_CANCELAR') {
+        this.notificacao.erro(
+          'Não é possível cancelar uma aula que já possui registros de chamada salvos. Exclua a lista de chamadas da aula antes de cancelá-la.'
+        );
+        return;
+      }
+
+      if (codigo === 'AULA_REALIZADA_SEM_CHAMADA') {
+        this.notificacao.erro(
+          'Não é possível marcar uma aula como Realizada sem antes registrar a chamada dos alunos.'
+        );
+        return;
+      }
+
+      if (codigo === 'AULA_DATA_ANTERIOR_INICIO_TURMA') {
+        this.form.get('data')?.setErrors({ matDatepickerMin: true });
+        this.notificacao.erro('A data da aula não pode ser anterior à data de início da turma.');
+        return;
+      }
+
+      if (codigo === 'AULA_DATA_POSTERIOR_FIM_TURMA') {
+        this.form.get('data')?.setErrors({ matDatepickerMax: true });
+        this.notificacao.erro('A data da aula não pode ser posterior ao encerramento da turma.');
+        return;
+      }
+
+      const mensagemApi = erro?.error?.message;
+      if (mensagemApi && typeof mensagemApi === 'string') {
+        this.notificacao.erro(mensagemApi);
+        return;
+      }
+    }
+
+    this.notificacao.erro(`Erro ao ${acao} a aula. Tente novamente.`);
   }
 }
