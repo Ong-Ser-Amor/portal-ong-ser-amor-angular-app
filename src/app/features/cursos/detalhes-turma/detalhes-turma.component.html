@@ -1,20 +1,19 @@
-<div class="pagina-detalhes-turma">
-  <app-cabecalho-pagina
-    [titulo]="turma() ? turma()!.nome : 'Detalhes da Turma'"
-    [exibirBotaoVoltar]="true"
-    [rotaVoltar]="obterRotaVoltar()"
-  />
+<app-cabecalho-pagina
+  [titulo]="turma() ? turma()!.nome : 'Detalhes da Turma'"
+  [exibirBotaoVoltar]="true"
+  [rotaVoltar]="obterRotaVoltar()"
+/>
 
-  @if (estaCarregando()) {
-    <div class="carregando-container">
-      <app-spinner />
-    </div>
-  }
+@if (estaCarregando()) {
+  <div class="carregando-container">
+    <app-spinner />
+  </div>
+}
 
-  @if (turma(); as dadosTurma) {
-    <div class="conteudo-detalhes">
-      <!-- Card: Informações da Turma -->
-      <app-card titulo="Informações da Turma" icone="groups">
+@if (turma(); as dadosTurma) {
+  <div class="container">
+    <!-- Card: Informações da Turma -->
+    <app-card titulo="Informações da Turma" icone="groups">
         <div class="grid-detalhes">
           <div class="detalhe-item">
             <span class="label">Nome da Turma</span>
@@ -220,4 +219,3 @@
       </section>
     </div>
   }
-</div>

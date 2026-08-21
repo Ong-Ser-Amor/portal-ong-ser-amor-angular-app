@@ -1,7 +1,7 @@
-.pagina-detalhes-turma {
+.container {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .carregando-container {
@@ -9,12 +9,6 @@
   justify-content: center;
   align-items: center;
   min-height: 250px;
-}
-
-.conteudo-detalhes {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
 }
 
 .grid-detalhes {
