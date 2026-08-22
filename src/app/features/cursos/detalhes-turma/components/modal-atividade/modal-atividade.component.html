@@ -1,0 +1,98 @@
+<app-modal
+  [titulo]="ehEdicao ? 'Editar Atividade' : 'Nova Atividade'"
+  icone="assignment"
+  [confirmarDesabilitado]="salvando()"
+  [carregando]="salvando()"
+  (fechar)="cancelar()"
+  (salvar)="salvar()"
+>
+  <form [formGroup]="form" (ngSubmit)="salvar()" class="form-container">
+    <div class="linha-form">
+      <app-input
+        formControlName="titulo"
+        label="Título da Atividade"
+        placeholder="Ex: Exercício Prático de Lógica"
+        [maxLength]="150"
+        [required]="true"
+      />
+    </div>
+
+    <div class="linha-form">
+      <app-select
+        formControlName="tipoAtividade"
+        label="Tipo de Atividade"
+        [opcoes]="opcoesTipoAtividade"
+        [required]="true"
+      />
+    </div>
+
+    <div class="linha-form">
+      <app-input
+        formControlName="descricao"
+        label="Descrição / Instruções (opcional)"
+        placeholder="Ex: Desenvolver o algoritmo conforme o enunciado em aula..."
+        [maxLength]="500"
+      />
+    </div>
+
+    <div class="grid-form-2">
+      <div class="linha-form">
+        <app-date-input
+          formControlName="dataAtribuicao"
+          label="Data de Atribuição"
+          [min]="data.dataInicioTurma"
+          [max]="data.dataFimTurma"
+          [errorMessages]="mensagensErroData"
+          [required]="true"
+        />
+      </div>
+
+      <div class="linha-form">
+        <app-date-input
+          formControlName="prazoEntrega"
+          label="Prazo de Entrega"
+          [min]="data.dataInicioTurma"
+          [max]="data.dataFimTurma"
+          [errorMessages]="mensagensErroData"
+          [required]="true"
+        />
+      </div>
+    </div>
+
+    @if (form.hasError('prazoAnteriorAtribuicao') && (form.get('prazoEntrega')?.touched || form.get('dataAtribuicao')?.touched)) {
+      <div class="mensagem-erro-datas">
+        O prazo de entrega não pode ser anterior à data de atribuição.
+      </div>
+    }
+
+    <!-- Bloco de Nota e Avaliação -->
+    <div class="bloco-avaliacao">
+      <span class="bloco-titulo">Critério de Avaliação</span>
+
+      @if (permiteNota) {
+        <div class="linha-form">
+          <app-checkbox
+            formControlName="valeNota"
+            label="Esta atividade vale nota / pontuação"
+          />
+        </div>
+
+        @if (form.get('valeNota')?.value) {
+          <div class="linha-form">
+            <app-input
+              formControlName="notaMaxima"
+              label="Nota Máxima"
+              placeholder="Ex: 10.00"
+              [required]="true"
+              hint="Valor máximo ou XP que o estudante pode alcançar nesta atividade (ex: 10.00)"
+            />
+          </div>
+        }
+      } @else {
+        <p class="aviso-sem-nota">
+          Esta turma utiliza critério qualitativo ou de participação, portanto as atividades não recebem notas numéricas.
+        </p>
+      }
+    </div>
+  </form>
+</app-modal>

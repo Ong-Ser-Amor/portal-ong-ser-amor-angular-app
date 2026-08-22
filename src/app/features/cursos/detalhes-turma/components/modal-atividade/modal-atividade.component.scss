@@ -1,0 +1,53 @@
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0.5rem 0;
+}
+
+.linha-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.grid-form-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mensagem-erro-datas {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-danger, #ef4444);
+  margin-top: -0.5rem;
+}
+
+.bloco-avaliacao {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--color-background-subtle, #f8fafc);
+  border: 1px solid var(--color-border, #e2e8f0);
+
+  .bloco-titulo {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-muted, #475569);
+  }
+
+  .aviso-sem-nota {
+    font-size: 0.8rem;
+    color: var(--color-text-muted, #64748b);
+    margin: 0;
+    line-height: 1.4;
+  }
+}
