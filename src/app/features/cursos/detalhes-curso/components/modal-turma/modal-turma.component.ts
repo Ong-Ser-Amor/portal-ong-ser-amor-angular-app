@@ -31,6 +31,7 @@ import {
   TurmaResumo,
 } from '../../../../../core/models/turma.model';
 import { OpcaoSelect } from '../../../../../core/models/opcao-select.model';
+import { converterParaIsoDate } from '../../../../../shared/utils/data.utils';
 
 export interface DadosModalTurma {
   cursoId: string;
@@ -126,11 +127,11 @@ export class ModalTurmaComponent implements OnInit {
           [Validators.required, Validators.min(1)],
         ],
         dataInicio: [
-          turma?.dataInicio ? turma.dataInicio.split('T')[0] : '',
+          converterParaIsoDate(turma?.dataInicio),
           [Validators.required],
         ],
         dataFim: [
-          turma?.dataFim ? turma.dataFim.split('T')[0] : '',
+          converterParaIsoDate(turma?.dataFim),
           [Validators.required],
         ],
         status: [
@@ -173,8 +174,8 @@ export class ModalTurmaComponent implements OnInit {
       return null;
     }
 
-    const inicioStr = typeof dataInicio === 'string' ? dataInicio : dataInicio instanceof Date ? dataInicio.toISOString().split('T')[0] : '';
-    const fimStr = typeof dataFim === 'string' ? dataFim : dataFim instanceof Date ? dataFim.toISOString().split('T')[0] : '';
+    const inicioStr = converterParaIsoDate(dataInicio);
+    const fimStr = converterParaIsoDate(dataFim);
 
     if (inicioStr && fimStr && fimStr < inicioStr) {
       return { periodoInvalido: true };
@@ -248,17 +249,8 @@ export class ModalTurmaComponent implements OnInit {
     this.salvando.set(true);
     const formRaw = this.form.getRawValue();
 
-    const dataInicioFormatada = typeof formRaw.dataInicio === 'string'
-      ? formRaw.dataInicio
-      : formRaw.dataInicio instanceof Date
-        ? formRaw.dataInicio.toISOString().split('T')[0]
-        : '';
-
-    const dataFimFormatada = typeof formRaw.dataFim === 'string'
-      ? formRaw.dataFim
-      : formRaw.dataFim instanceof Date
-        ? formRaw.dataFim.toISOString().split('T')[0]
-        : '';
+    const dataInicioFormatada = converterParaIsoDate(formRaw.dataInicio);
+    const dataFimFormatada = converterParaIsoDate(formRaw.dataFim);
 
     const criterio = formRaw.criterioAvaliacao as CriterioAvaliacaoTurma;
 

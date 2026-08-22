@@ -18,6 +18,7 @@ import {
   StatusAula,
 } from '../../../../../core/models/aula.model';
 import { OpcaoSelect } from '../../../../../core/models/opcao-select.model';
+import { converterParaIsoDate } from '../../../../../shared/utils/data.utils';
 
 export interface DadosModalAula {
   turmaId: string;
@@ -71,7 +72,7 @@ export class ModalAulaComponent implements OnInit {
 
     this.form = this.fb.group({
       data: [
-        aula?.data ? aula.data.split('T')[0] : '',
+        converterParaIsoDate(aula?.data),
         [
           Validators.required,
           this.criarValidadorPeriodoTurma(
@@ -95,23 +96,14 @@ export class ModalAulaComponent implements OnInit {
   }
 
   private criarValidadorPeriodoTurma(dataInicio?: string, dataFim?: string) {
-    const inicioStr = dataInicio ? (dataInicio.includes('T') ? dataInicio.split('T')[0] : dataInicio) : '';
-    const fimStr = dataFim ? (dataFim.includes('T') ? dataFim.split('T')[0] : dataFim) : '';
+    const inicioStr = converterParaIsoDate(dataInicio);
+    const fimStr = converterParaIsoDate(dataFim);
 
     return (control: AbstractControl): ValidationErrors | null => {
       const valor = control.value;
       if (!valor) return null;
 
-      let dataStr = '';
-      if (typeof valor === 'string') {
-        dataStr = valor.includes('T') ? valor.split('T')[0] : valor;
-      } else if (valor instanceof Date && !isNaN(valor.getTime())) {
-        const y = valor.getFullYear();
-        const m = String(valor.getMonth() + 1).padStart(2, '0');
-        const d = String(valor.getDate()).padStart(2, '0');
-        dataStr = `${y}-${m}-${d}`;
-      }
-
+      const dataStr = converterParaIsoDate(valor);
       if (!dataStr) return null;
 
       if (inicioStr && dataStr < inicioStr) {
@@ -139,12 +131,7 @@ export class ModalAulaComponent implements OnInit {
     this.salvando.set(true);
     const formRaw = this.form.getRawValue();
 
-    const dataFormatada =
-      typeof formRaw.data === 'string'
-        ? formRaw.data
-        : formRaw.data instanceof Date
-          ? formRaw.data.toISOString().split('T')[0]
-          : '';
+    const dataFormatada = converterParaIsoDate(formRaw.data);
 
     if (this.ehEdicao && this.data.aula) {
       const payload: AtualizarAulaDto = {
