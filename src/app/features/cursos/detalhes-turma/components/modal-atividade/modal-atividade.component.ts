@@ -72,6 +72,12 @@ export class ModalAtividadeComponent implements OnInit {
     matDatepickerMax: 'Data posterior ao término da turma',
   };
 
+  readonly mensagensErroPrazoEntrega: DateInputErrorMessages = {
+    matDatepickerMin: 'Data anterior ao início da turma',
+    matDatepickerMax: 'Data posterior ao término da turma',
+    prazoAnteriorAtribuicao: 'Data anterior a data de atribuição',
+  };
+
   get permiteNota(): boolean {
     return this.data?.criterioAvaliacao === 'POR_NOTA_PRESENCA';
   }
@@ -124,6 +130,10 @@ export class ModalAtividadeComponent implements OnInit {
       }
     );
 
+    this.form.get('dataAtribuicao')?.valueChanges.subscribe(() => {
+      this.form.updateValueAndValidity();
+    });
+
     // Ajustar obrigatoriedade de notaMaxima ao alterar valeNota
     this.form.get('valeNota')?.valueChanges.subscribe((valeNota) => {
       const notaControl = this.form.get('notaMaxima');
@@ -150,21 +160,35 @@ export class ModalAtividadeComponent implements OnInit {
     }
   }
 
-  private validadorDatasAtividade(form: AbstractControl): ValidationErrors | null {
+  private validadorDatasAtividade = (form: AbstractControl): ValidationErrors | null => {
+    const prazoControl = form.get('prazoEntrega');
     const dataAtribuicao = form.get('dataAtribuicao')?.value;
-    const prazoEntrega = form.get('prazoEntrega')?.value;
+    const prazoEntrega = prazoControl?.value;
 
-    if (!dataAtribuicao || !prazoEntrega) return null;
+    if (!dataAtribuicao || !prazoEntrega) {
+      if (prazoControl?.hasError('prazoAnteriorAtribuicao')) {
+        const { prazoAnteriorAtribuicao, ...restoErros } = prazoControl.errors || {};
+        prazoControl.setErrors(Object.keys(restoErros).length ? restoErros : null);
+      }
+      return null;
+    }
 
     const dataAtribStr = converterParaIsoDate(dataAtribuicao);
     const prazoStr = converterParaIsoDate(prazoEntrega);
 
     if (dataAtribStr && prazoStr && prazoStr < dataAtribStr) {
+      const errosAtuais = prazoControl?.errors || {};
+      prazoControl?.setErrors({ ...errosAtuais, prazoAnteriorAtribuicao: true });
       return { prazoAnteriorAtribuicao: true };
+    } else {
+      if (prazoControl?.hasError('prazoAnteriorAtribuicao')) {
+        const { prazoAnteriorAtribuicao, ...restoErros } = prazoControl.errors || {};
+        prazoControl.setErrors(Object.keys(restoErros).length ? restoErros : null);
+      }
     }
 
     return null;
-  }
+  };
 
   private validadorNotaMaxima(form: AbstractControl): ValidationErrors | null {
     const valeNota = form.get('valeNota')?.value;

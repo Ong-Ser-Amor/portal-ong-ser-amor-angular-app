@@ -127,6 +127,70 @@
         </app-tabela>
       </section>
 
+      <!-- Seção: Atividades da Turma -->
+      <section class="secao-detalhe">
+        <div class="secao-cabecalho">
+          <h2 class="secao-titulo">Atividades da Turma</h2>
+          <app-botao
+            label="Nova Atividade"
+            icone="add"
+            cor="primary"
+            (click)="adicionarAtividade()"
+          />
+        </div>
+
+        <app-tabela
+          [dados]="atividades()"
+          [colunas]="colunasAtividades"
+          [carregando]="estaCarregandoAtividades()"
+          textoSemDados="Nenhuma atividade cadastrada para esta turma."
+        >
+          <ng-template appTabelaCelula="titulo" let-atividade>
+            <div class="bloco-titulo-tabela">
+              <span class="titulo-destaque">{{ atividade.titulo }}</span>
+              @if (atividade.descricao) {
+                <span class="subtexto-tabela">{{ atividade.descricao }}</span>
+              }
+            </div>
+          </ng-template>
+
+          <ng-template appTabelaCelula="tipoAtividade" let-atividade>
+            <span class="badge-status tipo-atividade-{{ atividade.tipoAtividade.toLowerCase() }}">
+              {{ obterRotuloTipoAtividade(atividade.tipoAtividade) }}
+            </span>
+          </ng-template>
+
+          <ng-template appTabelaCelula="periodo" let-atividade>
+            {{ formatarData(atividade.dataAtribuicao) }} a {{ formatarData(atividade.prazoEntrega) }}
+          </ng-template>
+
+          <ng-template appTabelaCelula="avaliacao" let-atividade>
+            @if (atividade.valeNota && atividade.notaMaxima) {
+              <span class="nota-destaque">Nota Máx: {{ atividade.notaMaxima }}</span>
+            } @else {
+              <span class="sem-nota-texto">Sem nota (participação)</span>
+            }
+          </ng-template>
+
+          <ng-template appTabelaCelula="acoes" let-atividade>
+            <app-botao
+              variante="icon"
+              icone="assignment_turned_in"
+              cor="primary"
+              (click)="abrirEntregasAtividade(atividade)"
+              aria-label="Lançar Notas e Entregas"
+            />
+            <app-botao
+              variante="icon"
+              icone="edit"
+              cor="primary"
+              (click)="editarAtividade(atividade)"
+              aria-label="Editar Atividade"
+            />
+          </ng-template>
+        </app-tabela>
+      </section>
+
       <!-- Seção: Professores Vinculados -->
       <section class="secao-detalhe">
         <div class="secao-cabecalho">

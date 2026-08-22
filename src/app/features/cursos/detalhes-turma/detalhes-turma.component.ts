@@ -19,6 +19,7 @@ import { NotificacaoService } from '../../../core/services/notificacao.service';
 import { TurmaService } from '../../../core/services/turma.service';
 import { AulaService } from '../../../core/services/aula.service';
 import { TurmaMatriculaService } from '../../../core/services/turma-matricula.service';
+import { TurmaAtividadeService } from '../../../core/services/turma-atividade.service';
 import {
   ProfessorResumo,
   ROTULOS_CRITERIO_AVALIACAO_TURMA,
@@ -37,12 +38,18 @@ import {
   StatusMatricula,
   TurmaMatricula,
 } from '../../../core/models/turma-matricula.model';
-import { formatarData } from '../../../shared/utils/data.utils';
+import {
+  ROTULOS_TIPO_ATIVIDADE,
+  TipoAtividade,
+  TurmaAtividadeRespostaDto,
+} from '../../../core/models/turma-atividade.model';
+import { converterParaIsoDate, formatarData } from '../../../shared/utils/data.utils';
 import { CONFIG_MODAL } from '../../../shared/components/ui/modal/modal.config';
 import { ModalConfirmacaoComponent } from '../../../shared/components/ui/modal-confirmacao/modal-confirmacao.component';
 import { ModalVincularProfessorComponent } from './components/modal-vincular-professor/modal-vincular-professor.component';
 import { ModalAulaComponent } from './components/modal-aula/modal-aula.component';
 import { ModalMatriculaComponent } from './components/modal-matricula/modal-matricula.component';
+import { ModalAtividadeComponent } from './components/modal-atividade/modal-atividade.component';
 
 @Component({
   selector: 'app-detalhes-turma',
@@ -69,6 +76,7 @@ export class DetalhesTurmaComponent implements OnInit {
   private readonly turmaService = inject(TurmaService);
   private readonly aulaService = inject(AulaService);
   private readonly turmaMatriculaService = inject(TurmaMatriculaService);
+  private readonly turmaAtividadeService = inject(TurmaAtividadeService);
   private readonly notificacao = inject(NotificacaoService);
 
   cursoId = signal<string | null>(null);
@@ -87,6 +95,18 @@ export class DetalhesTurmaComponent implements OnInit {
     { chave: 'data', titulo: 'Data' },
     { chave: 'tema', titulo: 'Tema / Conteúdo' },
     { chave: 'status', titulo: 'Status' },
+    { chave: 'acoes', titulo: 'Ações' },
+  ];
+
+  // Atividades
+  atividades = signal<TurmaAtividadeRespostaDto[]>([]);
+  estaCarregandoAtividades = signal<boolean>(false);
+
+  colunasAtividades: ColunaTabela<TurmaAtividadeRespostaDto>[] = [
+    { chave: 'titulo', titulo: 'Título / Atividade' },
+    { chave: 'tipoAtividade', titulo: 'Tipo' },
+    { chave: 'periodo', titulo: 'Período (Atribuição / Prazo)' },
+    { chave: 'avaliacao', titulo: 'Avaliação / Nota Máx.' },
     { chave: 'acoes', titulo: 'Ações' },
   ];
 
@@ -116,10 +136,15 @@ export class DetalhesTurmaComponent implements OnInit {
   readonly rotulosStatusAula = ROTULOS_STATUS_AULA;
   readonly rotulosStatusMatricula = ROTULOS_STATUS_MATRICULA;
   readonly rotulosResultadoFinal = ROTULOS_RESULTADO_FINAL_MATRICULA;
+  readonly rotulosTipoAtividade = ROTULOS_TIPO_ATIVIDADE;
   readonly formatarData = formatarData;
 
   obterRotuloStatusAula(status: string): string {
     return this.rotulosStatusAula[status as StatusAula] || status;
+  }
+
+  obterRotuloTipoAtividade(tipo: string): string {
+    return this.rotulosTipoAtividade[tipo as TipoAtividade] || tipo;
   }
 
   obterRotuloStatusMatricula(status: string): string {
@@ -145,6 +170,7 @@ export class DetalhesTurmaComponent implements OnInit {
     this.turmaId.set(turmaId);
     this.carregarTurma(turmaId);
     this.carregarAulas(turmaId);
+    this.carregarAtividades(turmaId);
     this.carregarMatriculas(turmaId);
   }
 
@@ -202,8 +228,8 @@ export class DetalhesTurmaComponent implements OnInit {
   adicionarAula(): void {
     if (!this.turmaId()) return;
 
-    const dataInicio = this.turma()?.dataInicio ? this.turma()!.dataInicio.split('T')[0] : undefined;
-    const dataFim = this.turma()?.dataFim ? this.turma()!.dataFim.split('T')[0] : undefined;
+    const dataInicio = converterParaIsoDate(this.turma()?.dataInicio);
+    const dataFim = converterParaIsoDate(this.turma()?.dataFim);
 
     const dialogRef = this.dialog.open(ModalAulaComponent, {
       ...CONFIG_MODAL.sm,
@@ -225,8 +251,8 @@ export class DetalhesTurmaComponent implements OnInit {
   editarAula(aula: Aula): void {
     if (!this.turmaId()) return;
 
-    const dataInicio = this.turma()?.dataInicio ? this.turma()!.dataInicio.split('T')[0] : undefined;
-    const dataFim = this.turma()?.dataFim ? this.turma()!.dataFim.split('T')[0] : undefined;
+    const dataInicio = converterParaIsoDate(this.turma()?.dataInicio);
+    const dataFim = converterParaIsoDate(this.turma()?.dataFim);
 
     const dialogRef = this.dialog.open(ModalAulaComponent, {
       ...CONFIG_MODAL.sm,
@@ -279,6 +305,91 @@ export class DetalhesTurmaComponent implements OnInit {
     if (!cursoId || !turmaId) return;
 
     this.router.navigate(['/cursos', cursoId, 'turmas', turmaId, 'aulas', aula.id, 'chamada']);
+  }
+
+  // --- Atividades ---
+  carregarAtividades(turmaId?: string): void {
+    const id = turmaId || this.turmaId();
+    if (!id) return;
+
+    this.estaCarregandoAtividades.set(true);
+
+    this.turmaAtividadeService
+      .buscarPorTurma(id)
+      .pipe(finalize(() => this.estaCarregandoAtividades.set(false)))
+      .subscribe({
+        next: (atividades) => {
+          this.atividades.set(atividades || []);
+        },
+        error: (erro) => {
+          console.error('Erro ao carregar atividades:', erro);
+          this.notificacao.erro('Erro ao carregar as atividades da turma.');
+        },
+      });
+  }
+
+  adicionarAtividade(): void {
+    if (!this.turmaId()) return;
+
+    const dataInicio = converterParaIsoDate(this.turma()?.dataInicio);
+    const dataFim = converterParaIsoDate(this.turma()?.dataFim);
+
+    const dialogRef = this.dialog.open(ModalAtividadeComponent, {
+      ...CONFIG_MODAL.md,
+      data: {
+        turmaId: this.turmaId()!,
+        criterioAvaliacao: this.turma()?.criterioAvaliacao,
+        dataInicioTurma: dataInicio,
+        dataFimTurma: dataFim,
+        atividade: null,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((sucesso) => {
+      if (sucesso) {
+        this.carregarAtividades();
+      }
+    });
+  }
+
+  editarAtividade(atividade: TurmaAtividadeRespostaDto): void {
+    if (!this.turmaId()) return;
+
+    const dataInicio = converterParaIsoDate(this.turma()?.dataInicio);
+    const dataFim = converterParaIsoDate(this.turma()?.dataFim);
+
+    const dialogRef = this.dialog.open(ModalAtividadeComponent, {
+      ...CONFIG_MODAL.md,
+      data: {
+        turmaId: this.turmaId()!,
+        criterioAvaliacao: this.turma()?.criterioAvaliacao,
+        dataInicioTurma: dataInicio,
+        dataFimTurma: dataFim,
+        atividade,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((sucesso) => {
+      if (sucesso) {
+        this.carregarAtividades();
+      }
+    });
+  }
+
+  abrirEntregasAtividade(atividade: TurmaAtividadeRespostaDto): void {
+    const cursoId = this.cursoId();
+    const turmaId = this.turmaId();
+    if (!cursoId || !turmaId) return;
+
+    this.router.navigate([
+      '/cursos',
+      cursoId,
+      'turmas',
+      turmaId,
+      'atividades',
+      atividade.id,
+      'entregas',
+    ]);
   }
 
   // --- Professores ---
@@ -376,6 +487,7 @@ export class DetalhesTurmaComponent implements OnInit {
       ...CONFIG_MODAL.sm,
       data: {
         turmaId: this.turmaId()!,
+        criterioAvaliacao: this.turma()?.criterioAvaliacao,
         matricula: null,
         matriculadosJaIds,
       },
@@ -395,6 +507,7 @@ export class DetalhesTurmaComponent implements OnInit {
       ...CONFIG_MODAL.sm,
       data: {
         turmaId: this.turmaId()!,
+        criterioAvaliacao: this.turma()?.criterioAvaliacao,
         matricula,
       },
     });

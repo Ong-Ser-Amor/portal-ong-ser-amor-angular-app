@@ -53,17 +53,11 @@
           label="Prazo de Entrega"
           [min]="data.dataInicioTurma"
           [max]="data.dataFimTurma"
-          [errorMessages]="mensagensErroData"
+          [errorMessages]="mensagensErroPrazoEntrega"
           [required]="true"
         />
       </div>
     </div>
-
-    @if (form.hasError('prazoAnteriorAtribuicao') && (form.get('prazoEntrega')?.touched || form.get('dataAtribuicao')?.touched)) {
-      <div class="mensagem-erro-datas">
-        O prazo de entrega não pode ser anterior à data de atribuição.
-      </div>
-    }
 
     <!-- Bloco de Nota e Avaliação -->
     <div class="bloco-avaliacao">

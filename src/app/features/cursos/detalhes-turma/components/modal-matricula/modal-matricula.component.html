@@ -38,22 +38,29 @@
           formControlName="resultadoFinal"
           label="Resultado Final"
           [opcoes]="opcoesResultadoFinal"
+          [required]="ehMatriculaConcluida && turmaAvaliaNota"
+          [hint]="!ehMatriculaConcluida ? 'Disponível apenas quando a matrícula for concluída' : ''"
         />
       </div>
 
-      <div class="linha-form">
-        <app-input
-          formControlName="notaFinal"
-          label="Nota / Pontuação Final"
-          placeholder="Ex: 8.50"
-        />
-      </div>
+      @if (turmaAvaliaNota) {
+        <div class="linha-form">
+          <app-input
+            formControlName="notaFinal"
+            label="Nota / Pontuação Final"
+            placeholder="Ex: 8.50"
+            [required]="ehMatriculaConcluida"
+            [hint]="!ehMatriculaConcluida ? 'Disponível apenas quando a matrícula for concluída' : ''"
+          />
+        </div>
+      }
 
       <div class="linha-form">
         <app-input
           formControlName="parecerPedagogico"
-          label="Parecer Pedagógico"
+          label="Parecer Pedagógico (opcional)"
           placeholder="Observações e avaliação do aluno"
+          [maxLength]="500"
         />
       </div>
     }

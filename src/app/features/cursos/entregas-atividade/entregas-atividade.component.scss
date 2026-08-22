@@ -1,0 +1,346 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.carregando-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 350px;
+}
+
+/* Grid de Detalhes da Atividade */
+.grid-detalhes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem 1.5rem;
+  padding: 0.5rem 0;
+}
+
+.detalhe-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  .label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-muted, #64748b);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .valor {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-text, #1e293b);
+  }
+}
+
+.nota-destaque {
+  font-weight: 600;
+  color: #0284c7;
+}
+
+.sem-nota-texto {
+  font-size: 0.85rem;
+  color: var(--color-muted, #64748b);
+  font-style: italic;
+}
+
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: fit-content;
+
+  &.tipo-atividade-exercicio {
+    background-color: #e0f2fe;
+    color: #0369a1;
+  }
+
+  &.tipo-atividade-projeto {
+    background-color: #ede9fe;
+    color: #6d28d9;
+  }
+
+  &.tipo-atividade-prova {
+    background-color: #fef3c7;
+    color: #b45309;
+  }
+
+  &.tipo-atividade-outra {
+    background-color: #f1f5f9;
+    color: #475569;
+  }
+
+  &.status-entrega-entregue {
+    background-color: #dcfce7;
+    color: #15803d;
+  }
+
+  &.status-entrega-entregue_com_atraso {
+    background-color: #fef9c3;
+    color: #854d0e;
+  }
+
+  &.status-entrega-pendente {
+    background-color: #e0f2fe;
+    color: #0369a1;
+  }
+
+  &.status-entrega-nao_entregue {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+}
+
+/* Painel de Resumo / Métricas */
+.painel-resumo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 0.25rem 0;
+}
+
+.metricas-entregas {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.card-metrica {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1rem;
+  border-radius: 10px;
+  min-width: 85px;
+  border: 1px solid transparent;
+
+  .metrica-numero {
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .metrica-rotulo {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 0.125rem;
+  }
+
+  &.total {
+    background-color: #f1f5f9;
+    color: #334155;
+    border-color: #e2e8f0;
+  }
+
+  &.entregues {
+    background-color: #f0fdf4;
+    color: #166534;
+    border-color: #bbf7d0;
+  }
+
+  &.atraso {
+    background-color: #fefce8;
+    color: #854d0e;
+    border-color: #fef08a;
+  }
+
+  &.pendentes {
+    background-color: #f0f9ff;
+    color: #0369a1;
+    border-color: #bae6fd;
+  }
+
+  &.nao-entregues {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border-color: #fecaca;
+  }
+}
+
+/* Seção de Alunos */
+.secao-alunos {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.secao-titulo-bloco {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  .secao-titulo {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--color-text, #1e293b);
+    margin: 0;
+  }
+
+  .contador-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-muted, #64748b);
+    background-color: #f1f5f9;
+    padding: 0.2rem 0.5rem;
+    border-radius: 9999px;
+  }
+}
+
+.sem-alunos-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px dashed var(--color-border, #e2e8f0);
+  text-align: center;
+  color: var(--color-muted, #64748b);
+
+  .sem-alunos-icone {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+  }
+
+  .sem-alunos-texto {
+    font-size: 0.95rem;
+    margin: 0;
+  }
+}
+
+/* Lista de Cards de Alunos */
+.lista-alunos-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.card-aluno {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 1rem 1.25rem;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+  }
+}
+
+.linha-topo-aluno {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.dados-aluno {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+
+  .indice-aluno {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-muted, #94a3b8);
+    min-width: 1.5rem;
+    text-align: center;
+  }
+
+  .avatar-aluno {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--color-background-subtle, #f1f5f9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-muted, #64748b);
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .nome-bloco {
+    display: flex;
+    flex-direction: column;
+
+    .nome-aluno {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--color-text, #1e293b);
+    }
+  }
+}
+
+/* Bloco de Campos de Avaliação */
+.bloco-campos-avaliacao {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1rem;
+  align-items: start;
+
+  &.com-nota {
+    grid-template-columns: 200px 160px 1fr;
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+
+    &.com-nota {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.campo-status,
+.campo-nota,
+.campo-observacao {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Rodapé de Ações */
+.rodape-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0 2rem 0;
+  border-top: 1px solid var(--color-border, #e2e8f0);
+
+  .lado-esquerdo,
+  .lado-direito {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+}

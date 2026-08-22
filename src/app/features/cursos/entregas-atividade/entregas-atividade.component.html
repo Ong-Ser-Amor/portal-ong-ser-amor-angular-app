@@ -1,0 +1,182 @@
+<app-cabecalho-pagina titulo="Lançamento de Notas e Entregas" [exibirBotaoVoltar]="true" [rotaVoltar]="obterRotaVoltar()" />
+
+@if (estaCarregando()) {
+<div class="carregando-container">
+  <app-spinner />
+</div>
+} @else {
+<div class="container">
+  <!-- Card Contextual da Atividade e Turma -->
+  <app-card titulo="Informações da Atividade" icone="assignment">
+    <div class="grid-detalhes">
+      <div class="detalhe-item">
+        <span class="label">Turma</span>
+        <span class="valor">{{ turma()?.nome || '-' }}</span>
+      </div>
+
+      <div class="detalhe-item">
+        <span class="label">Título da Atividade</span>
+        <span class="valor">{{ atividade()?.titulo || '-' }}</span>
+      </div>
+
+      <div class="detalhe-item">
+        <span class="label">Tipo de Atividade</span>
+        <span class="valor">
+          @if (atividade()?.tipoAtividade; as tipo) {
+          <span class="badge-status tipo-atividade-{{ tipo.toLowerCase() }}">
+            {{ obterRotuloTipoAtividade(tipo) }}
+          </span>
+          }
+        </span>
+      </div>
+
+      <div class="detalhe-item">
+        <span class="label">Prazo Limite</span>
+        <span class="valor">{{ formatarData(atividade()?.prazoEntrega) }}</span>
+      </div>
+
+      <div class="detalhe-item">
+        <span class="label">Critério de Nota</span>
+        <span class="valor">
+          @if (atividade()?.valeNota && atividade()?.notaMaxima) {
+          <span class="nota-destaque">Vale Nota (Máx: {{ atividade()?.notaMaxima }})</span>
+          } @else {
+          <span class="sem-nota-texto">Sem nota numérica (participação)</span>
+          }
+        </span>
+      </div>
+    </div>
+  </app-card>
+
+  <!-- Painel de Métricas -->
+  <app-card>
+    <div class="painel-resumo">
+      <div class="metricas-entregas">
+        <div class="card-metrica total">
+          <span class="metrica-numero">{{ totalAlunos() }}</span>
+          <span class="metrica-rotulo">Total de Alunos</span>
+        </div>
+
+        <div class="card-metrica entregues">
+          <span class="metrica-numero">{{ totalEntregues() }}</span>
+          <span class="metrica-rotulo">Entregues</span>
+        </div>
+
+        <div class="card-metrica atraso">
+          <span class="metrica-numero">{{ totalComAtraso() }}</span>
+          <span class="metrica-rotulo">Com Atraso</span>
+        </div>
+
+        <div class="card-metrica pendentes">
+          <span class="metrica-numero">{{ totalPendentes() }}</span>
+          <span class="metrica-rotulo">Pendentes</span>
+        </div>
+
+        <div class="card-metrica nao-entregues">
+          <span class="metrica-numero">{{ totalNaoEntregues() }}</span>
+          <span class="metrica-rotulo">Não Entregues</span>
+        </div>
+      </div>
+    </div>
+  </app-card>
+
+  <!-- Lista de Alunos e Avaliação -->
+  <section class="secao-alunos">
+    <div class="secao-titulo-bloco">
+      <h2 class="secao-titulo">Alunos da Turma</h2>
+      <span class="contador-badge">{{ totalAlunos() }} alunos</span>
+    </div>
+
+    @if (linhas().length === 0) {
+    <div class="sem-alunos-container">
+      <mat-icon class="sem-alunos-icone">people_outline</mat-icon>
+      <p class="sem-alunos-texto">
+        Nenhum aluno matriculado nesta turma para avaliar esta atividade.
+      </p>
+    </div>
+    } @else {
+    <div class="lista-alunos-cards">
+      @for (linha of linhas(); track linha.entregaId; let i = $index) {
+      <div class="card-aluno">
+        <!-- Identificação do Aluno -->
+        <div class="linha-topo-aluno">
+          <div class="dados-aluno">
+            <span class="indice-aluno">{{ i + 1 }}</span>
+            <div class="avatar-aluno">
+              <mat-icon>person</mat-icon>
+            </div>
+            <div class="nome-bloco">
+              <span class="nome-aluno">{{ linha.nomeAluno }}</span>
+            </div>
+          </div>
+
+          <div class="status-badge-visual">
+            <span class="badge-status status-entrega-{{ linha.statusEntrega.toLowerCase() }}">
+              {{ rotulosStatusEntrega[linha.statusEntrega] || linha.statusEntrega }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Campos de Avaliação -->
+        <div class="bloco-campos-avaliacao" [class.com-nota]="atividade()?.valeNota">
+          <div class="campo-status">
+            <app-select
+              label="Status da Entrega"
+              [opcoes]="opcoesStatusEntrega"
+              [(ngModel)]="linha.statusEntrega"
+              (ngModelChange)="aoAlterarStatus(linha)"
+              [required]="true"
+            />
+          </div>
+
+          @if (atividade()?.valeNota) {
+          <div class="campo-nota">
+            <app-input
+              label="Nota Obtida"
+              placeholder="Ex: 8.50"
+              [(ngModel)]="linha.notaObtida"
+              [disabled]="!permiteNotaAluno(linha.statusEntrega)"
+              [maxLength]="8"
+              [hint]="permiteNotaAluno(linha.statusEntrega) ? ('Máx: ' + (atividade()?.notaMaxima || '-')) : ''"
+            />
+          </div>
+          }
+
+          <div class="campo-observacao">
+            <app-input
+              label="Feedback / Observação do Professor"
+              placeholder="Ex: Bom desempenho, entregou todos os requisitos"
+              [(ngModel)]="linha.observacao"
+              [maxLength]="255"
+            />
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </section>
+
+  <!-- Rodapé de Ações -->
+  <div class="rodape-acoes">
+    <div class="lado-esquerdo"></div>
+
+    <div class="lado-direito">
+      <app-botao
+        label="Cancelar"
+        variante="stroked"
+        [desabilitado]="estaSalvando()"
+        (click)="voltar()"
+      />
+      <app-botao
+        label="Salvar Avaliações"
+        icone="save"
+        cor="primary"
+        [carregando]="estaSalvando()"
+        [desabilitado]="estaSalvando() || linhas().length === 0"
+        (click)="salvar()"
+      />
+    </div>
+  </div>
+</div>
+}

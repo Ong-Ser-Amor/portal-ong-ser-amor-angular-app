@@ -10,18 +10,21 @@ import { SelectComponent } from '../../../../../shared/components/ui/select/sele
 import { TurmaMatriculaService } from '../../../../../core/services/turma-matricula.service';
 import { BeneficiarioService } from '../../../../../core/services/beneficiario.service';
 import { NotificacaoService } from '../../../../../core/services/notificacao.service';
+import { CriterioAvaliacaoTurma } from '../../../../../core/models/turma.model';
 import {
   AtualizarTurmaMatriculaDto,
   CriarTurmaMatriculaDto,
   OPCOES_RESULTADO_FINAL_MATRICULA,
   OPCOES_STATUS_MATRICULA,
   ResultadoFinalMatricula,
+  StatusMatricula,
   TurmaMatricula,
 } from '../../../../../core/models/turma-matricula.model';
 import { OpcaoSelect } from '../../../../../core/models/opcao-select.model';
 
 export interface DadosModalMatricula {
   turmaId: string;
+  criterioAvaliacao?: CriterioAvaliacaoTurma;
   matricula?: TurmaMatricula | null;
   matriculadosJaIds?: string[];
 }
@@ -56,9 +59,17 @@ export class ModalMatriculaComponent implements OnInit {
 
   readonly opcoesStatusMatricula = OPCOES_STATUS_MATRICULA;
   readonly opcoesResultadoFinal: OpcaoSelect<string>[] = [
-    { valor: '', rotulo: 'Nenhum / Em Andamento' },
+    { valor: '', rotulo: 'Selecione o resultado' },
     ...OPCOES_RESULTADO_FINAL_MATRICULA,
   ];
+
+  get ehMatriculaConcluida(): boolean {
+    return this.form?.get('status')?.value === 'CONCLUIDA';
+  }
+
+  get turmaAvaliaNota(): boolean {
+    return this.data?.criterioAvaliacao === 'POR_NOTA_PRESENCA';
+  }
 
   ngOnInit(): void {
     this.ehEdicao = !!this.data?.matricula;
@@ -69,7 +80,13 @@ export class ModalMatriculaComponent implements OnInit {
         status: [matricula.status || 'ATIVA', [Validators.required]],
         resultadoFinal: [matricula.resultadoFinal || ''],
         notaFinal: [matricula.notaFinal || ''],
-        parecerPedagogico: [matricula.parecerPedagogico || ''],
+        parecerPedagogico: [matricula.parecerPedagogico || '', [Validators.maxLength(500)]],
+      });
+
+      this.atualizarRegrasPorStatus(matricula.status || 'ATIVA');
+
+      this.form.get('status')?.valueChanges.subscribe((novoStatus: StatusMatricula) => {
+        this.atualizarRegrasPorStatus(novoStatus);
       });
     } else {
       this.form = this.fb.group({
@@ -77,6 +94,41 @@ export class ModalMatriculaComponent implements OnInit {
       });
       this.carregarBeneficiarios();
     }
+  }
+
+  atualizarRegrasPorStatus(status: StatusMatricula): void {
+    const resultadoControl = this.form.get('resultadoFinal');
+    const notaControl = this.form.get('notaFinal');
+
+    if (!resultadoControl || !notaControl) return;
+
+    if (status === 'CONCLUIDA') {
+      resultadoControl.enable();
+      if (this.turmaAvaliaNota) {
+        resultadoControl.setValidators([Validators.required]);
+        notaControl.enable();
+        notaControl.setValidators([
+          Validators.required,
+          Validators.pattern(/^\d{1,5}(\.\d{1,2})?$/),
+        ]);
+      } else {
+        resultadoControl.clearValidators();
+        notaControl.disable();
+        notaControl.clearValidators();
+        notaControl.setValue('');
+      }
+    } else {
+      resultadoControl.disable();
+      resultadoControl.clearValidators();
+      resultadoControl.setValue('');
+
+      notaControl.disable();
+      notaControl.clearValidators();
+      notaControl.setValue('');
+    }
+
+    resultadoControl.updateValueAndValidity();
+    notaControl.updateValueAndValidity();
   }
 
   carregarBeneficiarios(): void {
@@ -118,10 +170,13 @@ export class ModalMatriculaComponent implements OnInit {
     const formRaw = this.form.getRawValue();
 
     if (this.ehEdicao && this.data.matricula) {
+      const status = formRaw.status as StatusMatricula;
+      const ehConcluida = status === 'CONCLUIDA';
+
       const payload: AtualizarTurmaMatriculaDto = {
-        status: formRaw.status,
-        resultadoFinal: formRaw.resultadoFinal ? (formRaw.resultadoFinal as ResultadoFinalMatricula) : null,
-        notaFinal: formRaw.notaFinal ? formRaw.notaFinal.toString() : null,
+        status,
+        resultadoFinal: ehConcluida && formRaw.resultadoFinal ? (formRaw.resultadoFinal as ResultadoFinalMatricula) : null,
+        notaFinal: ehConcluida && this.turmaAvaliaNota && formRaw.notaFinal ? formRaw.notaFinal.toString().trim() : null,
         parecerPedagogico: formRaw.parecerPedagogico?.trim() || null,
       };
 
@@ -135,7 +190,22 @@ export class ModalMatriculaComponent implements OnInit {
           },
           error: (erro) => {
             console.error('Erro ao atualizar matrícula:', erro);
-            this.notificacao.erro('Erro ao atualizar a matrícula. Tente novamente.');
+            const codigo = erro?.error?.codigo;
+            let mensagem = 'Erro ao atualizar a matrícula. Verifique os dados e tente novamente.';
+
+            if (codigo === 'MATRICULA_TURMA_POSSUI_AULAS_AGENDADAS') {
+              mensagem = 'Não é possível concluir a matrícula: a turma ainda possui aulas agendadas pendentes.';
+            } else if (codigo === 'MATRICULA_ATIVIDADE_AVALIATIVA_PENDENTE') {
+              mensagem = 'Não é possível concluir a matrícula: existem atividades com notas pendentes para este aluno.';
+            } else if (codigo === 'MATRICULA_TURMA_NAO_EM_ANDAMENTO') {
+              mensagem = 'Não é possível alterar a matrícula: a turma não está em andamento.';
+            } else if (codigo === 'MATRICULA_RESULTADO_FINAL_OBRIGATORIO') {
+              mensagem = 'É obrigatório definir o resultado final para concluir a matrícula nesta turma.';
+            } else if (codigo === 'MATRICULA_NOTA_FINAL_OBRIGATORIA') {
+              mensagem = 'É obrigatório informar a nota final para concluir a matrícula nesta turma.';
+            }
+
+            this.notificacao.erro(mensagem);
           },
         });
     } else {

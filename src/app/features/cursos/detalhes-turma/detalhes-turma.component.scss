@@ -96,6 +96,57 @@
     background-color: #fee2e2;
     color: #b91c1c;
   }
+
+  &.tipo-atividade-exercicio {
+    background-color: #e0f2fe;
+    color: #0369a1;
+  }
+
+  &.tipo-atividade-projeto {
+    background-color: #ede9fe;
+    color: #6d28d9;
+  }
+
+  &.tipo-atividade-prova {
+    background-color: #fef3c7;
+    color: #b45309;
+  }
+
+  &.tipo-atividade-outra {
+    background-color: #f1f5f9;
+    color: #475569;
+  }
+}
+
+.bloco-titulo-tabela {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+
+  .titulo-destaque {
+    font-weight: 500;
+    color: var(--color-text, #1e293b);
+  }
+
+  .subtexto-tabela {
+    font-size: 0.8rem;
+    color: var(--color-text-muted, #64748b);
+    max-width: 350px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.nota-destaque {
+  font-weight: 600;
+  color: #0284c7;
+}
+
+.sem-nota-texto {
+  font-size: 0.85rem;
+  color: var(--color-muted, #64748b);
+  font-style: italic;
 }
 
 .badge-resultado-aprovado {
