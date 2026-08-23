@@ -90,9 +90,19 @@ export class EntregasAtividadeComponent implements OnInit {
     () => this.linhas().filter((l) => l.statusEntrega === 'NAO_ENTREGUE').length
   );
 
+  readonly notaMaximaNumerica = computed<number | null>(() => {
+    const notaMax = this.atividade()?.notaMaxima;
+    return notaMax ? Number(notaMax) : null;
+  });
+
   obterRotuloTipoAtividade(tipo?: TipoAtividade | null): string {
     if (!tipo) return '—';
     return this.rotulosTipoAtividade[tipo] || tipo;
+  }
+
+  obterRotuloStatus(status?: any): string {
+    if (!status) return '—';
+    return this.rotulosStatusEntrega[status as StatusEntregaAtividade] || status;
   }
 
   ngOnInit(): void {
@@ -134,9 +144,9 @@ export class EntregasAtividadeComponent implements OnInit {
             entregaId: item.id,
             matriculaId: item.matriculaId,
             nomeAluno: item.matricula?.nomeAluno || 'Aluno sem nome',
-            statusEntrega: item.statusEntrega || 'PENDENTE',
+            statusEntrega: (item.statusEntrega || 'PENDENTE') as StatusEntregaAtividade,
             notaObtida:
-              this.permiteNotaAluno(item.statusEntrega || 'PENDENTE') &&
+              this.permiteNota((item.statusEntrega || 'PENDENTE') as StatusEntregaAtividade) &&
               item.notaObtida !== null &&
               item.notaObtida !== undefined
                 ? String(item.notaObtida)
@@ -159,12 +169,12 @@ export class EntregasAtividadeComponent implements OnInit {
     });
   }
 
-  permiteNotaAluno(status: StatusEntregaAtividade): boolean {
+  permiteNota(status: StatusEntregaAtividade): boolean {
     return status === 'ENTREGUE' || status === 'ENTREGUE_COM_ATRASO';
   }
 
-  aoAlterarStatus(linha: ItemLinhaEntrega): void {
-    if (!this.permiteNotaAluno(linha.statusEntrega)) {
+  alterarStatus(linha: ItemLinhaEntrega): void {
+    if (!this.permiteNota(linha.statusEntrega)) {
       linha.notaObtida = '';
     }
   }
@@ -182,10 +192,10 @@ export class EntregasAtividadeComponent implements OnInit {
     const valeNota = atividadeAtual?.valeNota;
     const notaMaxima = atividadeAtual?.notaMaxima ? Number(atividadeAtual.notaMaxima) : null;
 
-    // Validar notas caso a atividade valha nota (apenas para alunos com entrega realizada)
+    // Validar notas caso a atividade valha nota
     if (valeNota && notaMaxima !== null) {
       for (const item of itens) {
-        if (this.permiteNotaAluno(item.statusEntrega) && item.notaObtida && item.notaObtida.trim() !== '') {
+        if (this.permiteNota(item.statusEntrega) && item.notaObtida && item.notaObtida.trim() !== '') {
           const valorNota = Number(item.notaObtida.trim());
           if (isNaN(valorNota) || valorNota < 0 || valorNota > notaMaxima) {
             this.notificacao.erro(
@@ -204,8 +214,9 @@ export class EntregasAtividadeComponent implements OnInit {
       statusEntrega: item.statusEntrega,
       notaObtida:
         valeNota &&
-        this.permiteNotaAluno(item.statusEntrega) &&
-        item.notaObtida?.trim() !== ''
+        this.permiteNota(item.statusEntrega) &&
+        item.notaObtida !== null &&
+        item.notaObtida.trim() !== ''
           ? item.notaObtida.trim()
           : null,
       observacao: item.observacao?.trim() || null,
@@ -221,7 +232,7 @@ export class EntregasAtividadeComponent implements OnInit {
         this.estaSalvando.set(false);
         this.voltar();
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Erro ao salvar entregas:', err);
         this.notificacao.erro(
           'Erro ao salvar as avaliações da atividade. Verifique os dados e tente novamente.'

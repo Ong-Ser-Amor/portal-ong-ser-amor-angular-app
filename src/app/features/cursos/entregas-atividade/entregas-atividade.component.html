@@ -112,7 +112,7 @@
 
           <div class="status-badge-visual">
             <span class="badge-status status-entrega-{{ linha.statusEntrega.toLowerCase() }}">
-              {{ rotulosStatusEntrega[linha.statusEntrega] || linha.statusEntrega }}
+              {{ obterRotuloStatus(linha.statusEntrega) }}
             </span>
           </div>
         </div>
@@ -124,7 +124,7 @@
               label="Status da Entrega"
               [opcoes]="opcoesStatusEntrega"
               [(ngModel)]="linha.statusEntrega"
-              (ngModelChange)="aoAlterarStatus(linha)"
+              (ngModelChange)="alterarStatus(linha)"
               [required]="true"
             />
           </div>
@@ -133,11 +133,14 @@
           <div class="campo-nota">
             <app-input
               label="Nota Obtida"
+              type="number"
+              [min]="0"
+              [max]="notaMaximaNumerica() ?? undefined"
+              [step]="0.01"
               placeholder="Ex: 8.50"
               [(ngModel)]="linha.notaObtida"
-              [disabled]="!permiteNotaAluno(linha.statusEntrega)"
+              [disabled]="!permiteNota(linha.statusEntrega)"
               [maxLength]="8"
-              [hint]="permiteNotaAluno(linha.statusEntrega) ? ('Máx: ' + (atividade()?.notaMaxima || '-')) : ''"
             />
           </div>
           }

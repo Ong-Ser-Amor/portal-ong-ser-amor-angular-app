@@ -5,6 +5,7 @@ import {
   inject,
   output,
   DoCheck,
+  OnInit,
   ViewChild,
 } from '@angular/core';
 import {
@@ -15,6 +16,8 @@ import {
   AbstractControl,
   FormGroupDirective,
   NgForm,
+  ValidationErrors,
+  Validator,
 } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -60,7 +63,7 @@ export type InputErrorMessages = Record<string, InputErrorMessage>;
   templateUrl: './input.component.html',
   styleUrl: './input.component.scss',
 })
-export class InputComponent implements ControlValueAccessor, DoCheck {
+export class InputComponent implements ControlValueAccessor, Validator, OnInit, DoCheck {
   public ngControl = inject(NgControl, {
     optional: true,
     self: true,
@@ -125,6 +128,44 @@ export class InputComponent implements ControlValueAccessor, DoCheck {
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
     }
+  }
+
+  ngOnInit(): void {
+    if (this.ngControl?.control) {
+      const control = this.ngControl.control;
+      const existingValidator = control.validator;
+      control.setValidators([
+        existingValidator ? existingValidator : () => null,
+        (c) => this.validate(c),
+      ]);
+      control.updateValueAndValidity({ emitEvent: false });
+    }
+  }
+
+  validate(control: AbstractControl): ValidationErrors | null {
+    const val = control.value;
+    if (val === null || val === undefined || val === '') {
+      if (this.required()) {
+        return { required: true };
+      }
+      return null;
+    }
+
+    if (this.max() !== undefined && this.max() !== null) {
+      const numVal = Number(String(val).replace(',', '.'));
+      if (!isNaN(numVal) && numVal > this.max()!) {
+        return { max: { max: this.max(), actual: numVal } };
+      }
+    }
+
+    if (this.min() !== undefined && this.min() !== null) {
+      const numVal = Number(String(val).replace(',', '.'));
+      if (!isNaN(numVal) && numVal < this.min()!) {
+        return { min: { min: this.min(), actual: numVal } };
+      }
+    }
+
+    return null;
   }
 
   ngDoCheck(): void {
