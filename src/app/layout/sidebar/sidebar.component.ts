@@ -22,6 +22,5 @@ export class SidebarComponent {
     { label: 'Beneficiários', icon: 'groups', route: '/beneficiarios' },
     { label: 'Cursos', icon: 'school', route: '/cursos' },
     { label: 'Voluntários', icon: 'volunteer_activism', route: '/voluntarios' },
-    { label: 'Alunos', icon: 'person', route: '/alunos' }, // Exemplo futuro
   ];
 }
