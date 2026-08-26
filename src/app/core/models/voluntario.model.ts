@@ -2,7 +2,12 @@ import { Pessoa, PessoaResumo } from './pessoa.model';
 import { OpcaoSelect } from './opcao-select.model';
 
 export type NivelFormacao = 'COMPLETO' | 'CURSANDO' | 'INCOMPLETO';
-export type TipoVoluntario = 'COORDENADOR' | 'PROFESSOR' | 'GERAL';
+export type TipoVoluntario = 'COORDENADOR_CURSOS' | 'PROFESSOR';
+
+export const ROTULOS_TIPO_VOLUNTARIO: Record<TipoVoluntario, string> = {
+  COORDENADOR_CURSOS: 'Coordenador de Cursos',
+  PROFESSOR: 'Professor',
+};
 
 export const OPCOES_NIVEL_FORMACAO: OpcaoSelect<NivelFormacao>[] = [
   { valor: 'COMPLETO', rotulo: 'Completo' },
@@ -11,9 +16,8 @@ export const OPCOES_NIVEL_FORMACAO: OpcaoSelect<NivelFormacao>[] = [
 ];
 
 export const OPCOES_TIPO_VOLUNTARIO: OpcaoSelect<TipoVoluntario>[] = [
-  { valor: 'COORDENADOR', rotulo: 'Coordenador' },
-  { valor: 'PROFESSOR', rotulo: 'Professor' },
-  { valor: 'GERAL', rotulo: 'Geral' },
+  { valor: 'COORDENADOR_CURSOS', rotulo: ROTULOS_TIPO_VOLUNTARIO.COORDENADOR_CURSOS },
+  { valor: 'PROFESSOR', rotulo: ROTULOS_TIPO_VOLUNTARIO.PROFESSOR },
 ];
 
 export interface VoluntarioResumo {

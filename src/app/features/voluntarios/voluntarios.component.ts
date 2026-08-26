@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { VoluntarioService } from '../../core/services/voluntario.service';
-import { VoluntarioResumo } from '../../core/models/voluntario.model';
 import { CommonModule } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -16,7 +15,12 @@ import { TabelaCelulaDirective } from '../../shared/components/ui/tabela/directi
 import { ModalCadastroUsuarioComponent } from './components/modal-cadastro-usuario/modal-cadastro-usuario.component';
 import { ModalConfirmacaoComponent } from '../../shared/components/ui/modal-confirmacao/modal-confirmacao.component';
 import { CONFIG_MODAL } from '../../shared/components/ui/modal/modal.config';
-import { FiltroBuscaVoluntario } from '../../core/models/voluntario.model';
+import {
+  FiltroBuscaVoluntario,
+  ROTULOS_TIPO_VOLUNTARIO,
+  TipoVoluntario,
+  VoluntarioResumo,
+} from '../../core/models/voluntario.model';
 import { NotificacaoService } from '../../core/services/notificacao.service';
 
 @Component({
@@ -40,6 +44,13 @@ export class VoluntariosComponent implements OnInit {
   private voluntarioService = inject(VoluntarioService);
   private dialog = inject(MatDialog);
   private notificacao = inject(NotificacaoService);
+
+  readonly rotulosTipoVoluntario = ROTULOS_TIPO_VOLUNTARIO;
+
+  obterRotuloTipoVoluntario(tipo?: TipoVoluntario | string | null): string {
+    if (!tipo) return '';
+    return this.rotulosTipoVoluntario[tipo as TipoVoluntario] || tipo;
+  }
 
   voluntarios = signal<VoluntarioResumo[]>([]);
   estaCarregando = signal(false);

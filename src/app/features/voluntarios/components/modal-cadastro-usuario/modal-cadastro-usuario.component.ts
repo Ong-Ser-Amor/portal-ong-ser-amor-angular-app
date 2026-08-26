@@ -16,7 +16,9 @@ import { finalize } from 'rxjs';
 
 import { ModalComponent } from '../../../../shared/components/ui/modal/modal.component';
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
+import { SelectComponent } from '../../../../shared/components/ui/select/select.component';
 import { Voluntario, VoluntarioResumo } from '../../../../core/models/voluntario.model';
+import { OPCOES_PERFIL_ACESSO, PerfilAcesso } from '../../../../core/models/usuario.model';
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import { NotificacaoService } from '../../../../core/services/notificacao.service';
 
@@ -32,6 +34,7 @@ export interface DadosModalCadastroUsuario {
     ReactiveFormsModule,
     ModalComponent,
     InputComponent,
+    SelectComponent,
   ],
   templateUrl: './modal-cadastro-usuario.component.html',
   styleUrl: './modal-cadastro-usuario.component.scss',
@@ -43,6 +46,7 @@ export class ModalCadastroUsuarioComponent implements OnInit {
   private readonly notificacao = inject(NotificacaoService);
 
   readonly dados = inject<DadosModalCadastroUsuario>(MAT_DIALOG_DATA);
+  readonly opcoesPerfisAcesso = OPCOES_PERFIL_ACESSO;
 
   form!: FormGroup;
   salvando = signal<boolean>(false);
@@ -51,11 +55,23 @@ export class ModalCadastroUsuarioComponent implements OnInit {
     this.form = this.fb.group(
       {
         email: ['', [Validators.required, Validators.email]],
+        perfisAcesso: [this.obterPerfisIniciais(), [Validators.required]],
         senha: ['', [Validators.required, Validators.minLength(8)]],
         confirmarSenha: ['', [Validators.required]],
       },
       { validators: this.senhasIguaisValidator }
     );
+  }
+
+  private obterPerfisIniciais(): PerfilAcesso[] {
+    const tipo = this.dados.voluntario?.tipoVoluntario as string;
+    if (tipo === 'COORDENADOR' || tipo === 'COORDENADOR_CURSOS') {
+      return ['COORDENADOR_CURSOS'];
+    }
+    if (tipo === 'PROFESSOR') {
+      return ['PROFESSOR'];
+    }
+    return ['PROFESSOR'];
   }
 
   salvar(): void {
@@ -66,13 +82,14 @@ export class ModalCadastroUsuarioComponent implements OnInit {
 
     this.salvando.set(true);
 
-    const { email, senha } = this.form.getRawValue();
+    const { email, senha, perfisAcesso } = this.form.getRawValue();
 
     this.usuarioService
       .criar({
         voluntarioId: this.dados.voluntario.id,
         email: email ?? '',
         senha: senha ?? '',
+        perfisAcesso: perfisAcesso ?? [],
       })
       .pipe(finalize(() => this.salvando.set(false)))
       .subscribe({

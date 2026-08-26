@@ -21,6 +21,15 @@
       autocomplete="email"
     />
 
+    <app-select
+      formControlName="perfisAcesso"
+      label="Perfis de Acesso"
+      placeholder="Selecione os perfis"
+      [opcoes]="opcoesPerfisAcesso"
+      [multiple]="true"
+      [required]="true"
+    />
+
     <app-input
       formControlName="senha"
       label="Senha"
