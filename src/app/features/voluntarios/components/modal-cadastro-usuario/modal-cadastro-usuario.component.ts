@@ -18,7 +18,7 @@ import { ModalComponent } from '../../../../shared/components/ui/modal/modal.com
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import { SelectComponent } from '../../../../shared/components/ui/select/select.component';
 import { Voluntario, VoluntarioResumo } from '../../../../core/models/voluntario.model';
-import { OPCOES_PERFIL_ACESSO, PerfilAcesso } from '../../../../core/models/usuario.model';
+import { OPCOES_PERFIL_ACESSO, PERFIL_ACESSO, PerfilAcesso } from '../../../../core/models/usuario.model';
 import { UsuarioService } from '../../../../core/services/usuario.service';
 import { NotificacaoService } from '../../../../core/services/notificacao.service';
 
@@ -64,14 +64,14 @@ export class ModalCadastroUsuarioComponent implements OnInit {
   }
 
   private obterPerfisIniciais(): PerfilAcesso[] {
-    const tipo = this.dados.voluntario?.tipoVoluntario as string;
-    if (tipo === 'COORDENADOR' || tipo === 'COORDENADOR_CURSOS') {
-      return ['COORDENADOR_CURSOS'];
+    const tipo = this.dados.voluntario?.tipoVoluntario;
+    if (tipo === 'COORDENADOR_CURSOS') {
+      return [PERFIL_ACESSO.COORDENADOR_CURSOS];
     }
     if (tipo === 'PROFESSOR') {
-      return ['PROFESSOR'];
+      return [PERFIL_ACESSO.PROFESSOR];
     }
-    return ['PROFESSOR'];
+    return [PERFIL_ACESSO.PROFESSOR];
   }
 
   salvar(): void {

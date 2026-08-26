@@ -1,11 +1,17 @@
 import { OpcaoSelect } from './opcao-select.model';
 
-export type PerfilAcesso = 'ADMIN' | 'COORDENADOR_CURSOS' | 'PROFESSOR';
+export const PERFIL_ACESSO = {
+  ADMINISTRADOR: 'ADMINISTRADOR',
+  COORDENADOR_CURSOS: 'COORDENADOR_CURSOS',
+  PROFESSOR: 'PROFESSOR',
+} as const;
+
+export type PerfilAcesso = (typeof PERFIL_ACESSO)[keyof typeof PERFIL_ACESSO];
 
 export const OPCOES_PERFIL_ACESSO: OpcaoSelect<PerfilAcesso>[] = [
-  { valor: 'ADMIN', rotulo: 'Administrador' },
-  { valor: 'COORDENADOR_CURSOS', rotulo: 'Coordenador de Cursos' },
-  { valor: 'PROFESSOR', rotulo: 'Professor' },
+  { valor: PERFIL_ACESSO.ADMINISTRADOR, rotulo: 'Administrador' },
+  { valor: PERFIL_ACESSO.COORDENADOR_CURSOS, rotulo: 'Coordenador de Cursos' },
+  { valor: PERFIL_ACESSO.PROFESSOR, rotulo: 'Professor' },
 ];
 
 export interface Usuario {

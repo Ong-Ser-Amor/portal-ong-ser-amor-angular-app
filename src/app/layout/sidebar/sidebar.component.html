@@ -4,7 +4,7 @@
     <span class="logo-text">ONG Ser Amor</span>
   </div>
   <mat-nav-list>
-    @for (item of menuItems; track item.route) {
+    @for (item of menuItems(); track item.route) {
     <a mat-list-item [routerLink]="item.route" routerLinkActive="active-link">
       <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
       <span matListItemTitle>{{ item.label }}</span>
