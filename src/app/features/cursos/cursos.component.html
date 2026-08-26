@@ -1,10 +1,12 @@
 <app-cabecalho-pagina titulo="Cursos">
-  <app-botao label="Novo Curso" icone="add" cor="primary" (click)="adicionar()" />
+  @if (autorizacaoService.podeGerenciarCursos()) {
+    <app-botao label="Novo Curso" icone="add" cor="primary" (click)="adicionar()" />
+  }
 </app-cabecalho-pagina>
 
 <app-tabela
   [dados]="cursos()"
-  [colunas]="colunas"
+  [colunas]="colunas()"
   [carregando]="estaCarregando()"
   [clicavel]="true"
   (linhaClicada)="verDetalhes($event)"
@@ -14,19 +16,21 @@
   [itensPorPagina]="itensPorPagina()"
   (paginaAlterada)="mudarPagina($event)"
 >
-  <ng-template appTabelaCelula="acoes" let-curso>
-    <app-botao
-      variante="icon"
-      icone="edit"
-      cor="primary"
-      (click)="$event.stopPropagation(); editar(curso)"
-    />
-    <app-botao
-      variante="icon"
-      icone="delete"
-      cor="warn"
-      [desabilitado]="estaCarregando()"
-      (click)="$event.stopPropagation(); excluir(curso)"
-    />
-  </ng-template>
+  @if (autorizacaoService.podeGerenciarCursos()) {
+    <ng-template appTabelaCelula="acoes" let-curso>
+      <app-botao
+        variante="icon"
+        icone="edit"
+        cor="primary"
+        (click)="$event.stopPropagation(); editar(curso)"
+      />
+      <app-botao
+        variante="icon"
+        icone="delete"
+        cor="warn"
+        [desabilitado]="estaCarregando()"
+        (click)="$event.stopPropagation(); excluir(curso)"
+      />
+    </ng-template>
+  }
 </app-tabela>

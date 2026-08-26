@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -17,6 +17,7 @@ import { NotificacaoService } from '../../../core/services/notificacao.service';
 import { CursoService } from '../../../core/services/curso.service';
 import { PlanoCursoService } from '../../../core/services/plano-curso.service';
 import { TurmaService } from '../../../core/services/turma.service';
+import { AutorizacaoService } from '../../../core/services/autorizacao.service';
 import { Curso } from '../../../core/models/curso.model';
 import { PlanoCurso } from '../../../core/models/plano-curso.model';
 import { ROTULOS_STATUS_TURMA, Turma, TurmaResumo } from '../../../core/models/turma.model';
@@ -50,6 +51,7 @@ export class DetalhesCursoComponent implements OnInit {
   private readonly planoCursoService = inject(PlanoCursoService);
   private readonly turmaService = inject(TurmaService);
   private readonly notificacao = inject(NotificacaoService);
+  readonly autorizacaoService = inject(AutorizacaoService);
 
   cursoId = signal<string | null>(null);
   curso = signal<Curso | null>(null);
@@ -62,10 +64,15 @@ export class DetalhesCursoComponent implements OnInit {
   itensPorPaginaPlanos = signal<number>(10);
   totalItensPlanos = signal<number>(0);
 
-  colunasPlanos: ColunaTabela<PlanoCurso>[] = [
-    { chave: 'nome', titulo: 'Nome do Plano de Curso' },
-    { chave: 'acoes', titulo: 'Ações' },
-  ];
+  colunasPlanos = computed<ColunaTabela<PlanoCurso>[]>(() => {
+    const col: ColunaTabela<PlanoCurso>[] = [
+      { chave: 'nome', titulo: 'Nome do Plano de Curso' },
+    ];
+    if (this.autorizacaoService.podeGerenciarCursos()) {
+      col.push({ chave: 'acoes', titulo: 'Ações' });
+    }
+    return col;
+  });
 
   // Estados de listagem de turmas
   turmas = signal<TurmaResumo[]>([]);

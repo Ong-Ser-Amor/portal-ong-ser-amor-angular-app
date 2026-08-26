@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Curso } from '../../core/models/curso.model';
 import { CommonModule } from '@angular/common';
@@ -13,6 +13,7 @@ import {
 import { TabelaCelulaDirective } from '../../shared/components/ui/tabela/directives/tabela-celula.directive';
 import { CursoService } from '../../core/services/curso.service';
 import { NotificacaoService } from '../../core/services/notificacao.service';
+import { AutorizacaoService } from '../../core/services/autorizacao.service';
 import { ModalCursoComponent } from './components/modal-curso/modal-curso.component';
 import { ModalConfirmacaoComponent } from '../../shared/components/ui/modal-confirmacao/modal-confirmacao.component';
 import { CONFIG_MODAL } from '../../shared/components/ui/modal/modal.config';
@@ -35,6 +36,7 @@ export class CursosComponent implements OnInit {
   private cursoService = inject(CursoService);
   private dialog = inject(MatDialog);
   private notificacao = inject(NotificacaoService);
+  readonly autorizacaoService = inject(AutorizacaoService);
 
   cursos = signal<Curso[]>([]);
   estaCarregando = signal(false);
@@ -44,10 +46,13 @@ export class CursosComponent implements OnInit {
   itensPorPagina = signal(5);
   totalItens = signal(0);
 
-  colunas: ColunaTabela<Curso>[] = [
-    { chave: 'nome', titulo: 'Nome' },
-    { chave: 'acoes', titulo: '' },
-  ];
+  colunas = computed<ColunaTabela<Curso>[]>(() => {
+    const col: ColunaTabela<Curso>[] = [{ chave: 'nome', titulo: 'Nome' }];
+    if (this.autorizacaoService.podeGerenciarCursos()) {
+      col.push({ chave: 'acoes', titulo: '' });
+    }
+    return col;
+  });
 
   ngOnInit(): void {
     this.carregarCursos();

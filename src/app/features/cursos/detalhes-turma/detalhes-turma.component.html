@@ -195,27 +195,31 @@
       <section class="secao-detalhe">
         <div class="secao-cabecalho">
           <h2 class="secao-titulo">Professores Vinculados</h2>
-          <app-botao
-            label="Vincular Professor"
-            icone="person_add"
-            cor="primary"
-            (click)="abrirModalVincularProfessor()"
-          />
+          @if (autorizacaoService.podeGerenciarCursos()) {
+            <app-botao
+              label="Vincular Professor"
+              icone="person_add"
+              cor="primary"
+              (click)="abrirModalVincularProfessor()"
+            />
+          }
         </div>
 
         <app-tabela
           [dados]="dadosTurma.professores || []"
-          [colunas]="colunasProfessores"
+          [colunas]="colunasProfessores()"
           textoSemDados="Nenhum professor vinculado a esta turma."
         >
-          <ng-template appTabelaCelula="acoes" let-professor>
-            <app-botao
-              variante="icon"
-              icone="delete"
-              cor="warn"
-              (click)="desvincularProfessor(professor)"
-            />
-          </ng-template>
+          @if (autorizacaoService.podeGerenciarCursos()) {
+            <ng-template appTabelaCelula="acoes" let-professor>
+              <app-botao
+                variante="icon"
+                icone="delete"
+                cor="warn"
+                (click)="desvincularProfessor(professor)"
+              />
+            </ng-template>
+          }
         </app-tabela>
       </section>
 
@@ -223,12 +227,14 @@
       <section class="secao-detalhe">
         <div class="secao-cabecalho">
           <h2 class="secao-titulo">Alunos Matriculados</h2>
-          <app-botao
-            label="Matricular Aluno"
-            icone="person_add"
-            cor="primary"
-            (click)="adicionarMatricula()"
-          />
+          @if (autorizacaoService.podeGerenciarCursos()) {
+            <app-botao
+              label="Matricular Aluno"
+              icone="person_add"
+              cor="primary"
+              (click)="adicionarMatricula()"
+            />
+          }
         </div>
 
         <app-tabela
@@ -271,13 +277,15 @@
               cor="primary"
               (click)="editarMatricula(matricula)"
             />
-            <app-botao
-              variante="icon"
-              icone="delete"
-              cor="warn"
-              [desabilitado]="estaCarregandoMatriculas()"
-              (click)="excluirMatricula(matricula)"
-            />
+            @if (autorizacaoService.podeGerenciarCursos()) {
+              <app-botao
+                variante="icon"
+                icone="delete"
+                cor="warn"
+                [desabilitado]="estaCarregandoMatriculas()"
+                (click)="excluirMatricula(matricula)"
+              />
+            }
           </ng-template>
         </app-tabela>
       </section>

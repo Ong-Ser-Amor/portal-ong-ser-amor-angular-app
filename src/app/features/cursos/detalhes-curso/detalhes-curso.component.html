@@ -11,23 +11,27 @@
     <section class="secao-detalhe">
       <div class="secao-cabecalho">
         <h2 class="secao-titulo">Planos de Curso</h2>
-        <app-botao label="Novo Plano" icone="add" cor="primary" (click)="adicionarPlanoCurso()" />
+        @if (autorizacaoService.podeGerenciarCursos()) {
+          <app-botao label="Novo Plano" icone="add" cor="primary" (click)="adicionarPlanoCurso()" />
+        }
       </div>
 
-      <app-tabela [dados]="planos()" [colunas]="colunasPlanos" [carregando]="estaCarregandoPlanos()"
+      <app-tabela [dados]="planos()" [colunas]="colunasPlanos()" [carregando]="estaCarregandoPlanos()"
         textoSemDados="Nenhum plano de curso encontrado." [totalItens]="totalItensPlanos()"
         [paginaAtual]="paginaAtualPlanos()" [itensPorPagina]="itensPorPaginaPlanos()"
         (paginaAlterada)="mudarPaginaPlanos($event)">
-        <ng-template appTabelaCelula="acoes" let-plano>
-          <app-botao variante="icon" icone="edit" cor="primary" (click)="editarPlanoCurso(plano)" />
-          <app-botao
-            variante="icon"
-            icone="delete"
-            cor="warn"
-            [desabilitado]="estaCarregandoPlanos()"
-            (click)="excluirPlanoCurso(plano)"
-          />
-        </ng-template>
+        @if (autorizacaoService.podeGerenciarCursos()) {
+          <ng-template appTabelaCelula="acoes" let-plano>
+            <app-botao variante="icon" icone="edit" cor="primary" (click)="editarPlanoCurso(plano)" />
+            <app-botao
+              variante="icon"
+              icone="delete"
+              cor="warn"
+              [desabilitado]="estaCarregandoPlanos()"
+              (click)="excluirPlanoCurso(plano)"
+            />
+          </ng-template>
+        }
       </app-tabela>
     </section>
 
@@ -35,7 +39,9 @@
     <section class="secao-detalhe">
       <div class="secao-cabecalho">
         <h2 class="secao-titulo">Turmas</h2>
-        <app-botao label="Nova Turma" icone="add" cor="primary" (click)="adicionarTurma()" />
+        @if (autorizacaoService.podeGerenciarCursos()) {
+          <app-botao label="Nova Turma" icone="add" cor="primary" (click)="adicionarTurma()" />
+        }
       </div>
 
       <app-tabela
@@ -57,19 +63,21 @@
             cor="primary"
             (click)="$event.stopPropagation(); verDetalhesTurma(turma)"
           />
-          <app-botao
-            variante="icon"
-            icone="edit"
-            cor="primary"
-            (click)="$event.stopPropagation(); editarTurma(turma)"
-          />
-          <app-botao
-            variante="icon"
-            icone="delete"
-            cor="warn"
-            [desabilitado]="estaCarregandoTurmas()"
-            (click)="$event.stopPropagation(); excluirTurma(turma)"
-          />
+          @if (autorizacaoService.podeGerenciarCursos()) {
+            <app-botao
+              variante="icon"
+              icone="edit"
+              cor="primary"
+              (click)="$event.stopPropagation(); editarTurma(turma)"
+            />
+            <app-botao
+              variante="icon"
+              icone="delete"
+              cor="warn"
+              [desabilitado]="estaCarregandoTurmas()"
+              (click)="$event.stopPropagation(); excluirTurma(turma)"
+            />
+          }
         </ng-template>
       </app-tabela>
     </section>

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -20,6 +20,7 @@ import { TurmaService } from '../../../core/services/turma.service';
 import { AulaService } from '../../../core/services/aula.service';
 import { TurmaMatriculaService } from '../../../core/services/turma-matricula.service';
 import { TurmaAtividadeService } from '../../../core/services/turma-atividade.service';
+import { AutorizacaoService } from '../../../core/services/autorizacao.service';
 import {
   ProfessorResumo,
   ROTULOS_CRITERIO_AVALIACAO_TURMA,
@@ -78,6 +79,7 @@ export class DetalhesTurmaComponent implements OnInit {
   private readonly turmaMatriculaService = inject(TurmaMatriculaService);
   private readonly turmaAtividadeService = inject(TurmaAtividadeService);
   private readonly notificacao = inject(NotificacaoService);
+  readonly autorizacaoService = inject(AutorizacaoService);
 
   cursoId = signal<string | null>(null);
   turmaId = signal<string | null>(null);
@@ -111,10 +113,15 @@ export class DetalhesTurmaComponent implements OnInit {
   ];
 
   // Professores
-  colunasProfessores: ColunaTabela<ProfessorResumo>[] = [
-    { chave: 'nome', titulo: 'Nome do Professor' },
-    { chave: 'acoes', titulo: 'Ações' },
-  ];
+  colunasProfessores = computed<ColunaTabela<ProfessorResumo>[]>(() => {
+    const col: ColunaTabela<ProfessorResumo>[] = [
+      { chave: 'nome', titulo: 'Nome do Professor' },
+    ];
+    if (this.autorizacaoService.podeGerenciarCursos()) {
+      col.push({ chave: 'acoes', titulo: 'Ações' });
+    }
+    return col;
+  });
 
   // Alunos / Matrículas
   matriculas = signal<TurmaMatricula[]>([]);
